@@ -29,3 +29,9 @@ def test_dashboard_api_helpers_use_live_summary_endpoints():
     assert '"/replay/start"' in api
     assert '"/replay/pause"' in api
     assert '"/replay/status"' in api
+    assert "export function fetchUpliftMetrics" in api
+    assert "export function fetchPolicyVersions" in api
+    assert "export function createDecisionRecord" in api
+    assert '"/metrics/uplift"' in api
+    assert '"/policies/versions"' in api
+    assert '"/decision-records"' in api

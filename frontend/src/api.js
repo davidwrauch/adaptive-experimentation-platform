@@ -58,6 +58,46 @@ export function fetchReplayStatus() {
   return request("/replay/status");
 }
 
+export function fetchUpliftMetrics() {
+  return request("/metrics/uplift");
+}
+
+export function fetchPolicyVersions() {
+  return request("/policies/versions");
+}
+
+export function createPolicyVersion(payload) {
+  return request("/policies/versions", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function promotePolicyVersion(payload) {
+  return request("/policies/promote", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function rollbackPolicyVersion(payload) {
+  return request("/policies/rollback", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function fetchDecisionRecords(limit = 10) {
+  return request(`/decision-records?limit=${limit}`);
+}
+
+export function createDecisionRecord(payload) {
+  return request("/decision-records", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
 export function simulateDecision(policy) {
   return request("/policies/simulate", {
     method: "POST",

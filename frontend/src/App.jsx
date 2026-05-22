@@ -9,6 +9,7 @@ import {
 import AssignmentPanel from "./components/AssignmentPanel";
 import BayesianPanel from "./components/BayesianPanel";
 import DashboardSection from "./components/DashboardSection";
+import DecisionLogPanel from "./components/DecisionLogPanel";
 import DemoScenario from "./components/DemoScenario";
 import EventStream from "./components/EventStream";
 import ExplorationBudgetPanel from "./components/ExplorationBudgetPanel";
@@ -18,11 +19,13 @@ import MetricsCards from "./components/MetricsCards";
 import MessagingGenerationPanel from "./components/MessagingGenerationPanel";
 import ObservabilityPanel from "./components/ObservabilityPanel";
 import PolicyDashboard from "./components/PolicyDashboard";
+import PolicyLifecyclePanel from "./components/PolicyLifecyclePanel";
 import RiskMonitoringPanel from "./components/RiskMonitoringPanel";
 import RolloutControlsPanel from "./components/RolloutControlsPanel";
 import ReplayControlsPanel from "./components/ReplayControlsPanel";
 import StreamingStatusPanel from "./components/StreamingStatusPanel";
 import TradeoffPanel from "./components/TradeoffPanel";
+import UpliftPanel from "./components/UpliftPanel";
 import { HelpLabel } from "./components/InfoTooltip";
 
 const LIVE_INTERVAL_SECONDS = 10;
@@ -169,6 +172,7 @@ export default function App() {
                 <PolicyDashboard metrics={metrics} onSimulate={handleSimulate} />
                 <TradeoffPanel metrics={metrics} />
                 <GovernancePanel metrics={metrics} />
+                <UpliftPanel />
                 <BayesianPanel bayesian={metrics.bayesian} />
                 <ExplorationBudgetPanel exploration={metrics.exploration} />
               </DashboardSection>
@@ -183,8 +187,10 @@ export default function App() {
               >
                 <ObservabilityPanel observability={metrics.observability} />
                 <GovernancePanel metrics={metrics} />
+                <PolicyLifecyclePanel />
                 <RolloutControlsPanel rollout={metrics.rollout} onChanged={refresh} />
                 <RiskMonitoringPanel metrics={metrics} />
+                <DecisionLogPanel metrics={metrics} />
               </DashboardSection>
             </div>
           )}

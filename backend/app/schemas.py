@@ -85,6 +85,50 @@ class ReplayStatusResponse(BaseModel):
     message: str
 
 
+class PolicyVersionCreate(BaseModel):
+    policy_name: str
+    version: str
+    status: str = Field(default="candidate", pattern="^(candidate|champion|challenger|archived)$")
+    rollback_target: str | None = None
+    notes: str = ""
+
+
+class PolicyVersionRead(PolicyVersionCreate):
+    id: int
+    created_at: datetime
+    deployed_at: datetime | None = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class PolicyPromotionRequest(BaseModel):
+    policy_name: str
+    version: str
+    operator_reason: str = ""
+
+
+class PolicyRollbackRequest(BaseModel):
+    policy_name: str
+    target_version: str | None = None
+    operator_reason: str = ""
+
+
+class DecisionRecordCreate(BaseModel):
+    decision_type: str = Field(pattern="^(deploy|pause|rollback|human_review|abstain)$")
+    policy: str
+    evidence_summary: str = ""
+    metrics_snapshot: dict[str, Any] = Field(default_factory=dict)
+    operator_reason: str = ""
+    system_recommendation: str = ""
+
+
+class DecisionRecordRead(DecisionRecordCreate):
+    id: int
+    timestamp: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 class MessagingGenerationRequest(BaseModel):
     user_id: str = "sample-user"
     policy: str = "linucb"

@@ -458,6 +458,14 @@ h2 {
   grid-template-columns: 1.2fr 0.7fr 0.7fr 0.7fr 0.9fr 1.5fr;
 }
 
+.lifecycle-row {
+  grid-template-columns: 1.2fr 0.7fr 1fr 1fr 1.5fr;
+}
+
+.compact-metrics {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
 .risk-grid {
   display: grid;
   gap: 8px;

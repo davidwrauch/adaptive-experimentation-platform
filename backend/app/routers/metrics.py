@@ -20,6 +20,7 @@ from app.services.monitoring import run_observability_checks
 from app.services.ope import estimate_policy_value
 from app.services.rollout import list_policy_controls, rollout_recommendation
 from app.services.streaming import streaming_status
+from app.services.uplift import uplift_metrics
 
 router = APIRouter(prefix="/metrics", tags=["metrics"])
 
@@ -45,6 +46,11 @@ def get_metrics_details(db: Session = Depends(get_db)) -> MetricsResponse:
 @router.get("", response_model=MetricsResponse)
 def get_metrics(db: Session = Depends(get_db)) -> MetricsResponse:
     return get_metrics_details(db)
+
+
+@router.get("/uplift")
+def get_uplift_metrics(db: Session = Depends(get_db)) -> dict:
+    return uplift_metrics(recent_events(db, limit=RECENT_WINDOW_LIMIT))
 
 
 def _metrics_response(db: Session, policies, capped_events) -> MetricsResponse:

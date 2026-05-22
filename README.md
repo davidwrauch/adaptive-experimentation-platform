@@ -220,6 +220,9 @@ See [Deployment Guide](docs/deployment.md) and [Architecture](docs/architecture.
 - **Observability:** experiment quality checks identify when data is no longer trustworthy.
 - **Exploration budgets:** segment-level limits prevent over-exploration of high-risk users.
 - **Bayesian sequential testing:** beta-binomial comparisons produce continue/expand/stop/review guidance.
+- **Causal incrementality:** treatment effects compare adaptive policy outcomes against static/control counterfactuals, including segment-level CATE and budget allocation guidance.
+- **Policy lifecycle:** policy versions move through candidate, challenger, champion, and archived states with rollback targets.
+- **Decision records:** governance actions can be saved with metric snapshots and operator rationale for an accountable audit trail.
 - **Constrained AI/RAG:** local evidence retrieval and deterministic generation without required external LLM calls.
 - **Local embeddings retrieval:** uses `sentence-transformers` with `paraphrase-MiniLM-L3-v2` when installed, otherwise falls back to deterministic local vectors. No hosted vector database or external LLM is required.
 - **Warehouse metrics:** dbt-style models document event-store to dashboard lineage.
@@ -231,6 +234,7 @@ See [Deployment Guide](docs/deployment.md) and [Architecture](docs/architecture.
 - [Deployment guide](docs/deployment.md)
 - [Demo script](docs/demo_script.md)
 - [Portfolio bullets](docs/portfolio_bullets.md)
+- [ML platform lifecycle](docs/ml_platform_lifecycle.md)
 - [Warehouse metrics layer](dbt/README.md)
 
 ## Resume Bullets

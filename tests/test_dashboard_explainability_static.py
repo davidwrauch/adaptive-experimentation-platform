@@ -82,6 +82,9 @@ def test_dashboard_uses_operational_tabs_for_major_workflows():
     assert "LiveSimulationPanel" in app
     assert "ReplayControlsPanel" in app
     assert "EventStream" in app
+    assert "UpliftPanel" in app
+    assert "PolicyLifecyclePanel" in app
+    assert "DecisionLogPanel" in app
     assert ".tab-nav" in styles
     assert ".tab-panel" in styles
 
