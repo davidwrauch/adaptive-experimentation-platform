@@ -55,3 +55,18 @@ def test_governance_sql_contains_status_and_reason():
 
     assert "governance_status" in sql
     assert "governance_reason" in sql
+
+
+def test_lifecycle_messaging_docs_exist():
+    docs = ROOT / "docs/lifecycle_messaging_scenario.md"
+    readme = ROOT / "README.md"
+    content = docs.read_text(encoding="utf-8")
+    readme_content = readme.read_text(encoding="utf-8")
+
+    assert "Northstar" in content
+    assert "subscription-based platform" in content
+    assert "short reminder" in content
+    assert "personalized recommendation summary" in content
+    assert "Hold Expansion" in content
+    assert "Constrained AI Messaging" in content
+    assert "Lifecycle messaging scenario" in readme_content

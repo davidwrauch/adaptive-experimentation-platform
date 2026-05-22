@@ -390,3 +390,90 @@ def test_major_panels_include_help_and_why_this_matters_copy():
         content = (component_dir / filename).read_text(encoding="utf-8")
         assert "HelpLabel" in content, filename
         assert "WhyThisMatters" in content, filename
+
+
+def test_lifecycle_messaging_narrative_and_intervention_catalog_render():
+    app = read("frontend/src/App.jsx")
+    scenario = read("frontend/src/components/DemoScenario.jsx")
+    guided = read("frontend/src/components/GuidedMode.jsx")
+    catalog = read("frontend/src/components/InterventionCatalogPanel.jsx")
+
+    assert "InterventionCatalogPanel" in app
+    assert "Northstar lifecycle messaging console" in scenario
+    assert "fictional subscription platform" in scenario
+    assert "message timing, frequency, length, personalization depth" in scenario
+    assert "What is being optimized" in guided
+    for goal in [
+        "Onboarding completion",
+        "Re-engagement",
+        "Retention",
+        "Churn prevention",
+        "Subscription renewal",
+        "Marketplace activity",
+    ]:
+        assert goal in catalog or goal.lower() in guided.lower()
+    for intervention in [
+        "Short reminder",
+        "Personalized recommendation summary",
+        "Weekly digest",
+        "Win-back message",
+        "Urgency reminder",
+        "Educational onboarding tip",
+    ]:
+        assert intervention in catalog
+    assert "Complete your setup to unlock personalized recommendations." in catalog
+    assert "New recommendations matching your interests are waiting." in catalog
+    assert "You have unread updates from creators you follow." in catalog
+
+
+def test_selected_and_suppressed_intervention_panels_render():
+    catalog = read("frontend/src/components/InterventionCatalogPanel.jsx")
+
+    assert "Selected intervention" in catalog
+    assert "Personalized medium-length recommendation summary" in catalog
+    assert "Alternative suppressed" in catalog
+    assert "High-frequency short reminder" in catalog
+    assert "Elevated unsubscribe probability" in catalog or "elevated unsubscribe probability" in catalog
+    assert "Expected tradeoff" in catalog
+    for metadata in [
+        "Length",
+        "Personalization",
+        "Frequency",
+        "Fatigue",
+        "Unsubscribe risk",
+        "Tone",
+    ]:
+        assert metadata in catalog
+
+
+def test_ai_assisted_message_experimentation_is_constrained():
+    app = read("frontend/src/App.jsx")
+    panel = read("frontend/src/components/MessageExperimentationPanel.jsx")
+    messaging = read("frontend/src/components/MessagingGenerationPanel.jsx")
+
+    assert "MessageExperimentationPanel" in app
+    assert "Message experimentation" in panel
+    assert "approved templates" in panel
+    assert "review-only" in panel.lower()
+    assert "does not generate arbitrary copy" in panel
+    assert "Message length" in panel
+    assert "Personalization depth" in panel
+    assert "Cadence" in panel
+    assert "Urgency level" in panel
+    assert "Short reminders maximize immediate clicks but increase fatigue risk." in panel
+    assert "Personalized summaries reduce short-term CTR but improve long-term retention." in panel
+    assert "High-frequency interventions show elevated unsubscribe risk" in panel
+    assert "unrestricted" not in messaging.lower()
+
+
+def test_policy_intervention_examples_are_pm_readable():
+    panel = read("frontend/src/components/MessageExperimentationPanel.jsx")
+
+    assert "LinUCB" in panel
+    assert "Prefers personalized summaries for high-value users" in panel
+    assert "Epsilon Greedy" in panel
+    assert "over-expose urgency reminders" in panel
+    assert "Thompson Sampling" in panel
+    assert "balances uncertainty and reward" in panel
+    assert "Static Control" in panel
+    assert "baseline comparison" in panel

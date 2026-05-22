@@ -770,6 +770,79 @@ h2 {
   padding: 12px;
 }
 
+.optimization-grid,
+.message-dimension-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0 16px;
+}
+
+.optimization-grid span,
+.message-dimension-strip span {
+  background: #eef5f1;
+  border: 1px solid #d7e6dd;
+  border-radius: 999px;
+  color: #24443c;
+  font-size: 0.78rem;
+  font-weight: 850;
+  padding: 6px 9px;
+}
+
+.intervention-grid,
+.message-style-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.intervention-card,
+.message-style-card,
+.selected-intervention-grid article,
+.policy-examples div {
+  background: #fbfcfb;
+  border: 1px solid #ecf0ee;
+  border-radius: 8px;
+  padding: 13px;
+}
+
+.intervention-card p,
+.message-style-card p,
+.selected-intervention-grid p,
+.policy-examples p {
+  color: #5d6d73;
+  line-height: 1.4;
+  margin: 8px 0;
+}
+
+.intervention-card dl {
+  display: grid;
+  gap: 5px 10px;
+  grid-template-columns: 1fr 1fr;
+  margin: 10px 0 0;
+}
+
+.intervention-card dt,
+.selected-intervention-grid span,
+.message-style-card span {
+  color: #68777d;
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
+.intervention-card dd {
+  margin: 0;
+  text-align: right;
+}
+
+.selected-intervention-grid,
+.policy-examples {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 14px;
+}
+
 .live-text {
   color: #176346;
 }
@@ -1494,6 +1567,10 @@ small {
   .pm-decision-card,
   .pm-decision-grid,
   .overview-confidence-strip,
+  .intervention-grid,
+  .message-style-grid,
+  .selected-intervention-grid,
+  .policy-examples,
   .overview-scorecard-row,
   .tab-nav,
   .scorecard-grid,

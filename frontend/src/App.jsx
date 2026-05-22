@@ -17,10 +17,12 @@ import ExperimentConfidencePanel from "./components/ExperimentConfidencePanel";
 import ExplorationBudgetPanel from "./components/ExplorationBudgetPanel";
 import GovernancePanel from "./components/GovernancePanel";
 import GuidedMode from "./components/GuidedMode";
+import InterventionCatalogPanel from "./components/InterventionCatalogPanel";
 import LaunchIntelligencePanel from "./components/LaunchIntelligencePanel";
 import LoadingState from "./components/LoadingState";
 import MetricsCards from "./components/MetricsCards";
 import MessagingGenerationPanel from "./components/MessagingGenerationPanel";
+import MessageExperimentationPanel from "./components/MessageExperimentationPanel";
 import ObservabilityPanel from "./components/ObservabilityPanel";
 import PolicyDashboard from "./components/PolicyDashboard";
 import PolicyLifecyclePanel from "./components/PolicyLifecyclePanel";
@@ -243,6 +245,7 @@ export default function App() {
                 liveTick={liveTick}
                 lastUpdated={lastUpdated}
               />
+              <InterventionCatalogPanel />
               <section className="panel overview-explainer">
                 <h2>How to read this dashboard</h2>
                 <div className="overview-guide-grid">
@@ -325,6 +328,7 @@ export default function App() {
                 audience="Audience: ML scientists and adaptive systems teams. Purpose: How is the system making decisions?"
               >
                 <AssignmentPanel />
+                <MessageExperimentationPanel />
                 <MessagingGenerationPanel />
               </DashboardSection>
             </div>

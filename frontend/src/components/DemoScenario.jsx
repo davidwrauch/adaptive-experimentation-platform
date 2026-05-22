@@ -5,16 +5,20 @@ export default function DemoScenario() {
     <section className="scenario-band">
       <div>
         <p className="eyebrow">Demo scenario</p>
-        <h2>Lifecycle messaging decision console</h2>
+        <h2>Northstar lifecycle messaging console</h2>
         <p>
-          Choosing interventions while balancing clicks, retention, fatigue, and unsubscribe risk.
+          Northstar is a fictional subscription platform optimizing lifecycle engagement and
+          retention. The system tests message timing, frequency, length, personalization depth,
+          and intervention strategy while balancing clicks, retention, fatigue, unsubscribe risk,
+          incremental value, and rollout safety.
         </p>
       </div>
       <div className="why-box">
         <strong>Why this matters</strong>
         <span>
           The highest-click policy can be the wrong policy if it burns out users or raises
-          unsubscribe risk. This demo makes that tradeoff visible.
+          unsubscribe risk. This demo shows why short-term response and long-term customer value
+          need separate decision paths.
         </span>
       </div>
     </section>

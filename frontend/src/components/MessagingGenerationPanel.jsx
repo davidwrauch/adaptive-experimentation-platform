@@ -30,8 +30,9 @@ export default function MessagingGenerationPanel() {
         <button onClick={handleGenerate}>{loading ? "Generating..." : "Generate"}</button>
       </div>
       <p className="panel-copy">
-        Candidate messages are generated only from approved templates and retrieved evidence.
-        Every variant is marked for human review; autonomous deployment is disabled.
+        Candidate messages are generated only from approved templates, tone and length constraints,
+        and retrieved evidence. Every variant is marked for human review; autonomous deployment is
+        disabled.
       </p>
       <WhyThisMatters>
         Messaging support ties technical decisioning to customer communication quality while

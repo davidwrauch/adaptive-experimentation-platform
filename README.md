@@ -1,6 +1,6 @@
 # Adaptive Experimentation & AI Decisioning Platform
 
-A production-style portfolio project for adaptive lifecycle messaging. The platform chooses interventions while balancing immediate clicks, long-term retention, user fatigue, and unsubscribe risk.
+A production-style portfolio project for Northstar, a fictional subscription-based platform optimizing lifecycle engagement and retention. The platform chooses message interventions while balancing immediate clicks, long-term retention, user fatigue, unsubscribe risk, incremental value, and rollout safety.
 
 It demonstrates the operating layer around adaptive decisioning: logged bandit replay, policy learning, off-policy evaluation, governance, observability, rollout controls, constrained AI-assisted explanations, and warehouse-ready metrics models.
 
@@ -21,7 +21,17 @@ It demonstrates the operating layer around adaptive decisioning: logged bandit r
 
 ## Demo Scenario
 
-> A lifecycle messaging system is choosing interventions while balancing clicks, retention, fatigue, and unsubscribe risk.
+> Northstar is choosing lifecycle messages for subscription and marketplace users while balancing clicks, retention, fatigue, unsubscribe risk, and rollout safety.
+
+The system experiments with message timing, message frequency, message length, personalization
+depth, cadence, urgency, and intervention strategy. Example interventions include short reminders,
+personalized recommendation summaries, weekly digests, win-back messages, urgency reminders,
+educational onboarding tips, and contextual recommendations.
+
+Northstar optimizes for onboarding completion, re-engagement, retention, churn prevention,
+subscription renewal, and marketplace activity. The demo is intentionally shaped to show why
+adaptive experimentation matters: a message style can win immediate response while losing on
+long-term retention or fatigue-aware value.
 
 The seeded portfolio demo is shaped to show:
 
@@ -214,6 +224,7 @@ See [Deployment Guide](docs/deployment.md) and [Architecture](docs/architecture.
 ## Key Concepts
 
 - **Contextual bandits:** adaptive assignment under uncertainty.
+- **Lifecycle intervention experimentation:** message timing, frequency, length, tone, personalization depth, cadence, urgency, and intervention category are tested as product levers.
 - **Long-term reward:** immediate reward adjusted by retention, fatigue, and unsubscribe risk.
 - **OPE:** IPS, SNIPS, and doubly robust estimators for logged-policy evaluation.
 - **Governance:** policy decisions are routed through launch labels, controls, and review states.
@@ -223,6 +234,7 @@ See [Deployment Guide](docs/deployment.md) and [Architecture](docs/architecture.
 - **Causal incrementality:** treatment effects compare adaptive policy outcomes against static/control counterfactuals, including segment-level CATE and budget allocation guidance.
 - **Policy lifecycle:** policy versions move through candidate, challenger, champion, and archived states with rollback targets.
 - **Decision records:** governance actions can be saved with metric snapshots and operator rationale for an accountable audit trail.
+- **Constrained AI messaging:** candidate variants are generated only from approved templates, constraints, and retrieved evidence; every variant requires human review before deployment.
 - **Constrained AI/RAG:** local evidence retrieval and deterministic generation without required external LLM calls.
 - **Local embeddings retrieval:** uses `sentence-transformers` with `paraphrase-MiniLM-L3-v2` when installed, otherwise falls back to deterministic local vectors. No hosted vector database or external LLM is required.
 - **Warehouse metrics:** dbt-style models document event-store to dashboard lineage.
@@ -233,6 +245,7 @@ See [Deployment Guide](docs/deployment.md) and [Architecture](docs/architecture.
 - [Architecture](docs/architecture.md)
 - [Deployment guide](docs/deployment.md)
 - [Demo script](docs/demo_script.md)
+- [Lifecycle messaging scenario](docs/lifecycle_messaging_scenario.md)
 - [Portfolio bullets](docs/portfolio_bullets.md)
 - [ML platform lifecycle](docs/ml_platform_lifecycle.md)
 - [Warehouse metrics layer](dbt/README.md)

@@ -24,13 +24,24 @@ export default function GuidedMode() {
               <button onClick={() => setOpen(false)}>Close</button>
             </div>
             <p>
-              This platform simulates a lifecycle messaging system choosing email, SMS, and push
-              interventions while balancing clicks, retention, fatigue, unsubscribe risk, and safe rollout.
+              Northstar is a fictional subscription platform using adaptive experimentation to
+              choose lifecycle messages. This lifecycle messaging system treats users as
+              subscribers or marketplace participants,
+              interventions are approved email, SMS, and push message strategies, and policies
+              decide which message style to send based on user state and governance constraints.
             </p>
             <div className="guided-grid">
               <GuideItem
+                title="What is being optimized"
+                body="The system supports onboarding completion, re-engagement, retention, churn prevention, subscription renewal, and marketplace activity."
+              />
+              <GuideItem
+                title="Message experiments"
+                body="Northstar tests message timing, frequency, length, personalization depth, cadence, urgency, and intervention category without allowing unrestricted copy generation."
+              />
+              <GuideItem
                 title="Policies"
-                body="Static Control is the baseline. Epsilon Greedy explores more. Thompson Sampling uses uncertainty. LinUCB uses user context to personalize decisions."
+                body="Static Control is the baseline. Epsilon Greedy explores more and can over-sample urgency reminders. Thompson Sampling balances uncertainty and reward. LinUCB adapts to user context and retention tradeoffs."
               />
               <GuideItem
                 title="Business outcomes"
