@@ -55,3 +55,6 @@ def test_metrics_aggregates_events_by_policy():
     assert "rollout" in body
     assert "exploration" in body
     assert "bayesian" in body
+    assert body["generated_at"] is not None
+    assert body["last_event_timestamp"] is not None
+    assert body["cache_age_seconds"] >= 0

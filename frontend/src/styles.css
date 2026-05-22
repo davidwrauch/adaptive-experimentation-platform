@@ -269,6 +269,25 @@ button:disabled {
   min-height: 520px;
 }
 
+.freshness-strip {
+  align-items: center;
+  background: #eef4f1;
+  border: 1px solid #d9e7df;
+  border-radius: 8px;
+  color: #405157;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  justify-content: space-between;
+  margin: -10px 0 16px;
+  padding: 9px 12px;
+}
+
+.freshness-strip span {
+  font-size: 0.82rem;
+  font-weight: 750;
+}
+
 .overview-explainer p {
   color: #4c5d63;
   line-height: 1.5;
@@ -639,14 +658,17 @@ h2 {
 }
 
 .confidence-likely-positive,
-.confidence-directionally-positive {
+.confidence-directionally-positive,
+.confidence-high-confidence,
+.confidence-directional-evidence {
   background: #ddefe6;
   color: #176346;
 }
 
 .confidence-inconclusive,
 .confidence-underpowered,
-.confidence-high-variance {
+.confidence-high-variance,
+.confidence-mixed-evidence {
   background: #fff1cc;
   color: #775600;
 }
@@ -679,6 +701,73 @@ h2 {
 
 .summary-band {
   margin-bottom: 20px;
+}
+
+.pm-decision-card {
+  background: #ffffff;
+  border: 1px solid #dde6e0;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(23, 32, 38, 0.05);
+  display: grid;
+  gap: 18px;
+  grid-template-columns: minmax(240px, 0.8fr) minmax(320px, 1.2fr);
+  margin-bottom: 14px;
+  padding: 18px;
+}
+
+.pm-decision-card h2 {
+  font-size: 1.35rem;
+  margin-bottom: 8px;
+}
+
+.pm-decision-card p {
+  color: #5d6d73;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.pm-decision-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.decision-item {
+  background: #f8faf8;
+  border: 1px solid #ecf0ee;
+  border-radius: 8px;
+  min-height: 72px;
+  padding: 10px 12px;
+}
+
+.decision-item span {
+  color: #68777d;
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.decision-item strong {
+  display: block;
+  font-size: 0.98rem;
+  line-height: 1.25;
+}
+
+.overview-confidence-strip {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(3, minmax(180px, 1fr));
+  margin: 14px 0;
+}
+
+.overview-confidence-card {
+  background: #fbfcfb;
+  border: 1px solid #ecf0ee;
+  border-radius: 8px;
+  display: grid;
+  gap: 6px;
+  padding: 12px;
 }
 
 .live-text {
@@ -1402,6 +1491,9 @@ small {
   }
 
   .metrics-grid,
+  .pm-decision-card,
+  .pm-decision-grid,
+  .overview-confidence-strip,
   .overview-scorecard-row,
   .tab-nav,
   .scorecard-grid,

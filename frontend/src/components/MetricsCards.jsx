@@ -17,9 +17,33 @@ export default function MetricsCards({ metrics, uplift, liveMode = false, liveTi
   )[0];
   const healthScore = metrics.observability?.health_score ?? 100;
   const posture = launchRecommendation(metrics, uplift);
+  const bayesianByPolicy = Object.fromEntries(
+    (metrics.bayesian?.policies ?? []).map((policy) => [policy.policy, policy]),
+  );
+  const topPolicies = [...metrics.policies]
+    .sort((a, b) => b.average_reward - a.average_reward)
+    .slice(0, 3);
+  const nextAction = nextActionFor(posture.state, healthScore);
 
   return (
     <section className="summary-band" aria-label="Summary metrics">
+      <div className="pm-decision-card">
+        <div>
+          <p className="eyebrow">PM Decision Card</p>
+          <h2>Did it work, and should we expand?</h2>
+          <p>
+            A policy can appear statistically promising while governance still recommends caution.
+          </p>
+        </div>
+        <div className="pm-decision-grid">
+          <DecisionItem label="Experiment result" value={`${formatPolicyLabel(bestPolicy?.policy)} improves short-term response.`} />
+          <DecisionItem label="Long-term outcome" value={`${formatPolicyLabel(bestLongTermPolicy?.policy)} performs better on retention.`} />
+          <DecisionItem label="Bayesian confidence" value={overallConfidence(topPolicies, bayesianByPolicy)} />
+          <DecisionItem label="Operational risk" value={healthScore >= 80 ? "Stable guardrails" : "Guardrails active"} />
+          <DecisionItem label="Recommendation" value={posture.state} badge />
+          <DecisionItem label="Next action" value={nextAction} />
+        </div>
+      </div>
       <div className="metrics-grid">
         <div className="metric-card">
           <HelpLabel help="What: total logged assignment/outcome events. Why: more events usually improve confidence. Good: growing steadily. Bad: sudden drops. Action: check ingestion or live simulation.">
@@ -65,6 +89,21 @@ export default function MetricsCards({ metrics, uplift, liveMode = false, liveTi
         <strong>{posture.confidence}</strong>
         <span>Updated {formatUpdated(lastUpdated)}</span>
       </div>
+      <div className="overview-confidence-strip">
+        {topPolicies.map((policy) => {
+          const bayesian = bayesianByPolicy[policy.policy];
+          const probabilityBest = bayesian?.probability_best ?? 0;
+          const status = confidenceStatus(policy, probabilityBest);
+          return (
+            <article className="overview-confidence-card" key={policy.policy}>
+              <strong className="policy-label">{formatPolicyLabel(policy.policy)}</strong>
+              <span className={`confidence-badge confidence-${slug(status)}`}>{status}</span>
+              <small>Probability best {(probabilityBest * 100).toFixed(1)}%</small>
+              <small>Uncertainty {uncertaintyLabel(policy.ope?.uncertainty)}</small>
+            </article>
+          );
+        })}
+      </div>
       <div className="overview-scorecard-row">
         <MiniScore label="Experiment result" value={`${formatPolicyLabel(bestPolicy?.policy)} wins short-term response`} />
         <MiniScore label="Long-term result" value={`${formatPolicyLabel(bestLongTermPolicy?.policy)} is stronger on retention`} />
@@ -80,6 +119,15 @@ export default function MetricsCards({ metrics, uplift, liveMode = false, liveTi
   );
 }
 
+function DecisionItem({ label, value, badge = false }) {
+  return (
+    <div className="decision-item">
+      <span>{label}</span>
+      {badge ? <strong className={`launch-badge launch-${slug(value)}`}>{value}</strong> : <strong>{value}</strong>}
+    </div>
+  );
+}
+
 function MiniScore({ label, value }) {
   return (
     <div className="mini-score-card">
@@ -87,6 +135,39 @@ function MiniScore({ label, value }) {
       <strong className="policy-label">{value ?? "n/a"}</strong>
     </div>
   );
+}
+
+function overallConfidence(policies, bayesianByPolicy) {
+  const bestProbability = Math.max(
+    0,
+    ...policies.map((policy) => bayesianByPolicy[policy.policy]?.probability_best ?? 0),
+  );
+  if (bestProbability >= 0.75) return "High confidence";
+  if (bestProbability >= 0.45) return "Directional evidence";
+  if (bestProbability >= 0.25) return "Mixed evidence";
+  return policies.some((policy) => policy.event_count < 100) ? "Underpowered" : "Inconclusive";
+}
+
+function confidenceStatus(policy, probabilityBest) {
+  if ((policy.event_count ?? 0) < 100) return "Underpowered";
+  if ((policy.ope?.uncertainty ?? 0) >= 0.35) return "Mixed evidence";
+  if (probabilityBest >= 0.75) return "High confidence";
+  if (probabilityBest >= 0.45) return "Directional evidence";
+  return "Inconclusive";
+}
+
+function uncertaintyLabel(value = 0) {
+  if (value >= 0.35) return "high";
+  if (value >= 0.18) return "medium";
+  return "low";
+}
+
+function nextActionFor(posture, healthScore) {
+  if (posture === "Hold Expansion") return "Reduce fatigue exposure and continue monitoring.";
+  if (posture === "Human Review Recommended") return "Route the launch decision to a reviewer.";
+  if (posture === "Rollback Recommended") return "Reduce exposure immediately and inspect guardrails.";
+  if (posture === "Monitor Closely") return "Keep controlled rollout and review leading risk indicators.";
+  return healthScore >= 80 ? "Continue staged rollout with monitoring." : "Resolve guardrails before expansion.";
 }
 
 function formatUpdated(value) {

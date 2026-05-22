@@ -90,6 +90,20 @@ def test_dashboard_uses_operational_tabs_for_major_workflows():
     assert ".tab-panel" in styles
 
 
+def test_tabs_are_audience_oriented_and_lazy_loaded():
+    app = read("frontend/src/App.jsx")
+
+    assert "Audience: experimentation scientists, analysts, and advanced PMs" in app
+    assert "Audience: governance, trust and safety, and launch oversight" in app
+    assert "Audience: ML and platform engineers" in app
+    assert "Audience: ML scientists and adaptive systems teams" in app
+    assert "hydratedTabs" in app
+    assert 'activeTab === "Experimentation"' in app
+    assert 'includeDetails: true, includeUplift: true' in app
+    assert 'activeTab === "Live Operations"' in app
+    assert "includeRecent: true" in app
+
+
 def test_overview_and_experimentation_have_distinct_purpose():
     app = read("frontend/src/App.jsx")
     overview_block = app.split('{activeTab === "Overview" && (', 1)[1].split(
@@ -136,6 +150,24 @@ def test_loading_and_retry_copy_is_polished():
     assert ".skeleton-panel" in styles
     assert "retryCount" in app
     assert "loadWithRetry" in app
+
+
+def test_cached_dashboard_and_freshness_indicators_render():
+    app = read("frontend/src/App.jsx")
+    styles = read("frontend/src/styles.css")
+
+    assert "DASHBOARD_CACHE_KEY" in app
+    assert "readDashboardCache" in app
+    assert "writeDashboardCache" in app
+    assert "localStorage" in app
+    assert "Showing cached dashboard from" in app
+    assert "Refreshing latest metrics..." in app
+    assert "Live updates connected" in app
+    assert "generated_at" in app
+    assert "last_event_timestamp" in app
+    assert "cache_age_seconds" in app
+    assert "freshness-strip" in app
+    assert ".freshness-strip" in styles
 
 
 def test_policy_simulation_control_has_visible_feedback():
@@ -229,6 +261,28 @@ def test_executive_overview_visual_scorecards_and_launch_badge():
     assert ".confidence-line" in styles
     assert ".overview-scorecard-row" in styles
     assert ".mini-score-card" in styles
+
+
+def test_pm_decision_card_and_confidence_badges_render():
+    metrics = read("frontend/src/components/MetricsCards.jsx")
+    styles = read("frontend/src/styles.css")
+
+    assert "PM Decision Card" in metrics
+    assert "Did it work, and should we expand?" in metrics
+    assert "Experiment result" in metrics
+    assert "Bayesian confidence" in metrics
+    assert "Operational risk" in metrics
+    assert "Recommendation" in metrics
+    assert "Next action" in metrics
+    assert "High confidence" in metrics
+    assert "Directional evidence" in metrics
+    assert "Mixed evidence" in metrics
+    assert "Inconclusive" in metrics
+    assert "Underpowered" in metrics
+    assert "Probability best" in metrics
+    assert "overview-confidence-strip" in metrics
+    assert ".pm-decision-card" in styles
+    assert ".overview-confidence-card" in styles
 
 
 def test_primary_ui_avoids_raw_lowercase_rollback_copy():

@@ -33,6 +33,8 @@ import UpliftPanel from "./components/UpliftPanel";
 import { HelpLabel } from "./components/InfoTooltip";
 
 const LIVE_INTERVAL_SECONDS = 10;
+const DASHBOARD_CACHE_KEY = "adaptiveExperimentation.dashboard.v1";
+const DEFAULT_METRICS = { total_events: 0, policies: [] };
 const TABS = [
   "Overview",
   "Experimentation",
@@ -40,12 +42,16 @@ const TABS = [
   "Live Operations",
   "AI & Decision Support",
 ];
+const initialDashboardCache = readDashboardCache();
 
 export default function App() {
-  const [metrics, setMetrics] = useState({ total_events: 0, policies: [] });
-  const [uplift, setUplift] = useState(null);
-  const [events, setEvents] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [metrics, setMetrics] = useState(initialDashboardCache?.metrics ?? DEFAULT_METRICS);
+  const [uplift, setUplift] = useState(initialDashboardCache?.uplift ?? null);
+  const [events, setEvents] = useState(initialDashboardCache?.events ?? []);
+  const [loading, setLoading] = useState(!initialDashboardCache);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [hasCachedDashboard, setHasCachedDashboard] = useState(Boolean(initialDashboardCache));
+  const [cachedAt, setCachedAt] = useState(initialDashboardCache?.cachedAt ?? null);
   const [error, setError] = useState("");
   const [retryCount, setRetryCount] = useState(0);
   const [liveMode, setLiveMode] = useState(false);
@@ -54,28 +60,48 @@ export default function App() {
     total_events: 0,
     latest_timestamp: null,
   });
-  const [lastUpdated, setLastUpdated] = useState(null);
+  const [lastUpdated, setLastUpdated] = useState(
+    initialDashboardCache?.lastUpdated ? new Date(initialDashboardCache.lastUpdated) : null,
+  );
   const [nextUpdateIn, setNextUpdateIn] = useState(LIVE_INTERVAL_SECONDS);
   const [activeTab, setActiveTab] = useState("Overview");
+  const [hydratedTabs, setHydratedTabs] = useState({ Overview: Boolean(initialDashboardCache) });
 
-  const refresh = useCallback(async (includeDetails = false) => {
+  const refresh = useCallback(async (options = {}) => {
+    const { includeDetails = false, includeRecent = false, includeUplift = false } =
+      typeof options === "boolean" ? { includeDetails: options } : options;
     try {
+      setIsRefreshing(true);
       setError("");
       const [metricsBody, eventsBody, upliftBody] = await Promise.all([
         includeDetails ? fetchMetricsDetails() : fetchMetricsSummary(),
-        fetchRecentEvents(50),
-        fetchUpliftMetrics().catch(() => null),
+        includeRecent ? fetchRecentEvents(50) : Promise.resolve(null),
+        includeUplift ? fetchUpliftMetrics().catch(() => null) : Promise.resolve(null),
       ]);
       setMetrics(metricsBody);
-      setEvents(eventsBody);
+      if (eventsBody) {
+        setEvents(eventsBody);
+      }
       if (upliftBody) {
         setUplift(upliftBody);
       }
-      setLastUpdated(new Date());
+      const updatedAt = new Date();
+      const previousCache = readDashboardCache();
+      setLastUpdated(updatedAt);
+      writeDashboardCache({
+        metrics: metricsBody,
+        events: eventsBody ?? previousCache?.events ?? [],
+        uplift: upliftBody ?? previousCache?.uplift ?? null,
+        lastUpdated: updatedAt.toISOString(),
+      });
+      setCachedAt(new Date().toISOString());
+      setHasCachedDashboard(true);
       setLoading(false);
     } catch (err) {
       setError("Backend is waking up, retrying...");
       throw err;
+    } finally {
+      setIsRefreshing(false);
     }
   }, []);
 
@@ -102,6 +128,27 @@ export default function App() {
   }, [refresh]);
 
   useEffect(() => {
+    if (activeTab === "Experimentation" && !hydratedTabs.Experimentation) {
+      refresh({ includeDetails: true, includeUplift: true }).then(() => {
+        setHydratedTabs((current) => ({ ...current, Experimentation: true }));
+      }).catch(() => undefined);
+    }
+    if (activeTab === "Risk & Governance" && !hydratedTabs["Risk & Governance"]) {
+      refresh({ includeDetails: true, includeUplift: true }).then(() => {
+        setHydratedTabs((current) => ({ ...current, "Risk & Governance": true }));
+      }).catch(() => undefined);
+    }
+    if (activeTab === "Live Operations" && !hydratedTabs["Live Operations"]) {
+      refresh({ includeRecent: true }).then(() => {
+        setHydratedTabs((current) => ({ ...current, "Live Operations": true }));
+      }).catch(() => undefined);
+    }
+    if (activeTab === "AI & Decision Support" && !hydratedTabs["AI & Decision Support"]) {
+      setHydratedTabs((current) => ({ ...current, "AI & Decision Support": true }));
+    }
+  }, [activeTab, hydratedTabs, refresh]);
+
+  useEffect(() => {
     if (!liveMode) {
       setNextUpdateIn(LIVE_INTERVAL_SECONDS);
       return undefined;
@@ -115,7 +162,7 @@ export default function App() {
         setError("");
         const tick = await streamDemoStep(25);
         setLiveTick(tick);
-        await refresh();
+        await refresh({ includeRecent: activeTab === "Live Operations" });
         setNextUpdateIn(LIVE_INTERVAL_SECONDS);
       } catch (err) {
         setError("Live simulation paused while the backend wakes up. Try again shortly.");
@@ -126,7 +173,7 @@ export default function App() {
       window.clearInterval(timer);
       window.clearInterval(countdown);
     };
-  }, [liveMode, refresh]);
+  }, [activeTab, liveMode, refresh]);
 
   async function handleSimulate(policy) {
     const event = await simulateDecision(policy);
@@ -136,7 +183,7 @@ export default function App() {
 
   async function handleRefreshDetails() {
     try {
-      await refresh(true);
+      await refresh({ includeDetails: true, includeRecent: true, includeUplift: true });
     } catch (err) {
       // The visible warming message already explains the transient hosted-demo state.
     }
@@ -161,6 +208,13 @@ export default function App() {
         </div>
       </header>
 
+      <DashboardFreshness
+        cachedAt={cachedAt}
+        hasCachedDashboard={hasCachedDashboard}
+        isRefreshing={isRefreshing}
+        liveMode={liveMode}
+        metrics={metrics}
+      />
       {error && <div className="alert">{error}</div>}
       {loading ? (
         <LoadingState retryCount={retryCount} />
@@ -211,6 +265,7 @@ export default function App() {
               <DashboardSection
                 title="Experimentation"
                 description="Compare immediate lift, long-term value, offline estimates, Bayesian confidence, and exploration budgets."
+                audience="Audience: experimentation scientists, analysts, and advanced PMs. Purpose: Why is this happening?"
               >
                 <PolicyDashboard metrics={metrics} onSimulate={handleSimulate} />
                 <TradeoffPanel metrics={metrics} />
@@ -228,6 +283,7 @@ export default function App() {
               <DashboardSection
                 title="Risk & Governance"
                 description="Translate evidence, uncertainty, fatigue, and risk signals into rollout actions."
+                audience="Audience: governance, trust and safety, and launch oversight. Purpose: Is this safe to deploy?"
               >
                 <ObservabilityPanel observability={metrics.observability} />
                 <GovernancePanel metrics={metrics} />
@@ -245,6 +301,7 @@ export default function App() {
               <DashboardSection
                 title="Live Operations"
                 description="Control live simulation and replay, monitor transport status, and inspect compact audit logs."
+                audience="Audience: ML and platform engineers. Purpose: What is the system doing right now?"
               >
                 <LiveSimulationPanel
                   liveMode={liveMode}
@@ -265,6 +322,7 @@ export default function App() {
               <DashboardSection
                 title="AI & Decision Support"
                 description="Review evidence retrieval, similarity-informed explanations, constrained messaging, and human review routing."
+                audience="Audience: ML scientists and adaptive systems teams. Purpose: How is the system making decisions?"
               >
                 <AssignmentPanel />
                 <MessagingGenerationPanel />
@@ -281,6 +339,28 @@ function sleep(ms) {
   return new Promise((resolve) => {
     window.setTimeout(resolve, ms);
   });
+}
+
+function DashboardFreshness({ cachedAt, hasCachedDashboard, isRefreshing, liveMode, metrics }) {
+  const generatedAt = metrics.generated_at ? new Date(metrics.generated_at) : null;
+  const lastEvent = metrics.last_event_timestamp ? new Date(metrics.last_event_timestamp) : null;
+  const cacheAge = Number(metrics.cache_age_seconds ?? 0);
+
+  return (
+    <div className="freshness-strip">
+      <span>
+        {hasCachedDashboard
+          ? `Showing cached dashboard from ${formatUpdated(cachedAt)}`
+          : "No cached dashboard yet"}
+      </span>
+      <span>{isRefreshing ? "Refreshing latest metrics..." : "Latest metrics refreshed"}</span>
+      <span>{liveMode ? "Live updates connected" : "Live updates paused"}</span>
+      <span>
+        Generated {formatUpdated(generatedAt)} | Last event {formatUpdated(lastEvent)} | Age{" "}
+        {Math.round(cacheAge)}s
+      </span>
+    </div>
+  );
 }
 
 function LiveSimulationPanel({ liveMode, liveTick, metrics, nextUpdateIn, lastUpdated }) {
@@ -319,5 +399,35 @@ function formatUpdated(value) {
   if (!value) {
     return "pending";
   }
-  return value.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return "pending";
+  }
+  return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+}
+
+function readDashboardCache() {
+  if (typeof window === "undefined") {
+    return null;
+  }
+  try {
+    const raw = window.localStorage.getItem(DASHBOARD_CACHE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (err) {
+    return null;
+  }
+}
+
+function writeDashboardCache(payload) {
+  if (typeof window === "undefined") {
+    return;
+  }
+  try {
+    window.localStorage.setItem(
+      DASHBOARD_CACHE_KEY,
+      JSON.stringify({ ...payload, cachedAt: new Date().toISOString() }),
+    );
+  } catch (err) {
+    // Cache failures should never block the hosted demo dashboard.
+  }
 }

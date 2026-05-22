@@ -84,6 +84,9 @@ def test_metrics_summary_handles_large_demo_data_without_full_payload():
     }
     assert "observability" in body
     assert "bayesian" in body
+    assert "generated_at" in body
+    assert "last_event_timestamp" in body
+    assert "cache_age_seconds" in body
 
 
 def test_recent_events_endpoint_respects_limit():

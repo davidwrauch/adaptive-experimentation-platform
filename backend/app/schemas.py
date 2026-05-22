@@ -210,6 +210,9 @@ class MetricsResponse(BaseModel):
     total_events: int
     policies: list[PolicyMetric]
     latest_timestamp: datetime | None = None
+    generated_at: datetime | None = None
+    last_event_timestamp: datetime | None = None
+    cache_age_seconds: float = 0.0
     observability: ObservabilityMetric | None = None
     streaming: dict[str, Any] | None = None
     rollout: dict[str, Any] | None = None

@@ -1,4 +1,5 @@
 from dataclasses import asdict
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
@@ -54,10 +55,24 @@ def get_uplift_metrics(db: Session = Depends(get_db)) -> dict:
 
 
 def _metrics_response(db: Session, policies, capped_events) -> MetricsResponse:
+    generated_at = datetime.now(timezone.utc)
+    last_event_timestamp = latest_event_timestamp(db)
+    comparable_last_event_timestamp = (
+        last_event_timestamp.replace(tzinfo=timezone.utc)
+        if last_event_timestamp and last_event_timestamp.tzinfo is None
+        else last_event_timestamp
+    )
     return MetricsResponse(
         total_events=total_events_from_summary(db),
         policies=policies,
-        latest_timestamp=latest_event_timestamp(db),
+        latest_timestamp=last_event_timestamp,
+        generated_at=generated_at,
+        last_event_timestamp=last_event_timestamp,
+        cache_age_seconds=(
+            max(0.0, (generated_at - comparable_last_event_timestamp).total_seconds())
+            if comparable_last_event_timestamp
+            else 0.0
+        ),
         observability=run_observability_checks(capped_events),
         streaming=asdict(streaming_status()),
         rollout={
