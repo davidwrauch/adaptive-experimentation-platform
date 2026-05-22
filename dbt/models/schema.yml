@@ -1,0 +1,33 @@
+version: 2
+
+sources:
+  - name: app
+    description: Raw application tables from the Postgres event store.
+    tables:
+      - name: events
+        description: Logged assignments, rewards, propensities, and JSON user/intervention context.
+
+models:
+  - name: stg_events
+    description: Normalizes raw event store rows into analytics-friendly event records.
+    columns:
+      - name: event_id
+      - name: user_id
+      - name: logged_policy
+      - name: action
+      - name: immediate_reward
+      - name: long_term_reward
+      - name: propensity
+      - name: fatigue_score
+      - name: unsubscribe_risk
+      - name: prior_touch_count
+  - name: stg_assignments
+    description: Assignment-focused staging model with low-overlap flags.
+  - name: mart_policy_performance
+    description: Policy-level reward and propensity metrics for dashboard/API consumption.
+  - name: mart_experiment_health
+    description: Experiment quality and safety checks by policy.
+  - name: mart_user_state
+    description: User-level fatigue, unsubscribe risk, and long-term reward rollups.
+  - name: mart_governance_decisions
+    description: Warehouse-ready governance status and reason by policy.

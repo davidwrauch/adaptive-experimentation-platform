@@ -1,0 +1,14 @@
+name: adaptive_experimentation_platform
+version: "1.0.0"
+config-version: 2
+
+profile: adaptive_experimentation_platform
+
+model-paths: ["models"]
+
+models:
+  adaptive_experimentation_platform:
+    staging:
+      +materialized: view
+    marts:
+      +materialized: table
