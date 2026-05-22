@@ -15,6 +15,7 @@ import DecisionLogPanel from "./components/DecisionLogPanel";
 import DecisionTracePanel from "./components/DecisionTracePanel";
 import DemoScenario from "./components/DemoScenario";
 import EventStream from "./components/EventStream";
+import ExperimentComparisonPanel from "./components/ExperimentComparisonPanel";
 import ExperimentConfidencePanel from "./components/ExperimentConfidencePanel";
 import ExplorationBudgetPanel from "./components/ExplorationBudgetPanel";
 import GovernancePanel from "./components/GovernancePanel";
@@ -248,6 +249,7 @@ export default function App() {
                 liveTick={liveTick}
                 lastUpdated={lastUpdated}
               />
+              <ExperimentComparisonPanel metrics={metrics} uplift={uplift} />
               <InterventionCatalogPanel />
               <section className="panel overview-explainer">
                 <h2>How to read this dashboard</h2>

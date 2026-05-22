@@ -70,3 +70,18 @@ def test_lifecycle_messaging_docs_exist():
     assert "Hold Expansion" in content
     assert "Constrained AI Messaging" in content
     assert "Lifecycle messaging scenario" in readme_content
+
+
+def test_system_topology_and_decision_trace_docs_exist():
+    docs = ROOT / "docs/system_topology_and_decision_trace.md"
+    readme = ROOT / "README.md"
+    content = docs.read_text(encoding="utf-8")
+    readme_content = readme.read_text(encoding="utf-8")
+
+    assert "Event Lifecycle" in content
+    assert "Decision Logging" in content
+    assert "Reward Feedback" in content
+    assert "Continual Learning" in content
+    assert "Governance Review" in content
+    assert "production adaptive systems" in content.lower()
+    assert "System topology and decision trace" in readme_content

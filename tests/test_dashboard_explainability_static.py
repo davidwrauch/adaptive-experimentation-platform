@@ -477,3 +477,98 @@ def test_policy_intervention_examples_are_pm_readable():
     assert "balances uncertainty and reward" in panel
     assert "Static Control" in panel
     assert "baseline comparison" in panel
+
+
+def test_decision_trace_and_system_flow_render():
+    app = read("frontend/src/App.jsx")
+    trace = read("frontend/src/components/DecisionTracePanel.jsx")
+    flow = read("frontend/src/components/SystemFlowPanel.jsx")
+
+    assert "DecisionTracePanel" in app
+    assert "SystemFlowPanel" in app
+    assert "Decision Trace" in trace
+    for field in [
+        "User/context features",
+        "Eligible intervention candidates",
+        "Selected intervention/message",
+        "Selection probability",
+        "Expected immediate reward",
+        "Expected long-term reward",
+        "Observed reward",
+        "Fatigue impact",
+        "Unsubscribe impact",
+        "Governance checks applied",
+        "Final recommendation/logged outcome",
+    ]:
+        assert field in trace
+    for step in [
+        "User context",
+        "Candidate interventions",
+        "Policy selection",
+        "Decision logging",
+        "Reward ingestion",
+        "Metrics summary",
+        "OPE/uplift evaluation",
+        "Governance checks",
+        "Rollout recommendation",
+    ]:
+        assert step in flow
+
+
+def test_decision_trace_uses_realistic_intervention_metadata():
+    trace = read("frontend/src/components/DecisionTracePanel.jsx")
+
+    assert "Personalized recommendation summary" in trace
+    assert "Urgency reminder" in trace
+    assert "High-frequency short reminder" in trace
+    assert "message_length" in trace
+    assert "tone" in trace
+    assert "topic_family" in trace
+    assert "fatigue" in trace.lower()
+    assert "unsubscribe" in trace.lower()
+    assert "whySelected" in trace
+
+
+def test_convergence_status_helper_and_panel_render():
+    helpers = read("frontend/src/interpretations.js")
+    panel = read("frontend/src/components/ConvergenceMonitoringPanel.jsx")
+    app = read("frontend/src/App.jsx")
+
+    assert "convergenceStatus" in helpers
+    for status in ["Stable", "Learning", "Volatile", "Saturated", "Needs Review"]:
+        assert status in helpers or status in panel
+    for signal in [
+        "Policy volatility",
+        "Recommendation stability",
+        "Reward drift",
+        "Exploration concentration",
+        "Arm/intervention saturation",
+        "Recent change rate",
+    ]:
+        assert signal in panel
+    assert "ConvergenceMonitoringPanel" in app
+
+
+def test_pm_experiment_comparison_and_adaptive_grounding_render():
+    app = read("frontend/src/App.jsx")
+    panel = read("frontend/src/components/ExperimentComparisonPanel.jsx")
+    loading = read("frontend/src/components/LoadingState.jsx")
+
+    assert "ExperimentComparisonPanel" in app
+    assert "Experiment Comparison" in panel
+    assert "Static A/B Control" in panel
+    assert "Traditional equal-split experiment used as a baseline comparison." in panel
+    assert "Aggressively explores new messaging strategies to maximize short-term engagement." in panel
+    assert "Balances exploration and uncertainty using probabilistic reward estimates." in panel
+    assert "Personalizes messaging decisions using user context and long-term behavioral patterns." in panel
+    assert "message timing, frequency" in panel
+    assert "urgency level" in panel
+    assert "recommendation style" in panel
+    assert "Traditional A/B" in panel
+    assert "Adaptive Optimization" in panel
+    assert "fixed traffic split" in panel
+    assert "learn continuously" in panel
+    assert "personalize by context" in panel
+    assert "What is this system?" in loading
+    assert "Northstar" in loading
+    assert "long-term fatigue" in loading
