@@ -82,6 +82,44 @@ button:hover {
   justify-content: flex-end;
 }
 
+.tab-nav {
+  background: white;
+  border: 1px solid #d9dfdc;
+  border-radius: 8px;
+  display: grid;
+  gap: 6px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  margin: 0 0 18px;
+  padding: 6px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.tab-button {
+  background: transparent;
+  border: 0;
+  color: #44545a;
+  font-weight: 800;
+  padding: 0.7rem 0.6rem;
+}
+
+.tab-button:hover,
+.tab-button.active {
+  background: #23404a;
+  color: white;
+}
+
+.tab-panel {
+  min-height: 520px;
+}
+
+.overview-explainer p {
+  color: #4c5d63;
+  line-height: 1.5;
+  margin-bottom: 0;
+}
+
 .eyebrow {
   color: #66757c;
   font-size: 0.78rem;
@@ -887,6 +925,7 @@ small {
   }
 
   .metrics-grid,
+  .tab-nav,
   .live-panel,
   .live-stats,
   .guided-grid,

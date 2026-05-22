@@ -49,11 +49,11 @@ def test_dashboard_information_architecture_groups_major_sections():
     styles = read("frontend/src/styles.css")
 
     for section in [
-        "Experiment Performance",
+        "Overview",
+        "Experimentation",
         "Risk & Governance",
         "Live Operations",
-        "Policy Intelligence",
-        "Messaging & Assignment Support",
+        "AI & Decision Support",
     ]:
         assert section in app
 
@@ -61,6 +61,29 @@ def test_dashboard_information_architecture_groups_major_sections():
     assert ".dashboard-section" in styles
     assert ".tooltip-card" in styles
     assert ".guided-overlay" in styles
+
+
+def test_dashboard_uses_operational_tabs_for_major_workflows():
+    app = read("frontend/src/App.jsx")
+    styles = read("frontend/src/styles.css")
+
+    for tab in [
+        "Overview",
+        "Experimentation",
+        "Risk & Governance",
+        "Live Operations",
+        "AI & Decision Support",
+    ]:
+        assert tab in app
+
+    assert "tab-nav" in app
+    assert "tab-button active" in app
+    assert "What this system is doing" in app
+    assert "LiveSimulationPanel" in app
+    assert "ReplayControlsPanel" in app
+    assert "EventStream" in app
+    assert ".tab-nav" in styles
+    assert ".tab-panel" in styles
 
 
 def test_dashboard_includes_browser_replay_controls():

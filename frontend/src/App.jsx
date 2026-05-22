@@ -26,6 +26,13 @@ import TradeoffPanel from "./components/TradeoffPanel";
 import { HelpLabel } from "./components/InfoTooltip";
 
 const LIVE_INTERVAL_SECONDS = 10;
+const TABS = [
+  "Overview",
+  "Experimentation",
+  "Risk & Governance",
+  "Live Operations",
+  "AI & Decision Support",
+];
 
 export default function App() {
   const [metrics, setMetrics] = useState({ total_events: 0, policies: [] });
@@ -40,6 +47,7 @@ export default function App() {
   });
   const [lastUpdated, setLastUpdated] = useState(null);
   const [nextUpdateIn, setNextUpdateIn] = useState(LIVE_INTERVAL_SECONDS);
+  const [activeTab, setActiveTab] = useState("Overview");
 
   const refresh = useCallback(async (includeDetails = false) => {
     try {
@@ -118,92 +126,135 @@ export default function App() {
         <div className="empty-state">Loading platform metrics...</div>
       ) : (
         <>
-          <DemoScenario />
-          <MetricsCards
-            metrics={metrics}
-            liveMode={liveMode}
-            liveTick={liveTick}
-            lastUpdated={lastUpdated}
-          />
-          <DashboardSection
-            title="Live Operations"
-            description="Watch traffic arrive, check system health, and keep the hosted demo responsive."
-          >
-            <section className="panel live-panel">
-            <div>
-              <div className={liveMode ? "live-dot active" : "live-dot"} />
-              <div>
-                <h2>
-                  <HelpLabel
-                    help="Live simulation appends small batches of deterministic lifecycle events. Good: steady growth with low errors. Bad: repeated failures or no new events. Operator action: pause if the backend is warming up, then resume when healthy."
-                  >
-                    <span className="live-title">
-                      <span className={liveMode ? "live-pulse active" : "live-pulse"} />
-                      {liveMode ? "Live simulation running" : "Live simulation paused"}
-                    </span>
-                  </HelpLabel>
-                </h2>
-                <p className="panel-copy">
-                  Adds small batches of replayed lifecycle-message events over time, then refreshes
-                  fast summary metrics so the hosted demo feels active without recomputing the full
-                  event table.
+          <nav className="tab-nav" aria-label="Dashboard sections">
+            {TABS.map((tab) => (
+              <button
+                className={activeTab === tab ? "tab-button active" : "tab-button"}
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                type="button"
+              >
+                {tab}
+              </button>
+            ))}
+          </nav>
+
+          {activeTab === "Overview" && (
+            <div className="tab-panel">
+              <DemoScenario />
+              <MetricsCards
+                metrics={metrics}
+                liveMode={liveMode}
+                liveTick={liveTick}
+                lastUpdated={lastUpdated}
+              />
+              <section className="panel overview-explainer">
+                <h2>What this system is doing</h2>
+                <p>
+                  The platform is replaying lifecycle messaging decisions, comparing adaptive
+                  policies, tracking long-term customer impact, and applying governance before any
+                  policy would be expanded. Use the tabs for deeper experiment, risk, operations,
+                  and AI decision-support detail.
                 </p>
-              </div>
+              </section>
             </div>
-            <div className="live-stats">
-              <span>Total events <strong>{metrics.total_events.toLocaleString()}</strong></span>
-              <span>Events added in last tick <strong>{liveTick.event_count_added}</strong></span>
-              <span>Next update <strong>{liveMode ? `${nextUpdateIn}s` : "paused"}</strong></span>
-              <span>Updated <strong>{formatUpdated(lastUpdated)}</strong></span>
+          )}
+
+          {activeTab === "Experimentation" && (
+            <div className="tab-panel">
+              <DashboardSection
+                title="Experimentation"
+                description="Compare immediate lift, long-term value, offline estimates, Bayesian confidence, and exploration budgets."
+              >
+                <PolicyDashboard metrics={metrics} onSimulate={handleSimulate} />
+                <TradeoffPanel metrics={metrics} />
+                <GovernancePanel metrics={metrics} />
+                <BayesianPanel bayesian={metrics.bayesian} />
+                <ExplorationBudgetPanel exploration={metrics.exploration} />
+              </DashboardSection>
             </div>
-            </section>
-            <ReplayControlsPanel onTick={refresh} />
-            <StreamingStatusPanel streaming={metrics.streaming} />
-          </DashboardSection>
+          )}
 
-          <DashboardSection
-            title="Experiment Performance"
-            description="Compare immediate lift with long-term customer value across decisioning policies."
-          >
-            <PolicyDashboard metrics={metrics} onSimulate={handleSimulate} />
-            <TradeoffPanel metrics={metrics} />
-            <BayesianPanel bayesian={metrics.bayesian} />
-          </DashboardSection>
+          {activeTab === "Risk & Governance" && (
+            <div className="tab-panel">
+              <DashboardSection
+                title="Risk & Governance"
+                description="Translate evidence, uncertainty, fatigue, and risk signals into rollout actions."
+              >
+                <ObservabilityPanel observability={metrics.observability} />
+                <GovernancePanel metrics={metrics} />
+                <RolloutControlsPanel rollout={metrics.rollout} onChanged={refresh} />
+                <RiskMonitoringPanel metrics={metrics} />
+              </DashboardSection>
+            </div>
+          )}
 
-          <DashboardSection
-            title="Risk & Governance"
-            description="Translate evidence, uncertainty, fatigue, and risk signals into rollout actions."
-          >
-            <ObservabilityPanel observability={metrics.observability} />
-            <GovernancePanel metrics={metrics} />
-            <RolloutControlsPanel rollout={metrics.rollout} onChanged={refresh} />
-            <RiskMonitoringPanel metrics={metrics} />
-          </DashboardSection>
+          {activeTab === "Live Operations" && (
+            <div className="tab-panel">
+              <DashboardSection
+                title="Live Operations"
+                description="Control live simulation and replay, monitor transport status, and inspect compact audit logs."
+              >
+                <LiveSimulationPanel
+                  liveMode={liveMode}
+                  liveTick={liveTick}
+                  metrics={metrics}
+                  nextUpdateIn={nextUpdateIn}
+                  lastUpdated={lastUpdated}
+                />
+                <ReplayControlsPanel onTick={refresh} />
+                <StreamingStatusPanel streaming={metrics.streaming} />
+                <EventStream events={events} />
+              </DashboardSection>
+            </div>
+          )}
 
-          <DashboardSection
-            title="Policy Intelligence"
-            description="Inspect exploration budgets and the confidence behind adaptive policy choices."
-          >
-            <ExplorationBudgetPanel exploration={metrics.exploration} />
-          </DashboardSection>
-
-          <DashboardSection
-            title="Messaging & Assignment Support"
-            description="Show how evidence retrieval and guardrails support human-reviewed AI assistance."
-          >
-            <AssignmentPanel />
-            <MessagingGenerationPanel />
-          </DashboardSection>
-
-          <DashboardSection
-            title="Audit Trail"
-            description="Inspect a small recent sample when you need row-level evidence."
-          >
-            <EventStream events={events} />
-          </DashboardSection>
+          {activeTab === "AI & Decision Support" && (
+            <div className="tab-panel">
+              <DashboardSection
+                title="AI & Decision Support"
+                description="Review evidence retrieval, similarity-informed explanations, constrained messaging, and human review routing."
+              >
+                <AssignmentPanel />
+                <MessagingGenerationPanel />
+              </DashboardSection>
+            </div>
+          )}
         </>
       )}
     </main>
+  );
+}
+
+function LiveSimulationPanel({ liveMode, liveTick, metrics, nextUpdateIn, lastUpdated }) {
+  return (
+    <section className="panel live-panel">
+      <div>
+        <div className={liveMode ? "live-dot active" : "live-dot"} />
+        <div>
+          <h2>
+            <HelpLabel
+              help="Live simulation appends small batches of deterministic lifecycle events. Good: steady growth with low errors. Bad: repeated failures or no new events. Operator action: pause if the backend is warming up, then resume when healthy."
+            >
+              <span className="live-title">
+                <span className={liveMode ? "live-pulse active" : "live-pulse"} />
+                {liveMode ? "Live simulation running" : "Live simulation paused"}
+              </span>
+            </HelpLabel>
+          </h2>
+          <p className="panel-copy">
+            Adds small batches of replayed lifecycle-message events over time, then refreshes fast
+            summary metrics so the hosted demo feels active without recomputing the full event table.
+          </p>
+        </div>
+      </div>
+      <div className="live-stats">
+        <span>Total events <strong>{metrics.total_events.toLocaleString()}</strong></span>
+        <span>Events added in last tick <strong>{liveTick.event_count_added}</strong></span>
+        <span>Next update <strong>{liveMode ? `${nextUpdateIn}s` : "paused"}</strong></span>
+        <span>Updated <strong>{formatUpdated(lastUpdated)}</strong></span>
+      </div>
+    </section>
   );
 }
 
