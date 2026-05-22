@@ -79,7 +79,6 @@ def test_dashboard_uses_operational_tabs_for_major_workflows():
 
     assert "tab-nav" in app
     assert "tab-button active" in app
-    assert "How to read this dashboard" in app
     assert "LiveSimulationPanel" in app
     assert "ReplayControlsPanel" in app
     assert "EventStream" in app
@@ -116,9 +115,9 @@ def test_overview_and_experimentation_have_distinct_purpose():
     )[0]
 
     assert "MetricsCards" in overview_block
-    assert "How to read this dashboard" in overview_block
     assert "ExperimentConfidencePanel" not in overview_block
     assert "LaunchIntelligencePanel" not in overview_block
+    assert "How to read this dashboard" not in overview_block
     assert "ExperimentConfidencePanel" in experimentation_block
     assert "BayesianPanel" in experimentation_block
     assert "UpliftPanel" in experimentation_block
@@ -170,16 +169,12 @@ def test_cached_dashboard_and_freshness_indicators_render():
     assert ".freshness-strip" in styles
 
 
-def test_policy_simulation_control_has_visible_feedback():
-    dashboard = read("frontend/src/components/PolicyDashboard.jsx")
+def test_policy_performance_simulation_section_removed_from_primary_ui():
+    app = read("frontend/src/App.jsx")
 
-    assert "Run policy simulation" in dashboard
-    assert "Events added" in dashboard
-    assert "Policy simulated" in dashboard
-    assert "Reward effect" in dashboard
-    assert "Updated" in dashboard
-    assert "simulating" in dashboard
-    assert "Simulate {formatPolicyLabel(policy)}" not in dashboard
+    assert "PolicyDashboard" not in app
+    assert "Run policy simulation" not in app
+    assert "simulateDecision" not in app
 
 
 def test_rollout_controls_use_clear_percentage_language():
@@ -271,9 +266,12 @@ def test_pm_decision_card_and_confidence_badges_render():
     assert "Did it work, and should we expand?" in metrics
     assert "Experiment result" in metrics
     assert "Bayesian confidence" in metrics
-    assert "Operational risk" in metrics
+    assert "Risk" in metrics
     assert "Recommendation" in metrics
     assert "Next action" in metrics
+    assert "Why" in metrics
+    assert "Hold expansion, reduce exposure to high-fatigue users, and collect more traffic before launch." in metrics
+    assert "guardrails are active" in metrics
     assert "High confidence" in metrics
     assert "Directional evidence" in metrics
     assert "Mixed evidence" in metrics
@@ -283,6 +281,30 @@ def test_pm_decision_card_and_confidence_badges_render():
     assert "overview-confidence-strip" in metrics
     assert ".pm-decision-card" in styles
     assert ".overview-confidence-card" in styles
+
+
+def test_overview_primary_secondary_metrics_and_probability_tooltip():
+    metrics = read("frontend/src/components/MetricsCards.jsx")
+    styles = read("frontend/src/styles.css")
+
+    assert "Primary metric" in metrics
+    assert "Incremental retention-adjusted engagement" in metrics
+    assert "Secondary and guardrail metrics" in metrics
+    for label in [
+        "Immediate clicks / response",
+        "Long-term retention",
+        "Unsubscribe risk",
+        "Fatigue exposure",
+        "Incremental lift",
+        "Rollout safety",
+    ]:
+        assert label in metrics
+    assert "Primary metric defines success. Secondary and guardrail metrics determine whether the result is safe to expand." in metrics
+    assert "Probability best estimates the chance this policy is currently the best option for the selected objective." in metrics
+    assert "It does not automatically mean the policy should launch" in metrics
+    assert "Why winners can differ" in metrics
+    assert "Short-term winner refers to immediate" in metrics
+    assert ".metric-priority-panel" in styles
 
 
 def test_primary_ui_avoids_raw_lowercase_rollback_copy():
@@ -322,20 +344,25 @@ def test_experiment_confidence_and_statistical_posture_rendering():
     assert "Likely Negative" in helpers
 
 
-def test_overview_uses_operational_risks_copy():
+def test_overview_bottom_how_to_read_section_removed():
     app = read("frontend/src/App.jsx")
 
-    assert "Operational Risks" in app
+    overview_block = app.split('{activeTab === "Overview" && (', 1)[1].split(
+        '{activeTab === "Experimentation" && (',
+        1,
+    )[0]
+    assert "How to read this dashboard" not in overview_block
+    assert "Operational Risks" not in overview_block
+    assert "Decision supported" not in overview_block
     assert "Can go wrong" not in app
-    assert "Policies may over-contact users, drift over time" in app
 
 
 def test_primary_ui_uses_professional_policy_labels():
     components = [
         "frontend/src/components/MetricsCards.jsx",
-        "frontend/src/components/PolicyDashboard.jsx",
         "frontend/src/components/TradeoffPanel.jsx",
         "frontend/src/components/GovernancePanel.jsx",
+        "frontend/src/components/OpePanel.jsx",
         "frontend/src/components/BayesianPanel.jsx",
         "frontend/src/components/RiskMonitoringPanel.jsx",
         "frontend/src/components/UpliftPanel.jsx",
@@ -373,9 +400,9 @@ def test_dashboard_includes_browser_replay_controls():
 def test_major_panels_include_help_and_why_this_matters_copy():
     component_dir = ROOT / "frontend/src/components"
     panel_files = [
-        "PolicyDashboard.jsx",
         "TradeoffPanel.jsx",
         "GovernancePanel.jsx",
+        "OpePanel.jsx",
         "ObservabilityPanel.jsx",
         "BayesianPanel.jsx",
         "ExplorationBudgetPanel.jsx",
@@ -467,15 +494,15 @@ def test_ai_assisted_message_experimentation_is_constrained():
 
 
 def test_policy_intervention_examples_are_pm_readable():
-    panel = read("frontend/src/components/MessageExperimentationPanel.jsx")
+    panel = read("frontend/src/components/ExperimentComparisonPanel.jsx")
 
     assert "LinUCB" in panel
-    assert "Prefers personalized summaries for high-value users" in panel
+    assert "Personalizes messaging decisions using user context" in panel
     assert "Epsilon Greedy" in panel
-    assert "over-expose urgency reminders" in panel
+    assert "explores aggressively" in panel.lower()
     assert "Thompson Sampling" in panel
-    assert "balances uncertainty and reward" in panel
-    assert "Static Control" in panel
+    assert "balances uncertainty and reward" in panel.lower()
+    assert "Static A/B Control" in panel
     assert "baseline comparison" in panel
 
 
@@ -557,6 +584,7 @@ def test_pm_experiment_comparison_and_adaptive_grounding_render():
     assert "ExperimentComparisonPanel" in app
     assert "Experiment Comparison" in panel
     assert "Static A/B Control" in panel
+    assert "Baseline / control strategy" in panel
     assert "Traditional equal-split experiment used as a baseline comparison." in panel
     assert "Aggressively explores new messaging strategies to maximize short-term engagement." in panel
     assert "Balances exploration and uncertainty using probabilistic reward estimates." in panel
@@ -566,9 +594,63 @@ def test_pm_experiment_comparison_and_adaptive_grounding_render():
     assert "recommendation style" in panel
     assert "Traditional A/B" in panel
     assert "Adaptive Optimization" in panel
+    assert "Why adaptive experimentation?" in panel
+    assert "Traditional A/B tests keep traffic fixed." in panel
     assert "fixed traffic split" in panel
     assert "learn continuously" in panel
     assert "personalize by context" in panel
     assert "What is this system?" in loading
     assert "Northstar" in loading
     assert "long-term fatigue" in loading
+
+
+def test_no_duplicate_ope_governance_panels_between_tabs():
+    app = read("frontend/src/App.jsx")
+    experimentation_block = app.split('{activeTab === "Experimentation" && (', 1)[1].split(
+        '{activeTab === "Risk & Governance" && (',
+        1,
+    )[0]
+    governance_block = app.split('{activeTab === "Risk & Governance" && (', 1)[1].split(
+        '{activeTab === "Live Operations" && (',
+        1,
+    )[0]
+
+    assert "OpePanel" in experimentation_block
+    assert "GovernancePanel" not in experimentation_block
+    assert "GovernancePanel" in governance_block
+    assert "OpePanel" not in governance_block
+    assert "Off-policy evaluation" in read("frontend/src/components/OpePanel.jsx")
+    assert "Governance recommendations" in read("frontend/src/components/GovernancePanel.jsx")
+
+
+def test_ai_tab_focuses_on_intervention_review_not_policy_strategy_cards():
+    app = read("frontend/src/App.jsx")
+    message_panel = read("frontend/src/components/MessageExperimentationPanel.jsx")
+    ai_block = app.split('{activeTab === "AI & Decision Support" && (', 1)[1]
+
+    assert "This tab explains how the system chooses and reviews specific message interventions." in app
+    assert "AssignmentPanel" in ai_block
+    assert "MessageExperimentationPanel" in ai_block
+    assert "MessagingGenerationPanel" in ai_block
+    assert "policy-examples" not in message_panel
+    assert "Static Control" not in message_panel
+    assert "Thompson Sampling" not in message_panel
+
+
+def test_primary_ui_avoids_raw_status_labels_and_awkward_copy():
+    components = [
+        read("frontend/src/components/GovernancePanel.jsx"),
+        read("frontend/src/components/DecisionLogPanel.jsx"),
+        read("frontend/src/components/ExperimentComparisonPanel.jsx"),
+        read("frontend/src/components/PolicyLifecyclePanel.jsx"),
+    ]
+    joined = "\n".join(components)
+
+    assert "Continue Rollout" in joined
+    assert "Human Review" in joined
+    assert "Hold Expansion" in joined
+    assert "Rollback Recommended" in joined
+    assert "most experimentation dashboards stop at" not in joined
+    assert ">deploy<" not in joined
+    assert ">human_review<" not in joined
+    assert ">hold_expansion<" not in joined

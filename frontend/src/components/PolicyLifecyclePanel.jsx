@@ -74,7 +74,7 @@ export default function PolicyLifecyclePanel() {
           <div className="governance-row lifecycle-row" key={`${version.policy_name}-${version.version}`}>
             <strong className="policy-label">{formatPolicyLabel(version.policy_name)}</strong>
             <span>{version.version}</span>
-            <span className={`status-pill status-${statusClass(version.status)}`}>{version.status}</span>
+            <span className={`status-pill status-${statusClass(version.status)}`}>{formatLifecycleStatus(version.status)}</span>
             <span>{version.rollback_target ?? "none"}</span>
             <div className="button-row">
               <button onClick={() => promote(version)}>Promote</button>
@@ -92,6 +92,15 @@ function statusClass(status) {
   if (status === "candidate") return "canary";
   if (status === "challenger") return "human_review";
   return "pause";
+}
+
+function formatLifecycleStatus(status) {
+  return {
+    champion: "Champion",
+    candidate: "Candidate",
+    challenger: "Challenger",
+    archived: "Archived",
+  }[status] ?? "Candidate";
 }
 
 function seedRows() {

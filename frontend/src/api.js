@@ -98,26 +98,6 @@ export function createDecisionRecord(payload) {
   });
 }
 
-export function simulateDecision(policy) {
-  return request("/policies/simulate", {
-    method: "POST",
-    body: JSON.stringify({
-      policy,
-      user_id: `dashboard-${Math.ceil(Math.random() * 1000)}`,
-      context: {
-        engagement: Number(Math.random().toFixed(3)),
-        engagement_score: Number(Math.random().toFixed(3)),
-        fatigue_score: Number((0.1 + Math.random() * 0.55).toFixed(3)),
-        profile_maturity: [0.25, 0.5, 0.75, 1][Math.floor(Math.random() * 4)],
-        unsubscribe_risk: Number((0.03 + Math.random() * 0.22).toFixed(3)),
-        prior_touch_count: Math.floor(Math.random() * 12),
-        days_since_last_touch: Math.floor(Math.random() * 21),
-        prior_sessions: Math.floor(Math.random() * 12),
-      },
-    }),
-  });
-}
-
 export function recommendAssignment(context = sampleUserContext()) {
   return request("/assignments/recommend", {
     method: "POST",

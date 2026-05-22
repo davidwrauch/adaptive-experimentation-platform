@@ -4,7 +4,6 @@ import {
   fetchMetricsSummary,
   fetchRecentEvents,
   fetchUpliftMetrics,
-  simulateDecision,
   streamDemoStep,
 } from "./api";
 import AssignmentPanel from "./components/AssignmentPanel";
@@ -27,7 +26,7 @@ import MetricsCards from "./components/MetricsCards";
 import MessagingGenerationPanel from "./components/MessagingGenerationPanel";
 import MessageExperimentationPanel from "./components/MessageExperimentationPanel";
 import ObservabilityPanel from "./components/ObservabilityPanel";
-import PolicyDashboard from "./components/PolicyDashboard";
+import OpePanel from "./components/OpePanel";
 import PolicyLifecyclePanel from "./components/PolicyLifecyclePanel";
 import RiskMonitoringPanel from "./components/RiskMonitoringPanel";
 import RolloutControlsPanel from "./components/RolloutControlsPanel";
@@ -181,12 +180,6 @@ export default function App() {
     };
   }, [activeTab, liveMode, refresh]);
 
-  async function handleSimulate(policy) {
-    const event = await simulateDecision(policy);
-    await refresh();
-    return event;
-  }
-
   async function handleRefreshDetails() {
     try {
       await refresh({ includeDetails: true, includeRecent: true, includeUplift: true });
@@ -251,20 +244,6 @@ export default function App() {
               />
               <ExperimentComparisonPanel metrics={metrics} uplift={uplift} />
               <InterventionCatalogPanel />
-              <section className="panel overview-explainer">
-                <h2>How to read this dashboard</h2>
-                <div className="overview-guide-grid">
-                  <div><strong>Optimizing</strong><span>Clicks, retention, incremental lift, and safe rollout.</span></div>
-                  <div>
-                    <strong>Operational Risks</strong>
-                    <span>
-                      Policies may over-contact users, drift over time, or optimize short-term
-                      engagement at the expense of long-term customer value.
-                    </span>
-                  </div>
-                  <div><strong>Decision supported</strong><span>Promote, continue, monitor, roll back, or send to human review.</span></div>
-                </div>
-              </section>
             </div>
           )}
 
@@ -275,10 +254,9 @@ export default function App() {
                 description="Compare immediate lift, long-term value, offline estimates, Bayesian confidence, and exploration budgets."
                 audience="Audience: experimentation scientists, analysts, and advanced PMs. Purpose: Why is this happening?"
               >
-                <PolicyDashboard metrics={metrics} onSimulate={handleSimulate} />
                 <TradeoffPanel metrics={metrics} />
                 <ExperimentConfidencePanel metrics={metrics} />
-                <GovernancePanel metrics={metrics} />
+                <OpePanel metrics={metrics} />
                 <UpliftPanel />
                 <BayesianPanel bayesian={metrics.bayesian} />
                 <ExplorationBudgetPanel exploration={metrics.exploration} />
@@ -332,7 +310,7 @@ export default function App() {
             <div className="tab-panel">
               <DashboardSection
                 title="AI & Decision Support"
-                description="Review evidence retrieval, similarity-informed explanations, constrained messaging, and human review routing."
+                description="This tab explains how the system chooses and reviews specific message interventions."
                 audience="Audience: ML scientists and adaptive systems teams. Purpose: How is the system making decisions?"
               >
                 <AssignmentPanel />

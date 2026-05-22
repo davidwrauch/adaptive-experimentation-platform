@@ -22,8 +22,11 @@ export default function MetricsCards({ metrics, uplift, liveMode = false, liveTi
   );
   const topPolicies = [...metrics.policies]
     .sort((a, b) => b.average_reward - a.average_reward)
-    .slice(0, 3);
+    .slice(0, 4);
   const nextAction = nextActionFor(posture.state, healthScore);
+  const primaryMetric = bestLongTermPolicy?.behavioral?.average_long_term_reward ?? bestLongTermPolicy?.average_reward ?? 0;
+  const averageRisk = average(metrics.policies.map((policy) => policy.behavioral?.average_unsubscribe_risk ?? 0));
+  const averageFatigue = average(metrics.policies.map((policy) => policy.behavioral?.average_fatigue_delta ?? 0));
 
   return (
     <section className="summary-band" aria-label="Summary metrics">
@@ -36,13 +39,42 @@ export default function MetricsCards({ metrics, uplift, liveMode = false, liveTi
           </p>
         </div>
         <div className="pm-decision-grid">
-          <DecisionItem label="Experiment result" value={`${formatPolicyLabel(bestPolicy?.policy)} improves short-term response.`} />
-          <DecisionItem label="Long-term outcome" value={`${formatPolicyLabel(bestLongTermPolicy?.policy)} performs better on retention.`} />
+          <DecisionItem label="Result" value={`${formatPolicyLabel(bestPolicy?.policy)} improves short-term response.`} />
           <DecisionItem label="Bayesian confidence" value={overallConfidence(topPolicies, bayesianByPolicy)} />
-          <DecisionItem label="Operational risk" value={healthScore >= 80 ? "Stable guardrails" : "Guardrails active"} />
+          <DecisionItem label="Risk" value={healthScore >= 80 ? "Stable guardrails" : "Guardrails active"} />
           <DecisionItem label="Recommendation" value={posture.state} badge />
           <DecisionItem label="Next action" value={nextAction} />
+          <DecisionItem
+            label="Why"
+            value={`${formatPolicyLabel(bestPolicy?.policy)} wins short-term response, but ${formatPolicyLabel(bestLongTermPolicy?.policy)} has stronger retention and guardrails are active.`}
+          />
         </div>
+      </div>
+      <div className="metric-priority-panel">
+        <div>
+          <HelpLabel help="Primary metric defines success. Secondary and guardrail metrics determine whether the result is safe to expand.">
+            Primary metric
+          </HelpLabel>
+          <strong>Incremental retention-adjusted engagement</strong>
+          <span>{primaryMetric.toFixed(3)} best long-term average</span>
+        </div>
+        <div>
+          <HelpLabel help="Secondary metrics explain tradeoffs: immediate response, long-term retention, unsubscribe risk, fatigue exposure, incremental lift, and rollout safety.">
+            Secondary and guardrail metrics
+          </HelpLabel>
+          <div className="secondary-metric-grid">
+            <MetricChip label="Immediate clicks / response" value={formatPolicyLabel(bestPolicy?.policy)} />
+            <MetricChip label="Long-term retention" value={formatPolicyLabel(bestLongTermPolicy?.policy)} />
+            <MetricChip label="Unsubscribe risk" value={averageRisk.toFixed(3)} />
+            <MetricChip label="Fatigue exposure" value={averageFatigue.toFixed(3)} />
+            <MetricChip label="Incremental lift" value={uplift?.average_treatment_effect?.toFixed(3) ?? "pending"} />
+            <MetricChip label="Rollout safety" value={posture.state} />
+          </div>
+        </div>
+        <p>
+          Primary metric defines success. Secondary and guardrail metrics determine whether the
+          result is safe to expand.
+        </p>
       </div>
       <div className="metrics-grid">
         <div className="metric-card">
@@ -98,11 +130,21 @@ export default function MetricsCards({ metrics, uplift, liveMode = false, liveTi
             <article className="overview-confidence-card" key={policy.policy}>
               <strong className="policy-label">{formatPolicyLabel(policy.policy)}</strong>
               <span className={`confidence-badge confidence-${slug(status)}`}>{status}</span>
-              <small>Probability best {(probabilityBest * 100).toFixed(1)}%</small>
+              <HelpLabel help="Probability best estimates the chance this policy is currently the best option for the selected objective. It does not automatically mean the policy should launch if guardrails or long-term metrics disagree.">
+                Probability best {(probabilityBest * 100).toFixed(1)}%
+              </HelpLabel>
               <small>Uncertainty {uncertaintyLabel(policy.ope?.uncertainty)}</small>
             </article>
           );
         })}
+      </div>
+      <div className="objective-clarifier">
+        <strong>Why winners can differ</strong>
+        <span>
+          Probability best reflects the posterior objective. Short-term winner refers to immediate
+          reward only. Long-term winner refers to retention-adjusted outcome. Operational
+          recommendation considers guardrails.
+        </span>
       </div>
       <div className="overview-scorecard-row">
         <MiniScore label="Experiment result" value={`${formatPolicyLabel(bestPolicy?.policy)} wins short-term response`} />
@@ -125,6 +167,15 @@ function DecisionItem({ label, value, badge = false }) {
       <span>{label}</span>
       {badge ? <strong className={`launch-badge launch-${slug(value)}`}>{value}</strong> : <strong>{value}</strong>}
     </div>
+  );
+}
+
+function MetricChip({ label, value }) {
+  return (
+    <span>
+      {label}
+      <strong>{value}</strong>
+    </span>
   );
 }
 
@@ -163,11 +214,16 @@ function uncertaintyLabel(value = 0) {
 }
 
 function nextActionFor(posture, healthScore) {
-  if (posture === "Hold Expansion") return "Reduce fatigue exposure and continue monitoring.";
+  if (posture === "Hold Expansion") return "Hold expansion, reduce exposure to high-fatigue users, and collect more traffic before launch.";
   if (posture === "Human Review Recommended") return "Route the launch decision to a reviewer.";
   if (posture === "Rollback Recommended") return "Reduce exposure immediately and inspect guardrails.";
   if (posture === "Monitor Closely") return "Keep controlled rollout and review leading risk indicators.";
   return healthScore >= 80 ? "Continue staged rollout with monitoring." : "Resolve guardrails before expansion.";
+}
+
+function average(values) {
+  if (!values.length) return 0;
+  return values.reduce((sum, value) => sum + value, 0) / values.length;
 }
 
 function formatUpdated(value) {

@@ -241,6 +241,20 @@ export function governanceExplanation(status) {
 }[status] ?? "Governance has not produced a clear launch label yet.";
 }
 
+export function formatGovernanceStatus(status) {
+  return {
+    deploy: "Continue Rollout",
+    canary: "Monitor Closely",
+    human_review: "Human Review",
+    pause: "Hold Expansion",
+    hold_expansion: "Hold Expansion",
+    rollback: "Rollback Recommended",
+    review: "Human Review",
+    humanReview: "Human Review",
+    continue: "Continue Rollout",
+  }[status] ?? "Monitor Closely";
+}
+
 export function convergenceStatus(metrics) {
   const policies = metrics?.policies ?? [];
   const totalEvents = Math.max(1, metrics?.total_events ?? 0);

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { createDecisionRecord, fetchDecisionRecords } from "../api";
 import { HelpLabel, WhyThisMatters } from "./InfoTooltip";
-import { formatPolicyLabel } from "../interpretations";
+import { formatGovernanceStatus, formatPolicyLabel } from "../interpretations";
 
 export default function DecisionLogPanel({ metrics }) {
   const [records, setRecords] = useState([]);
@@ -57,11 +57,11 @@ export default function DecisionLogPanel({ metrics }) {
         {records.map((record) => (
           <article className="event-row" key={record.id}>
             <div>
-              <strong>{record.decision_type}</strong>
+              <strong>{formatDecisionType(record.decision_type)}</strong>
               <span className="policy-label">{formatPolicyLabel(record.policy)}</span>
             </div>
             <div>
-              <span>Signal: {record.system_recommendation}</span>
+              <span>Signal: {formatGovernanceStatus(record.system_recommendation)}</span>
               <strong>{record.operator_reason || "system recommendation"}</strong>
             </div>
           </article>
@@ -70,4 +70,14 @@ export default function DecisionLogPanel({ metrics }) {
       </div>
     </section>
   );
+}
+
+function formatDecisionType(value) {
+  return {
+    deploy: "Continue Rollout",
+    pause: "Hold Expansion",
+    rollback: "Rollback Recommended",
+    human_review: "Human Review",
+    abstain: "Abstain",
+  }[value] ?? "Human Review";
 }

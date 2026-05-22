@@ -32,7 +32,9 @@ export default function ExperimentComparisonPanel({ metrics, uplift }) {
         <span className={`launch-badge launch-${slug(recommendation.state)}`}>{recommendation.state}</span>
       </div>
       <p className="panel-copy">
-        Northstar is testing lifecycle messaging strategies across message timing, frequency,
+        This experiment compares a traditional static A/B baseline against three adaptive policies
+        that learn from traffic over time. Northstar is testing lifecycle messaging strategies
+        across message timing, frequency,
         length, personalization depth, urgency level, and recommendation style.
       </p>
       <div className="experiment-grounding-grid">
@@ -42,6 +44,9 @@ export default function ExperimentComparisonPanel({ metrics, uplift }) {
             <article className="experiment-comparison-card" key={policy.policy}>
               <div>
                 <strong className="policy-label">{displayName(policy.policy)}</strong>
+                <HelpLabel help={strategyHelp(policy.policy)}>
+                  {policy.policy === "static" ? "Baseline / control strategy" : "Adaptive strategy"}
+                </HelpLabel>
                 <p>{policyDescriptions[policy.policy]}</p>
               </div>
               <dl>
@@ -54,7 +59,7 @@ export default function ExperimentComparisonPanel({ metrics, uplift }) {
                 <dt>Confidence</dt>
                 <dd>{posture.posture}</dd>
                 <dt>Rollout posture</dt>
-                <dd>{policy.governance?.status ?? "canary"}</dd>
+                <dd>{formatStatus(policy.governance?.status)}</dd>
                 <dt>Recommendation</dt>
                 <dd>{posture.operationalRecommendation}</dd>
               </dl>
@@ -63,6 +68,13 @@ export default function ExperimentComparisonPanel({ metrics, uplift }) {
         })}
       </div>
       <div className="ab-adaptive-comparison">
+        <div className="ab-adaptive-heading">
+          <strong>Why adaptive experimentation?</strong>
+          <p>
+            Traditional A/B tests keep traffic fixed. Adaptive policies learn from incoming results
+            and can personalize decisions, but they require stronger governance.
+          </p>
+        </div>
         <div>
           <strong>Traditional A/B</strong>
           <ul className="plain-list">
@@ -88,6 +100,24 @@ export default function ExperimentComparisonPanel({ metrics, uplift }) {
 function displayName(policy) {
   if (policy === "static") return "Static A/B Control";
   return formatPolicyLabel(policy);
+}
+
+function strategyHelp(policy) {
+  return {
+    static: "Static A/B Control: fixed equal-split baseline.",
+    epsilon_greedy: "Epsilon Greedy: explores aggressively, often strong short-term, higher overexposure risk.",
+    thompson_sampling: "Thompson Sampling: balances uncertainty and reward probabilistically.",
+    linucb: "LinUCB: personalizes using context, often stronger for long-term outcomes.",
+  }[policy];
+}
+
+function formatStatus(status) {
+  return {
+    deploy: "Continue Rollout",
+    canary: "Monitor Closely",
+    human_review: "Human Review",
+    pause: "Hold Expansion",
+  }[status] ?? "Monitor Closely";
 }
 
 function riskLabel(policy) {

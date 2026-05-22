@@ -65,24 +65,6 @@ export default function MessageExperimentationPanel() {
         ))}
       </div>
 
-      <div className="policy-examples">
-        <div>
-          <strong>LinUCB</strong>
-          <p>Prefers personalized summaries for high-value users when retention tradeoffs matter.</p>
-        </div>
-        <div>
-          <strong>Epsilon Greedy</strong>
-          <p>Explores aggressively and may over-expose urgency reminders during learning.</p>
-        </div>
-        <div>
-          <strong>Thompson Sampling</strong>
-          <p>balances uncertainty and reward by shifting traffic toward promising message styles.</p>
-        </div>
-        <div>
-          <strong>Static Control</strong>
-          <p>Provides the baseline comparison for estimating causal lift and incremental value.</p>
-        </div>
-      </div>
     </section>
   );
 }

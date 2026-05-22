@@ -49,7 +49,7 @@ export default function GuidedMode() {
               />
               <GuideItem
                 title="Governance"
-                body="Launch labels convert model evidence into operational decisions: deploy, canary, human review, or pause."
+                body="Launch labels convert model evidence into operational decisions: Continue Rollout, Monitor Closely, Human Review, or Hold Expansion."
               />
               <GuideItem
                 title="Live mode"
