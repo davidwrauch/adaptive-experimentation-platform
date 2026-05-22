@@ -34,12 +34,19 @@ export function launchRecommendation(metrics, uplift) {
   const health = metrics?.observability?.health_score ?? 100;
   const policies = metrics?.policies ?? [];
   const uncertain = policies.some((policy) => (policy.ope?.uncertainty ?? 0) >= 0.35);
+  const review = policies.some((policy) => policy.governance?.status === "human_review");
   const totalEvents = metrics?.total_events ?? 0;
-  if (rollback === "rollback") {
+  if (rollback === "rollback" && health < 55) {
     return { state: "Rollback Recommended", reason: "Rollback posture is active based on current monitoring or rollout checks.", score: 25 };
   }
   if (totalEvents < 100) {
     return { state: "Insufficient Evidence", reason: "Collect more traffic before promoting a policy.", score: 45 };
+  }
+  if (review) {
+    return { state: "Human Review Recommended", reason: "At least one policy has a governance review label.", score: 55 };
+  }
+  if (rollback === "rollback") {
+    return { state: "Hold Expansion", reason: "Rollback signals are present, but severity is not high enough for automatic rollback.", score: 52 };
   }
   if (health < 75 || uncertain) {
     return { state: "Monitor Closely", reason: "Health or uncertainty signals argue for controlled exposure.", score: 62 };
@@ -47,7 +54,7 @@ export function launchRecommendation(metrics, uplift) {
   if (uplift?.average_treatment_effect > 0.05) {
     return { state: "Promote", reason: "Incremental value is positive and safety signals are acceptable.", score: 86 };
   }
-  return { state: "Continue", reason: "Evidence is stable, but incremental lift is not yet decisive.", score: 74 };
+  return { state: "Continue Rollout", reason: "Evidence is stable, but incremental lift is not yet decisive.", score: 74 };
 }
 
 export function operationalInsights(metrics, uplift) {
@@ -65,6 +72,53 @@ export function operationalInsights(metrics, uplift) {
     insights.push(`Exploration is over-concentrated in ${saturated.segment}; reduce exploration pressure for that segment.`);
   }
   return insights.slice(0, 4);
+}
+
+export function statisticalPosture(policy, baselinePolicy, bayesianPolicy) {
+  const baselineReward = baselinePolicy?.average_reward ?? 0;
+  const baselineLongTerm = baselinePolicy?.behavioral?.average_long_term_reward ?? baselineReward;
+  const immediateLift = (policy.average_reward ?? 0) - baselineReward;
+  const longTermLift = (policy.behavioral?.average_long_term_reward ?? policy.average_reward ?? 0) - baselineLongTerm;
+  const probabilityBest = bayesianPolicy?.probability_best ?? 0;
+  const uncertainty = policy.ope?.uncertainty ?? 1;
+  const eventCount = policy.event_count ?? 0;
+  let posture = "Inconclusive";
+  let action = "Continue";
+
+  if (eventCount < 50) {
+    posture = "Underpowered";
+    action = "Hold Expansion";
+  } else if (uncertainty >= 0.45) {
+    posture = "High Variance";
+    action = "Monitor Closely";
+  } else if (immediateLift < -0.03 && longTermLift < -0.03) {
+    posture = "Likely Negative";
+    action = "Rollback Recommended";
+  } else if (probabilityBest >= 0.65 && (immediateLift > 0.02 || longTermLift > 0.02)) {
+    posture = "Likely Positive";
+    action = "Promote";
+  } else if (immediateLift > 0 || longTermLift > 0) {
+    posture = "Directionally Positive";
+    action = policy.governance?.status === "human_review" ? "Human Review" : "Continue";
+  }
+
+  if (policy.governance?.status === "pause") {
+    action = "Rollback Recommended";
+  } else if (policy.governance?.status === "human_review") {
+    action = "Human Review";
+  }
+
+  return {
+    policy: policy.policy,
+    immediateLift: round(immediateLift),
+    longTermLift: round(longTermLift),
+    probabilityBest: round(probabilityBest),
+    uncertaintyLevel: uncertainty >= 0.35 ? "High" : uncertainty >= 0.18 ? "Medium" : "Low",
+    posture,
+    action,
+    experimentResult: `${posture}: immediate lift ${round(immediateLift)}, long-term lift ${round(longTermLift)}.`,
+    operationalRecommendation: action,
+  };
 }
 
 export function riskInsight(metrics) {
@@ -144,4 +198,8 @@ function formatPolicy(policy) {
     .split("_")
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(" ");
+}
+
+function round(value) {
+  return Number.parseFloat((value ?? 0).toFixed(4));
 }

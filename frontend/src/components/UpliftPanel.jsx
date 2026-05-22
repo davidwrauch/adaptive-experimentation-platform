@@ -25,7 +25,7 @@ export default function UpliftPanel() {
       </div>
       <p className="panel-copy">
         Raw reward shows what happened. Uplift estimates what changed because a policy intervened,
-        using static/control traffic as the counterfactual baseline.
+        using Static Control traffic as the counterfactual baseline.
       </p>
       <WhyThisMatters>
         Incrementality prevents teams from over-investing in users who would have clicked anyway.

@@ -115,8 +115,64 @@ def test_policy_display_labels_and_launch_intelligence_rendering():
     assert "Launch safety" in launch
     assert "Promote" in helpers
     assert "Rollback Recommended" in helpers
+    assert "Continue Rollout" in helpers
+    assert "Hold Expansion" in helpers
+    assert "Human Review Recommended" in helpers
     assert "Insufficient Evidence" in helpers
     assert "formatPolicyLabel(bestPolicy?.policy)" in metrics
+
+
+def test_experiment_confidence_and_statistical_posture_rendering():
+    app = read("frontend/src/App.jsx")
+    panel = read("frontend/src/components/ExperimentConfidencePanel.jsx")
+    helpers = read("frontend/src/interpretations.js")
+
+    assert "ExperimentConfidencePanel" in app
+    assert "Experiment Confidence" in panel
+    assert "Experiment Result" in panel
+    assert "Operational Recommendation" in panel
+    assert "Likely Positive" in helpers
+    assert "Directionally Positive" in helpers
+    assert "Inconclusive" in helpers
+    assert "Underpowered" in helpers
+    assert "High Variance" in helpers
+    assert "Likely Negative" in helpers
+
+
+def test_overview_uses_operational_risks_copy():
+    app = read("frontend/src/App.jsx")
+
+    assert "Operational Risks" in app
+    assert "Can go wrong" not in app
+    assert "Policies may over-contact users, drift over time" in app
+
+
+def test_primary_ui_uses_professional_policy_labels():
+    components = [
+        "frontend/src/components/MetricsCards.jsx",
+        "frontend/src/components/PolicyDashboard.jsx",
+        "frontend/src/components/TradeoffPanel.jsx",
+        "frontend/src/components/GovernancePanel.jsx",
+        "frontend/src/components/BayesianPanel.jsx",
+        "frontend/src/components/RiskMonitoringPanel.jsx",
+        "frontend/src/components/UpliftPanel.jsx",
+        "frontend/src/components/EventStream.jsx",
+        "frontend/src/components/AssignmentPanel.jsx",
+    ]
+
+    for path in components:
+        content = read(path)
+        assert "formatPolicyLabel" in content, path
+
+
+def test_epsilon_greedy_tradeoff_copy_is_explicit():
+    helpers = read("frontend/src/interpretations.js")
+    guided = read("frontend/src/components/GuidedMode.jsx")
+
+    assert "Epsilon Greedy" in helpers
+    assert "short-term clicks" in helpers
+    assert "stronger long-term retention" in helpers
+    assert "Epsilon Greedy explores more" in guided
 
 
 def test_dashboard_includes_browser_replay_controls():

@@ -370,6 +370,17 @@ h2 {
   color: #8a2e2e;
 }
 
+.launch-continue-rollout {
+  background: #ddefe6;
+  color: #176346;
+}
+
+.launch-hold-expansion,
+.launch-human-review-recommended {
+  background: #fff1cc;
+  color: #775600;
+}
+
 .launch-safety {
   display: grid;
   gap: 16px;
@@ -401,6 +412,76 @@ h2 {
   display: block;
   line-height: 1.4;
   margin-top: 6px;
+}
+
+.confidence-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.confidence-card {
+  background: #fbfcfb;
+  border: 1px solid #ecf0ee;
+  border-radius: 8px;
+  display: grid;
+  gap: 12px;
+  min-height: 240px;
+  padding: 14px;
+}
+
+.confidence-card-head {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+}
+
+.confidence-badge {
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-weight: 900;
+  padding: 5px 8px;
+  white-space: nowrap;
+}
+
+.confidence-likely-positive,
+.confidence-directionally-positive {
+  background: #ddefe6;
+  color: #176346;
+}
+
+.confidence-inconclusive,
+.confidence-underpowered,
+.confidence-high-variance {
+  background: #fff1cc;
+  color: #775600;
+}
+
+.confidence-likely-negative {
+  background: #f8dddd;
+  color: #8a2e2e;
+}
+
+.confidence-metrics {
+  grid-template-columns: 1fr 1fr;
+}
+
+.result-recommendation {
+  display: grid;
+  gap: 10px;
+}
+
+.result-recommendation div {
+  border-top: 1px solid #ecf0ee;
+  padding-top: 8px;
+}
+
+.result-recommendation span {
+  color: #68777d;
+  display: block;
+  font-size: 0.82rem;
+  margin-bottom: 4px;
 }
 
 .summary-band {
@@ -1056,6 +1137,7 @@ small {
   .velocity-grid,
   .launch-safety,
   .overview-guide-grid,
+  .confidence-grid,
   .loading-console,
   .live-panel,
   .live-stats,

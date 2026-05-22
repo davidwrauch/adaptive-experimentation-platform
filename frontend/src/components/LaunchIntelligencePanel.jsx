@@ -11,7 +11,7 @@ export default function LaunchIntelligencePanel({ metrics, uplift, liveTick }) {
       (b.behavioral?.average_long_term_reward ?? b.average_reward) -
       (a.behavioral?.average_long_term_reward ?? a.average_reward),
   )[0];
-  const governance = metrics.rollout?.rollback?.recommendation ?? "continue";
+  const governance = recommendation.state;
   const reviews = policies.filter((policy) => policy.governance?.status === "human_review").length;
 
   return (
@@ -28,7 +28,7 @@ export default function LaunchIntelligencePanel({ metrics, uplift, liveTick }) {
         <Score label="Raw reward winner" value={formatPolicyLabel(rawWinner?.policy)} />
         <Score label="Long-term winner" value={formatPolicyLabel(longTermWinner?.policy)} />
         <Score label="Uplift winner" value={formatPolicyLabel(uplift?.incremental_value_winner)} />
-        <Score label="Governance" value={governance} />
+        <Score label="Rollout posture" value={governance} />
         <Score label="Uncertainty" value={uncertaintyInsight(metrics).startsWith("Policy") ? "Stable" : "High uncertainty"} />
         <Score label="Launch recommendation" value={recommendation.state} />
       </div>
@@ -61,7 +61,7 @@ export default function LaunchIntelligencePanel({ metrics, uplift, liveTick }) {
         <Score label="Events processed" value={metrics.total_events.toLocaleString()} />
         <Score label="Policies evaluated" value={policies.length} />
         <Score label="Policies promoted" value={policies.filter((policy) => policy.governance?.status === "deploy").length} />
-        <Score label="Rollback recommendations" value={governance === "rollback" ? 1 : 0} />
+        <Score label="Rollback recommendations" value={governance === "Rollback Recommended" ? 1 : 0} />
         <Score label="Human review recommendations" value={reviews} />
         <Score label="Live runs started" value={liveTick?.event_count_added ? 1 : 0} />
         <Score label="Avg time-to-decision" value="simulated 2m" />

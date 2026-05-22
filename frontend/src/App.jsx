@@ -13,6 +13,7 @@ import DashboardSection from "./components/DashboardSection";
 import DecisionLogPanel from "./components/DecisionLogPanel";
 import DemoScenario from "./components/DemoScenario";
 import EventStream from "./components/EventStream";
+import ExperimentConfidencePanel from "./components/ExperimentConfidencePanel";
 import ExplorationBudgetPanel from "./components/ExplorationBudgetPanel";
 import GovernancePanel from "./components/GovernancePanel";
 import GuidedMode from "./components/GuidedMode";
@@ -188,11 +189,18 @@ export default function App() {
                 lastUpdated={lastUpdated}
               />
               <LaunchIntelligencePanel metrics={metrics} uplift={uplift} liveTick={liveTick} />
+              <ExperimentConfidencePanel metrics={metrics} />
               <section className="panel overview-explainer">
                 <h2>How to read this dashboard</h2>
                 <div className="overview-guide-grid">
                   <div><strong>Optimizing</strong><span>Clicks, retention, incremental lift, and safe rollout.</span></div>
-                  <div><strong>Can go wrong</strong><span>Policies can over-contact users, drift, or win raw clicks without causal value.</span></div>
+                  <div>
+                    <strong>Operational Risks</strong>
+                    <span>
+                      Policies may over-contact users, drift over time, or optimize short-term
+                      engagement at the expense of long-term customer value.
+                    </span>
+                  </div>
                   <div><strong>Decision supported</strong><span>Promote, continue, monitor, roll back, or send to human review.</span></div>
                 </div>
               </section>
@@ -207,6 +215,7 @@ export default function App() {
               >
                 <PolicyDashboard metrics={metrics} onSimulate={handleSimulate} />
                 <TradeoffPanel metrics={metrics} />
+                <ExperimentConfidencePanel metrics={metrics} />
                 <GovernancePanel metrics={metrics} />
                 <UpliftPanel />
                 <BayesianPanel bayesian={metrics.bayesian} />
