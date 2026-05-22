@@ -36,32 +36,83 @@ export function launchRecommendation(metrics, uplift) {
   const uncertain = policies.some((policy) => (policy.ope?.uncertainty ?? 0) >= 0.35);
   const review = policies.some((policy) => policy.governance?.status === "human_review");
   const totalEvents = metrics?.total_events ?? 0;
-  if (rollback === "rollback" && health < 55) {
-    return { state: "Rollback Recommended", reason: "Rollback posture is active based on current monitoring or rollout checks.", score: 25 };
+  const maxTrafficShare = Math.max(0, ...policies.map((policy) => policy.governance?.traffic_share ?? 0));
+  const broadExposure = totalEvents >= 75000 || maxTrafficShare >= 0.65;
+  const criticalGuardrail = rollback === "rollback" && health < 45;
+  const severeLongTermHarm = policies.some(
+    (policy) => (policy.behavioral?.average_long_term_reward ?? policy.average_reward ?? 0) < -0.05,
+  );
+  const highRiskHighTraffic = policies.some(
+    (policy) =>
+      (policy.behavioral?.average_unsubscribe_risk ?? 0) >= 0.35 &&
+      (policy.governance?.traffic_share ?? 0) >= 0.45,
+  );
+
+  if (
+    (criticalGuardrail && broadExposure) ||
+    severeLongTermHarm ||
+    highRiskHighTraffic
+  ) {
+    return {
+      state: "Rollback Recommended",
+      reason: "Rollback is reserved for already-expanded policies with severe safety or performance issues.",
+      score: 25,
+      confidence: "Evidence: severe safety issue",
+    };
   }
   if (totalEvents < 100) {
-    return { state: "Insufficient Evidence", reason: "Collect more traffic before promoting a policy.", score: 45 };
-  }
-  if (review) {
-    return { state: "Human Review Recommended", reason: "At least one policy has a governance review label.", score: 55 };
+    return {
+      state: "Hold Expansion",
+      reason: "Insufficient confidence: collect more traffic before expanding a policy.",
+      score: 45,
+      confidence: "Confidence: directional, not launch-ready",
+    };
   }
   if (rollback === "rollback") {
-    return { state: "Hold Expansion", reason: "Rollback signals are present, but severity is not high enough for automatic rollback.", score: 52 };
+    return {
+      state: "Hold Expansion",
+      reason: "Hold Expansion means the system is not calling the experiment a failure. It means the policy should not be expanded until traffic quality, saturation, or risk checks improve.",
+      score: 52,
+      confidence: "Evidence: mixed, guardrails active",
+    };
   }
-  if (health < 75 || uncertain) {
-    return { state: "Monitor Closely", reason: "Health or uncertainty signals argue for controlled exposure.", score: 62 };
+  if (health < 75 || uncertain || (metrics?.exploration?.segments ?? []).some((segment) => segment.saturated)) {
+    return {
+      state: "Hold Expansion",
+      reason: "Traffic quality, sample quality, uncertainty, or saturation risk should improve before broader expansion.",
+      score: 58,
+      confidence: "Confidence: directional, not launch-ready",
+    };
+  }
+  if (review) {
+    return {
+      state: "Human Review Recommended",
+      reason: "At least one policy has a governance review label.",
+      score: 55,
+      confidence: "Evidence: mixed, guardrails active",
+    };
   }
   if (uplift?.average_treatment_effect > 0.05) {
-    return { state: "Promote", reason: "Incremental value is positive and safety signals are acceptable.", score: 86 };
+    return {
+      state: "Continue Rollout",
+      reason: "Incremental value is positive and safety signals are acceptable for controlled rollout.",
+      score: 86,
+      confidence: "Confidence: positive with active monitoring",
+    };
   }
-  return { state: "Continue Rollout", reason: "Evidence is stable, but incremental lift is not yet decisive.", score: 74 };
+  return {
+    state: "Monitor Closely",
+    reason: "Evidence is stable, but incremental lift is not yet decisive.",
+    score: 74,
+    confidence: "Evidence: mixed, guardrails active",
+  };
 }
 
 export function operationalInsights(metrics, uplift) {
   const insights = [policyPerformanceInsight(metrics), riskInsight(metrics)];
   const rollbackReason = metrics?.rollout?.rollback?.reason;
   if (rollbackReason) {
-    insights.push(`Current rollback posture is driven by: ${rollbackReason}`);
+    insights.push(`Current guardrail posture is driven by: ${rollbackReason}`);
   }
   if ((uplift?.recommended_budget_allocation ?? []).length > 0) {
     const top = uplift.recommended_budget_allocation[0];

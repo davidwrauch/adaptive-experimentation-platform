@@ -470,6 +470,24 @@ h2 {
   margin-bottom: 12px;
 }
 
+.confidence-line {
+  align-items: center;
+  background: #f4f8f5;
+  border: 1px solid #dce8df;
+  border-radius: 8px;
+  color: #4c5d63;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  justify-content: space-between;
+  margin: 14px 0;
+  padding: 10px 12px;
+}
+
+.confidence-line strong {
+  color: #172026;
+}
+
 .mini-score-card {
   background: #fbfcfb;
   border: 1px solid #ecf0ee;

@@ -186,12 +186,32 @@ def test_policy_display_labels_and_launch_intelligence_rendering():
     assert "Continue Rollout" in helpers
     assert "Hold Expansion" in helpers
     assert "Human Review Recommended" in helpers
-    assert "Insufficient Evidence" in helpers
+    assert "Confidence: directional, not launch-ready" in helpers
     assert "formatPolicyLabel(bestPolicy?.policy)" in metrics
+
+
+def test_launch_posture_hierarchy_reserves_rollback_for_severe_cases():
+    helpers = read("frontend/src/interpretations.js")
+
+    assert 'state: "Rollback Recommended"' in helpers
+    assert "criticalGuardrail && broadExposure" in helpers
+    assert "severeLongTermHarm" in helpers
+    assert "highRiskHighTraffic" in helpers
+    assert 'state: "Hold Expansion"' in helpers
+    assert "Insufficient confidence: collect more traffic before expanding a policy." in helpers
+    assert (
+        "Hold Expansion means the system is not calling the experiment a failure. It means the policy should not be expanded until traffic quality, saturation, or risk checks improve."
+        in helpers
+    )
+    assert (
+        "Rollback is reserved for already-expanded policies with severe safety or performance issues."
+        in helpers
+    )
 
 
 def test_executive_overview_visual_scorecards_and_launch_badge():
     metrics = read("frontend/src/components/MetricsCards.jsx")
+    helpers = read("frontend/src/interpretations.js")
     styles = read("frontend/src/styles.css")
 
     assert "Traffic" in metrics
@@ -199,9 +219,14 @@ def test_executive_overview_visual_scorecards_and_launch_badge():
     assert "Long-term winner" in metrics
     assert "Launch posture" in metrics
     assert "overview-scorecard-row" in metrics
-    assert "Raw reward winner" in metrics
+    assert "Experiment result" in metrics
+    assert "Long-term result" in metrics
     assert "Operational recommendation" in metrics
+    assert "Evidence: mixed, guardrails active" in helpers
+    assert "Confidence: directional, not launch-ready" in helpers
     assert "launch-badge" in metrics
+    assert "confidence-line" in metrics
+    assert ".confidence-line" in styles
     assert ".overview-scorecard-row" in styles
     assert ".mini-score-card" in styles
 
@@ -211,8 +236,19 @@ def test_primary_ui_avoids_raw_lowercase_rollback_copy():
     launch = read("frontend/src/components/LaunchIntelligencePanel.jsx")
 
     assert "Rollback Recommended" in metrics + launch
+    assert "Rollback is reserved for already-expanded policies" in metrics + launch
     assert ">{rollback}<" not in metrics
     assert "rollback posture" not in metrics
+
+
+def test_launch_intelligence_separates_experiment_signal_from_safety():
+    launch = read("frontend/src/components/LaunchIntelligencePanel.jsx")
+
+    assert "Experiment result:" in launch
+    assert "Long-term result:" in launch
+    assert "Operational recommendation:" in launch
+    assert "Governance can hold expansion even when a policy is statistically promising" in launch
+    assert "Expansion holds" in launch
 
 
 def test_experiment_confidence_and_statistical_posture_rendering():

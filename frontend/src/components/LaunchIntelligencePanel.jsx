@@ -13,12 +13,13 @@ export default function LaunchIntelligencePanel({ metrics, uplift, liveTick }) {
   )[0];
   const governance = recommendation.state;
   const reviews = policies.filter((policy) => policy.governance?.status === "human_review").length;
+  const uncertaintyText = uncertaintyInsight(metrics);
 
   return (
     <section className="panel">
       <div className="section-heading">
         <h2>
-          <HelpLabel help="Launch intelligence combines reward, uplift, health, uncertainty, rollback posture, and exploration risk into an operator-facing recommendation.">
+          <HelpLabel help="Launch intelligence separates experiment signal from rollout safety. Governance can hold expansion even when a policy is statistically promising. Hold Expansion means wait for better traffic quality, saturation, or risk checks; Rollback Recommended is reserved for already-expanded policies with severe safety or performance issues.">
             Launch Intelligence
           </HelpLabel>
         </h2>
@@ -29,13 +30,18 @@ export default function LaunchIntelligencePanel({ metrics, uplift, liveTick }) {
         <Score label="Long-term winner" value={formatPolicyLabel(longTermWinner?.policy)} />
         <Score label="Uplift winner" value={formatPolicyLabel(uplift?.incremental_value_winner)} />
         <Score label="Rollout posture" value={governance} />
-        <Score label="Uncertainty" value={uncertaintyInsight(metrics).startsWith("Policy") ? "Stable" : "High uncertainty"} />
+        <Score label="Uncertainty" value={uncertaintyText.startsWith("Policy") ? "High uncertainty" : "Stable"} />
         <Score label="Launch recommendation" value={recommendation.state} />
       </div>
       <div className="launch-safety">
         <div>
           <strong>Launch safety</strong>
           <p>{recommendation.reason}</p>
+          <p>
+            Experiment result: {formatPolicyLabel(rawWinner?.policy)} is winning short-term response.
+            Long-term result: {formatPolicyLabel(longTermWinner?.policy)} is stronger on retention.
+            Operational recommendation: {recommendation.state} until guardrails are resolved.
+          </p>
           <span className="mini-track">
             <span className="mini-fill" style={{ width: `${recommendation.score}%` }} />
           </span>
@@ -61,6 +67,7 @@ export default function LaunchIntelligencePanel({ metrics, uplift, liveTick }) {
         <Score label="Events processed" value={metrics.total_events.toLocaleString()} />
         <Score label="Policies evaluated" value={policies.length} />
         <Score label="Policies promoted" value={policies.filter((policy) => policy.governance?.status === "deploy").length} />
+        <Score label="Expansion holds" value={governance === "Hold Expansion" ? 1 : 0} />
         <Score label="Rollback recommendations" value={governance === "Rollback Recommended" ? 1 : 0} />
         <Score label="Human review recommendations" value={reviews} />
         <Score label="Live runs started" value={liveTick?.event_count_added ? 1 : 0} />

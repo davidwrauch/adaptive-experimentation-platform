@@ -54,18 +54,22 @@ export default function MetricsCards({ metrics, uplift, liveMode = false, liveTi
           <small>{healthScore >= 80 ? "Stable" : "Monitor Closely"}</small>
         </div>
         <div className="metric-card">
-          <HelpLabel help="What: launch posture from rollout, health, uncertainty, and incrementality checks. Why: gives operators a fast safety read. Good: continue or promote. Bad: hold, review, or rollback. Action: inspect launch safety before expanding.">
+          <HelpLabel help="What: launch posture from rollout, health, uncertainty, and incrementality checks. Hold Expansion means the system is not calling the experiment a failure. It means the policy should not be expanded until traffic quality, saturation, or risk checks improve. Rollback is reserved for already-expanded policies with severe safety or performance issues.">
             Launch posture
           </HelpLabel>
           <span className={`launch-badge launch-${slug(posture.state)}`}>{posture.state}</span>
-          <small>Updated {formatUpdated(lastUpdated)}</small>
+          <small>{posture.confidence}</small>
         </div>
       </div>
+      <div className="confidence-line">
+        <strong>{posture.confidence}</strong>
+        <span>Updated {formatUpdated(lastUpdated)}</span>
+      </div>
       <div className="overview-scorecard-row">
-        <MiniScore label="Raw reward winner" value={formatPolicyLabel(bestPolicy?.policy)} />
-        <MiniScore label="Long-term winner" value={formatPolicyLabel(bestLongTermPolicy?.policy)} />
+        <MiniScore label="Experiment result" value={`${formatPolicyLabel(bestPolicy?.policy)} wins short-term response`} />
+        <MiniScore label="Long-term result" value={`${formatPolicyLabel(bestLongTermPolicy?.policy)} is stronger on retention`} />
         <MiniScore label="Incrementality winner" value={formatPolicyLabel(uplift?.incremental_value_winner)} />
-        <MiniScore label="Operational recommendation" value={posture.state} />
+        <MiniScore label="Operational recommendation" value={`${posture.state} until guardrails are resolved`} />
       </div>
       <small>Total immediate reward: {totalReward.toFixed(0)}</small>
       {uplift?.incremental_value_winner && (
