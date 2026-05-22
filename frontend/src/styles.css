@@ -26,6 +26,11 @@ button:hover {
   background: #315866;
 }
 
+button:disabled {
+  cursor: wait;
+  opacity: 0.68;
+}
+
 .secondary-button,
 .guided-button {
   background: white;
@@ -767,6 +772,52 @@ h2 {
   justify-content: flex-end;
 }
 
+.policy-simulation-control {
+  align-items: end;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: minmax(180px, 220px) auto;
+}
+
+.policy-simulation-control label {
+  color: #68777d;
+  display: grid;
+  font-size: 0.82rem;
+  font-weight: 800;
+  gap: 4px;
+}
+
+.policy-simulation-control select {
+  border: 1px solid #cbd6d2;
+  border-radius: 6px;
+  color: #172026;
+  font: inherit;
+  padding: 0.52rem 0.65rem;
+}
+
+.simulation-result {
+  background: #f4f8f5;
+  border: 1px solid #dce8df;
+  border-radius: 8px;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 14px 0;
+  padding: 12px;
+}
+
+.simulation-result span {
+  color: #68777d;
+  font-size: 0.82rem;
+}
+
+.simulation-result strong {
+  color: #172026;
+  display: block;
+  font-size: 0.95rem;
+  margin-top: 3px;
+}
+
 .policy-table,
 .tradeoff-list,
 .chart-stack {
@@ -1177,7 +1228,7 @@ small {
   border-top: 1px solid #ecf0ee;
   display: grid;
   gap: 12px;
-  grid-template-columns: 1.1fr 0.9fr 0.9fr 80px 96px;
+  grid-template-columns: 1.2fr 1fr 1fr 130px 130px;
   padding-top: 10px;
 }
 
@@ -1187,12 +1238,34 @@ small {
   gap: 4px;
 }
 
+.percentage-value {
+  color: #172026;
+  font-size: 0.9rem;
+  font-weight: 850;
+}
+
 .control-row input {
-  border: 1px solid #cbd6d2;
-  border-radius: 6px;
-  font: inherit;
-  padding: 6px 8px;
+  accent-color: #2f8f83;
   width: 100%;
+}
+
+.state-badge {
+  border-radius: 999px;
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 850;
+  margin-top: 6px;
+  padding: 4px 8px;
+}
+
+.state-active {
+  background: #ddefe6;
+  color: #176346;
+}
+
+.state-paused {
+  background: #f8dddd;
+  color: #8a2e2e;
 }
 
 .replay-grid {
@@ -1323,6 +1396,8 @@ small {
   .skeleton-panel-grid,
   .live-panel,
   .live-stats,
+  .policy-simulation-control,
+  .simulation-result,
   .guided-grid,
   .policy-chart-card,
   .tradeoff-card,

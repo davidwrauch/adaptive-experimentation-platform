@@ -90,6 +90,27 @@ def test_dashboard_uses_operational_tabs_for_major_workflows():
     assert ".tab-panel" in styles
 
 
+def test_overview_and_experimentation_have_distinct_purpose():
+    app = read("frontend/src/App.jsx")
+    overview_block = app.split('{activeTab === "Overview" && (', 1)[1].split(
+        '{activeTab === "Experimentation" && (',
+        1,
+    )[0]
+    experimentation_block = app.split('{activeTab === "Experimentation" && (', 1)[1].split(
+        '{activeTab === "Risk & Governance" && (',
+        1,
+    )[0]
+
+    assert "MetricsCards" in overview_block
+    assert "How to read this dashboard" in overview_block
+    assert "ExperimentConfidencePanel" not in overview_block
+    assert "LaunchIntelligencePanel" not in overview_block
+    assert "ExperimentConfidencePanel" in experimentation_block
+    assert "BayesianPanel" in experimentation_block
+    assert "UpliftPanel" in experimentation_block
+    assert "ExplorationBudgetPanel" in experimentation_block
+
+
 def test_loading_and_retry_copy_is_polished():
     loading = read("frontend/src/components/LoadingState.jsx")
     app = read("frontend/src/App.jsx")
@@ -115,6 +136,37 @@ def test_loading_and_retry_copy_is_polished():
     assert ".skeleton-panel" in styles
     assert "retryCount" in app
     assert "loadWithRetry" in app
+
+
+def test_policy_simulation_control_has_visible_feedback():
+    dashboard = read("frontend/src/components/PolicyDashboard.jsx")
+
+    assert "Run policy simulation" in dashboard
+    assert "Events added" in dashboard
+    assert "Policy simulated" in dashboard
+    assert "Reward effect" in dashboard
+    assert "Updated" in dashboard
+    assert "simulating" in dashboard
+    assert "Simulate {formatPolicyLabel(policy)}" not in dashboard
+
+
+def test_rollout_controls_use_clear_percentage_language():
+    rollout = read("frontend/src/components/RolloutControlsPanel.jsx")
+
+    assert "Traffic cap" in rollout
+    assert "Canary rollout" in rollout
+    assert "Maximum share of eligible traffic this policy is allowed to receive." in rollout
+    assert (
+        "Small initial rollout percentage used to test a policy safely before broader expansion."
+        in rollout
+    )
+    assert "Use these controls to slow, pause, or safely expand a policy before full deployment." in rollout
+    assert "Save rollout" in rollout
+    assert "Pause policy" in rollout
+    assert "Resume policy" in rollout
+    assert "formatPercent" in rollout
+    assert ">cap<" not in rollout
+    assert ">canary<" not in rollout
 
 
 def test_policy_display_labels_and_launch_intelligence_rendering():

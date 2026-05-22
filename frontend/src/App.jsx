@@ -129,8 +129,9 @@ export default function App() {
   }, [liveMode, refresh]);
 
   async function handleSimulate(policy) {
-    await simulateDecision(policy);
+    const event = await simulateDecision(policy);
     await refresh();
+    return event;
   }
 
   async function handleRefreshDetails() {
@@ -188,8 +189,6 @@ export default function App() {
                 liveTick={liveTick}
                 lastUpdated={lastUpdated}
               />
-              <LaunchIntelligencePanel metrics={metrics} uplift={uplift} liveTick={liveTick} />
-              <ExperimentConfidencePanel metrics={metrics} />
               <section className="panel overview-explainer">
                 <h2>How to read this dashboard</h2>
                 <div className="overview-guide-grid">
@@ -232,6 +231,7 @@ export default function App() {
               >
                 <ObservabilityPanel observability={metrics.observability} />
                 <GovernancePanel metrics={metrics} />
+                <LaunchIntelligencePanel metrics={metrics} uplift={uplift} liveTick={liveTick} />
                 <PolicyLifecyclePanel />
                 <RolloutControlsPanel rollout={metrics.rollout} onChanged={refresh} />
                 <RiskMonitoringPanel metrics={metrics} />

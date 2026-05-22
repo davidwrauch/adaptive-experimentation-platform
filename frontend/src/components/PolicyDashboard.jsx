@@ -1,12 +1,30 @@
-import React from "react";
+import React, { useState } from "react";
 import { HelpLabel, WhyThisMatters } from "./InfoTooltip";
 import { formatPolicyLabel } from "../interpretations";
 
 const POLICIES = ["static", "epsilon_greedy", "thompson_sampling", "linucb"];
 
 export default function PolicyDashboard({ metrics, onSimulate }) {
+  const [selectedPolicy, setSelectedPolicy] = useState("epsilon_greedy");
+  const [simulationResult, setSimulationResult] = useState(null);
+  const [simulating, setSimulating] = useState(false);
   const maxReward = Math.max(1, ...metrics.policies.map((policy) => policy.cumulative_reward));
   const totalEvents = Math.max(1, metrics.total_events);
+
+  async function runSimulation() {
+    setSimulating(true);
+    try {
+      const event = await onSimulate(selectedPolicy);
+      setSimulationResult({
+        eventsAdded: 1,
+        policy: selectedPolicy,
+        timestamp: event?.created_at ? new Date(event.created_at) : new Date(),
+        rewardEffect: event?.reward ?? 0,
+      });
+    } finally {
+      setSimulating(false);
+    }
+  }
 
   return (
     <section className="panel">
@@ -16,12 +34,24 @@ export default function PolicyDashboard({ metrics, onSimulate }) {
             Policy performance
           </HelpLabel>
         </h2>
-        <div className="button-row">
-          {POLICIES.map((policy) => (
-            <button key={policy} onClick={() => onSimulate(policy)}>
-              Simulate {formatPolicyLabel(policy)}
-            </button>
-          ))}
+        <div className="policy-simulation-control">
+          <label>
+            Policy
+            <select
+              value={selectedPolicy}
+              onChange={(event) => setSelectedPolicy(event.target.value)}
+              disabled={simulating}
+            >
+              {POLICIES.map((policy) => (
+                <option key={policy} value={policy}>
+                  {formatPolicyLabel(policy)}
+                </option>
+              ))}
+            </select>
+          </label>
+          <button onClick={runSimulation} disabled={simulating} type="button">
+            {simulating ? "Running..." : "Run policy simulation"}
+          </button>
         </div>
       </div>
       <p className="panel-copy">
@@ -32,6 +62,14 @@ export default function PolicyDashboard({ metrics, onSimulate }) {
         Product teams need to see both the business lift and how that lift was generated. A policy
         can win clicks while still creating churn risk or operational instability.
       </WhyThisMatters>
+      {simulationResult && (
+        <div className="simulation-result" aria-live="polite">
+          <span>Events added <strong>{simulationResult.eventsAdded}</strong></span>
+          <span>Policy simulated <strong>{formatPolicyLabel(simulationResult.policy)}</strong></span>
+          <span>Reward effect <strong>{formatSigned(simulationResult.rewardEffect)}</strong></span>
+          <span>Updated <strong>{formatTime(simulationResult.timestamp)}</strong></span>
+        </div>
+      )}
 
       <div className="chart-stack">
         {metrics.policies.map((policy) => (
@@ -55,6 +93,15 @@ export default function PolicyDashboard({ metrics, onSimulate }) {
       </div>
     </section>
   );
+}
+
+function formatSigned(value) {
+  const numeric = Number(value) || 0;
+  return `${numeric >= 0 ? "+" : ""}${numeric.toFixed(2)}`;
+}
+
+function formatTime(value) {
+  return value.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
 }
 
 function formatAssignments(assignments) {
