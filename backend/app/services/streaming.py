@@ -5,6 +5,7 @@ from typing import Protocol
 from sqlalchemy.orm import Session
 
 from app.models import Event
+from app.services.metrics_summary import update_metrics_summary
 
 EXPERIMENT_EVENTS_TOPIC = "experiment_events"
 
@@ -100,7 +101,9 @@ def consume_events_to_db(
 ) -> int:
     consumer = consumer or event_bus
     records = consumer.poll(EXPERIMENT_EVENTS_TOPIC, max_records=max_records)
-    db.add_all(Event(**record) for record in records)
+    events = [Event(**record) for record in records]
+    db.add_all(events)
+    update_metrics_summary(db, events)
     db.commit()
     return len(records)
 

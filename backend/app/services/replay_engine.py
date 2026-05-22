@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.models import Event
 from app.services.open_bandit import iter_open_bandit_events
+from app.services.metrics_summary import update_metrics_summary
 from app.services.policy_engine import policy_engine
 from app.services.simulation import (
     POLICIES,
@@ -65,5 +66,6 @@ def replay_to_db(
 
     events = [Event(**event) for event in event_payloads]
     db.add_all(events)
+    update_metrics_summary(db, events)
     db.commit()
     return len(events)

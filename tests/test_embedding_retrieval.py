@@ -2,7 +2,10 @@ from types import SimpleNamespace
 
 from app.services.assignment_orchestrator import recommend_assignment
 from app.services.embedding_retrieval import (
+    DeterministicEmbeddingModel,
     KeywordEmbeddingModel,
+    LocalVectorStore,
+    build_evidence_documents,
     retrieve_embedding_evidence,
 )
 
@@ -74,3 +77,37 @@ def test_assignment_falls_back_when_embeddings_unavailable():
 
     assert "Retrieved evidence:" not in recommendation.evidence_summary
     assert recommendation.evidence_summary
+
+
+def test_deterministic_embedding_generation_is_dense_and_stable():
+    model = DeterministicEmbeddingModel()
+
+    first = model.encode(["supportive email mature profile"])
+    second = model.encode(["supportive email mature profile"])
+
+    assert first == second
+    assert len(first[0]) == 64
+    assert sum(first[0]) > 0
+
+
+def test_similarity_retrieval_orders_relevant_documents_first():
+    store = LocalVectorStore(DeterministicEmbeddingModel())
+    docs = build_evidence_documents([event(policy="linucb"), event(policy="static")])
+    store.add_documents(docs)
+
+    results = store.search("linucb policy long term reward mature profile", top_k=2)
+
+    assert len(results) == 2
+    assert results[0]["score"] >= results[1]["score"]
+    assert "score" in results[0]
+
+
+def test_assignment_explanation_includes_similarity_score():
+    recommendation = recommend_assignment(
+        [event() for _ in range(60)],
+        context(),
+        embedding_model=DeterministicEmbeddingModel(),
+    )
+
+    assert "cosine score" in recommendation.evidence_summary
+    assert "considered similar" in recommendation.evidence_summary

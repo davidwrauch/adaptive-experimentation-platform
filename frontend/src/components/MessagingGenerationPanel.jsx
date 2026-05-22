@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { generateMessaging, sampleUserContext } from "../api";
+import { HelpLabel, WhyThisMatters } from "./InfoTooltip";
 
 export default function MessagingGenerationPanel() {
   const [generation, setGeneration] = useState(null);
@@ -21,13 +22,21 @@ export default function MessagingGenerationPanel() {
   return (
     <section className="panel">
       <div className="section-heading">
-        <h2>Constrained messaging generation</h2>
+        <h2>
+          <HelpLabel help="What: review-only message variants generated from approved evidence. Why: keeps AI assistance bounded by policy and prior campaign context. Good: variants cite evidence and require review. Bad: high-risk profile or unsupported recommendation. Action: human reviewer approves, edits, or rejects.">
+            Constrained messaging generation
+          </HelpLabel>
+        </h2>
         <button onClick={handleGenerate}>{loading ? "Generating..." : "Generate"}</button>
       </div>
       <p className="panel-copy">
         Candidate messages are generated only from approved templates and retrieved evidence.
         Every variant is marked for human review; autonomous deployment is disabled.
       </p>
+      <WhyThisMatters>
+        Messaging support ties technical decisioning to customer communication quality while
+        preserving responsible AI governance and human approval.
+      </WhyThisMatters>
       {error && <div className="alert">{error}</div>}
       {generation ? (
         <div className="messaging-grid">

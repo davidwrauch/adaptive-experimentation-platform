@@ -4,6 +4,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.models import Event
+from app.services.metrics_summary import clear_metrics_summary, update_metrics_summary
 
 
 DEMO_POLICY_PLAN = {
@@ -63,7 +64,9 @@ def seed_production_demo_if_empty(db: Session) -> int:
 
     seed_size = int(os.getenv("DEMO_SEED_SIZE", str(PORTFOLIO_DEMO_SEED_SIZE)))
     events = build_demo_events(n=seed_size)
+    clear_metrics_summary(db)
     db.add_all(events)
+    update_metrics_summary(db, events)
     db.commit()
     return len(events)
 

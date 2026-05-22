@@ -1,4 +1,5 @@
 import React from "react";
+import { HelpLabel, WhyThisMatters } from "./InfoTooltip";
 
 const POLICIES = ["static", "epsilon_greedy", "thompson_sampling", "linucb"];
 
@@ -9,7 +10,11 @@ export default function PolicyDashboard({ metrics, onSimulate }) {
   return (
     <section className="panel">
       <div className="section-heading">
-        <h2>Policy performance</h2>
+        <h2>
+          <HelpLabel help="What: policy-level traffic, assignment mix, and cumulative reward. Why: shows which strategy is producing value. Good: reward grows with balanced traffic and acceptable risk. Bad: one policy dominates traffic without enough evidence. Action: compare with governance and long-term metrics before expanding.">
+            Policy performance
+          </HelpLabel>
+        </h2>
         <div className="button-row">
           {POLICIES.map((policy) => (
             <button key={policy} onClick={() => onSimulate(policy)}>
@@ -22,6 +27,10 @@ export default function PolicyDashboard({ metrics, onSimulate }) {
         Shows how much traffic each policy assigned to each intervention and how much immediate
         reward it collected. This is the short-term view most experimentation dashboards stop at.
       </p>
+      <WhyThisMatters>
+        Product teams need to see both the business lift and how that lift was generated. A policy
+        can win clicks while still creating churn risk or operational instability.
+      </WhyThisMatters>
 
       <div className="chart-stack">
         {metrics.policies.map((policy) => (

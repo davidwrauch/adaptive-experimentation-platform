@@ -16,6 +16,7 @@ It demonstrates the operating layer around adaptive decisioning: logged bandit r
 - **Governance:** deploy/canary/human_review/pause labels, rollout controls, rollback recommendations
 - **Observability:** sample ratio mismatch, traffic imbalance, volume drops, reward drift, low overlap, saturation, unsubscribe-risk exposure
 - **AI-assisted scaffolds:** deterministic assignment explanations, local embeddings retrieval, constrained messaging generation requiring human review
+- **Local embeddings:** optional `sentence-transformers` MiniLM retrieval with deterministic local-vector fallback
 - **Warehouse layer:** dbt-style staging and mart models for governed metrics
 
 ## Demo Scenario
@@ -80,6 +81,18 @@ events table is empty. Override it with:
 DEMO_SEED_SIZE=25000
 ```
 
+For hosted demos, the dashboard is designed to load fast from `GET /metrics/summary`, then request
+capped details only when needed. Use `POST /demo/stream-step` to append small synthetic batches over
+time instead of reseeding a huge table during a live walkthrough:
+
+```powershell
+Invoke-RestMethod `
+  -Method Post `
+  -Uri https://<your-render-service>.onrender.com/demo/stream-step `
+  -Body '{ "batch_size": 25 }' `
+  -ContentType "application/json"
+```
+
 Temporary hosted-demo reseed endpoint:
 
 ```powershell
@@ -102,6 +115,17 @@ python scripts/run_replay.py --source synthetic --mode stream --n 500 --seed 11
 python scripts/download_open_bandit.py
 python scripts/run_replay.py --source open_bandit --open-bandit-path data/raw/open_bandit/<file>.csv --n 1000
 ```
+
+The dashboard also includes browser-level replay controls. Use synthetic replay for deterministic
+lifecycle messaging traffic, or Open Bandit replay for logged recommendation-style actions, rewards,
+and propensities. For a real downloaded Open Bandit CSV, set:
+
+```text
+OPEN_BANDIT_CSV_PATH=data/raw/open_bandit/<file>.csv
+```
+
+If no CSV is configured, the hosted demo uses a tiny built-in Open Bandit-shaped sample so the UI
+can demonstrate the replay path without requiring a large dataset download.
 
 Start the dashboard:
 
@@ -177,6 +201,14 @@ For public deployment, no large data download or streaming broker is required. U
 managed Postgres, and deterministic AI/RAG fallbacks. Redpanda, Open Bandit Dataset replay, local
 embeddings, and optional external LLM generation remain optional.
 
+Recommended hosted demo setup:
+
+- Render Starter backend for fewer cold starts during portfolio reviews
+- Vercel free frontend
+- Neon free Postgres
+- `DEMO_SEED_SIZE=25000`
+- Live simulation enabled from the dashboard, which appends small batches and refreshes summary metrics
+
 See [Deployment Guide](docs/deployment.md) and [Architecture](docs/architecture.md).
 
 ## Key Concepts
@@ -189,6 +221,7 @@ See [Deployment Guide](docs/deployment.md) and [Architecture](docs/architecture.
 - **Exploration budgets:** segment-level limits prevent over-exploration of high-risk users.
 - **Bayesian sequential testing:** beta-binomial comparisons produce continue/expand/stop/review guidance.
 - **Constrained AI/RAG:** local evidence retrieval and deterministic generation without required external LLM calls.
+- **Local embeddings retrieval:** uses `sentence-transformers` with `paraphrase-MiniLM-L3-v2` when installed, otherwise falls back to deterministic local vectors. No hosted vector database or external LLM is required.
 - **Warehouse metrics:** dbt-style models document event-store to dashboard lineage.
 
 ## Documentation

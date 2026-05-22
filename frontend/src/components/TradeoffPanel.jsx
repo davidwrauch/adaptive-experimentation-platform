@@ -1,4 +1,6 @@
 import React from "react";
+import { HelpLabel, WhyThisMatters } from "./InfoTooltip";
+import { policyPerformanceInsight } from "../interpretations";
 
 export default function TradeoffPanel({ metrics }) {
   const maxReward = Math.max(
@@ -14,12 +16,17 @@ export default function TradeoffPanel({ metrics }) {
   return (
     <section className="panel">
       <div className="section-heading">
-        <h2>Short-term vs long-term reward</h2>
+        <h2>
+          <HelpLabel help="What: immediate clicks compared with delayed value after retention, fatigue, and unsubscribe risk. Why: prevents optimizing for clicks at the expense of customer health. Good: long-term reward rises with manageable fatigue. Bad: immediate reward wins while long-term reward falls. Action: shift traffic toward safer policies.">
+            Short-term vs long-term reward
+          </HelpLabel>
+        </h2>
       </div>
       <p className="panel-copy">
         Compares click-like immediate reward with longer-term value after retention, fatigue,
         and unsubscribe risk are included. The winning policy can change once future impact is counted.
       </p>
+      <WhyThisMatters>{policyPerformanceInsight(metrics)}</WhyThisMatters>
 
       <div className="tradeoff-list">
         {metrics.policies.map((policy) => (

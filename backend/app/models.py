@@ -33,3 +33,21 @@ class PolicyControlState(Base):
         server_default=func.now(),
         onupdate=func.now(),
     )
+
+
+class MetricsSummary(Base):
+    __tablename__ = "metrics_summary"
+
+    policy: Mapped[str] = mapped_column(String(64), primary_key=True)
+    event_count: Mapped[int] = mapped_column(Integer, default=0)
+    cumulative_reward: Mapped[float] = mapped_column(Float, default=0.0)
+    cumulative_long_term_reward: Mapped[float] = mapped_column(Float, default=0.0)
+    fatigue_delta_sum: Mapped[float] = mapped_column(Float, default=0.0)
+    unsubscribe_risk_sum: Mapped[float] = mapped_column(Float, default=0.0)
+    unsubscribe_risk_delta_sum: Mapped[float] = mapped_column(Float, default=0.0)
+    assignments: Mapped[dict] = mapped_column(JSON, default=dict)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+    )

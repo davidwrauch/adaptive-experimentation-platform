@@ -38,10 +38,13 @@ Required environment variables:
 - `DATABASE_URL=<Render managed Postgres external/internal connection string>`
 - `CORS_ORIGINS=https://<your-vercel-app>.vercel.app`
 - `AUTO_CREATE_TABLES=true`
+- `DEMO_SEED_SIZE=25000`
 
 Optional environment variables:
 
 - `KAFKA_BOOTSTRAP_SERVERS=<broker host:port>`
+- `OPEN_BANDIT_CSV_PATH=<path to downloaded Open Bandit CSV>`
+- `EMBEDDING_MODEL_NAME=paraphrase-MiniLM-L3-v2`
 - `ENABLE_OPTIONAL_LLM_GENERATION=false`
 - `OPENAI_API_KEY=<only if optional LLM mode is explicitly enabled>`
 
@@ -68,5 +71,16 @@ For a public portfolio deployment, use the lightweight path:
 - no required Redpanda broker
 - no required Open Bandit Dataset download
 - no required external LLM key
+- dashboard loads `GET /metrics/summary` first and only requests capped details when needed
+- live simulation appends small batches with `POST /demo/stream-step` instead of reseeding during demos
+- replay controls append synthetic or Open Bandit-style batches from the browser with `POST /replay/start`
+- local embedding retrieval uses sentence-transformers when installed and a deterministic vector fallback otherwise
 
 The direct DB replay path and deterministic generation paths remain fully functional.
+
+Recommended hosted demo setup:
+
+- Render Starter backend to reduce cold starts during live reviews
+- Vercel free frontend
+- Neon free Postgres or Render managed Postgres
+- `DEMO_SEED_SIZE=25000`

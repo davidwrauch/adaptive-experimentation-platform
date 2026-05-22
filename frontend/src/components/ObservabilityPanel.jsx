@@ -1,4 +1,6 @@
 import React from "react";
+import { HelpLabel, WhyThisMatters } from "./InfoTooltip";
+import { severityInterpretation } from "../interpretations";
 
 export default function ObservabilityPanel({ observability }) {
   const alerts = observability?.alerts ?? [];
@@ -9,7 +11,11 @@ export default function ObservabilityPanel({ observability }) {
   return (
     <section className="panel">
       <div className="section-heading">
-        <h2>Experiment observability</h2>
+        <h2>
+          <HelpLabel help="What: deterministic checks for experiment integrity and operational risk. Why: policy results are not trustworthy if traffic, volume, overlap, or risk exposure are unhealthy. Good: high health score and no critical alerts. Bad: critical checks or repeated warnings. Action: investigate, slow rollout, or pause.">
+            Experiment observability
+          </HelpLabel>
+        </h2>
         <span className={healthScore >= 80 ? "health-score good" : "health-score watch"}>
           Health {healthScore}
         </span>
@@ -18,6 +24,10 @@ export default function ObservabilityPanel({ observability }) {
         Monitoring checks catch experiment quality problems before a policy decision becomes
         misleading: traffic imbalance, overlap gaps, reward drift, saturation, and risk exposure.
       </p>
+      <WhyThisMatters>
+        Integrity monitoring keeps adaptive systems honest. It connects data quality and user-risk
+        signals to operational safety before a policy recommendation reaches production traffic.
+      </WhyThisMatters>
       <div className="health-visual">
         <div className="health-ring" style={{ "--score": `${healthScore}%` }}>
           <strong>{healthScore}</strong>
@@ -40,6 +50,7 @@ export default function ObservabilityPanel({ observability }) {
                 <strong>{formatName(alert.name)}</strong>
                 <p>{alert.explanation}</p>
                 <small>{alert.recommended_action}</small>
+                <small>{severityCopy(alert.severity)}</small>
               </div>
             </article>
           ))}
@@ -47,6 +58,11 @@ export default function ObservabilityPanel({ observability }) {
       )}
     </section>
   );
+}
+
+function severityCopy(severity) {
+  const detail = severityInterpretation(severity);
+  return `${detail.interpretation} Suggested action: ${detail.action}`;
 }
 
 function formatName(name) {

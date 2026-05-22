@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models import Event
 from app.schemas import DecisionRequest, DecisionResponse, EventRead
+from app.services.metrics_summary import update_metrics_summary
 from app.services.policy_engine import policy_engine
 from app.services.simulation import build_intervention, simulate_intervention_outcome
 
@@ -40,6 +41,7 @@ def simulate_decision(payload: DecisionRequest, db: Session = Depends(get_db)) -
         },
     )
     db.add(event)
+    update_metrics_summary(db, [event])
     db.commit()
     db.refresh(event)
     policy_engine.update(payload.policy, action, reward)

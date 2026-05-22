@@ -1,4 +1,6 @@
 import React from "react";
+import { HelpLabel } from "./InfoTooltip";
+import { policyPerformanceInsight } from "../interpretations";
 
 export default function MetricsCards({ metrics }) {
   const totalReward = metrics.policies.reduce(
@@ -17,18 +19,25 @@ export default function MetricsCards({ metrics }) {
       </div>
       <div className="metrics-grid">
         <div className="metric-card">
-          <span>Event count</span>
+          <HelpLabel help="What: total logged assignment/outcome events. Why: more events usually improve confidence. Good: growing steadily. Bad: sudden drops. Action: check ingestion or live simulation.">
+            Event count
+          </HelpLabel>
           <strong>{metrics.total_events.toLocaleString()}</strong>
         </div>
         <div className="metric-card">
-          <span>Immediate reward</span>
+          <HelpLabel help="What: click-like reward collected by policies. Why: measures short-term response. Good: rising without risk spikes. Bad: high clicks paired with fatigue or churn risk. Action: compare against long-term reward.">
+            Immediate reward
+          </HelpLabel>
           <strong>{totalReward.toFixed(0)}</strong>
         </div>
         <div className="metric-card">
-          <span>Best immediate policy</span>
+          <HelpLabel help="What: policy with highest average immediate reward. Why: identifies short-term winner. Good: winner also looks safe long-term. Bad: winner drives fatigue. Action: check governance before rollout.">
+            Best immediate policy
+          </HelpLabel>
           <strong>{bestPolicy ? bestPolicy.policy : "n/a"}</strong>
         </div>
       </div>
+      <div className="interpretation-card">{policyPerformanceInsight(metrics)}</div>
     </section>
   );
 }

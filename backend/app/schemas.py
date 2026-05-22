@@ -57,6 +57,34 @@ class AdminReseedRequest(BaseModel):
     token: str | None = None
 
 
+class StreamStepRequest(BaseModel):
+    batch_size: int = Field(default=25, ge=1)
+
+
+class StreamStepResponse(BaseModel):
+    event_count_added: int
+    total_events: int
+    latest_timestamp: datetime | None
+    policy_counts_added: dict[str, int]
+
+
+class ReplayStartRequest(BaseModel):
+    source: str = Field(default="synthetic", pattern="^(synthetic|open_bandit)$")
+    batch_size: int = Field(default=25, ge=1)
+    replay_speed_seconds: int = Field(default=7, ge=1, le=60)
+
+
+class ReplayStatusResponse(BaseModel):
+    running: bool
+    source: str
+    batch_size: int
+    replay_speed_seconds: int
+    total_replayed_events: int
+    last_batch_added: int
+    latest_timestamp: datetime | None = None
+    message: str
+
+
 class MessagingGenerationRequest(BaseModel):
     user_id: str = "sample-user"
     policy: str = "linucb"
@@ -137,6 +165,7 @@ class PolicyMetric(BaseModel):
 class MetricsResponse(BaseModel):
     total_events: int
     policies: list[PolicyMetric]
+    latest_timestamp: datetime | None = None
     observability: ObservabilityMetric | None = None
     streaming: dict[str, Any] | None = None
     rollout: dict[str, Any] | None = None

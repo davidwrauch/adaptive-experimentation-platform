@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from app.services.embedding_retrieval import (
-    optional_sentence_transformer_model,
+    get_embedding_model,
     retrieve_embedding_evidence,
 )
 from app.services.evidence_retrieval import retrieve_evidence, summarize_evidence
@@ -149,7 +149,7 @@ def _embedding_evidence(
 ) -> list[dict]:
     if not use_embeddings:
         return []
-    model = embedding_model if embedding_model is not None else optional_sentence_transformer_model()
+    model = embedding_model if embedding_model is not None else get_embedding_model()
     if model is None:
         return []
     return retrieve_embedding_evidence(
@@ -172,4 +172,9 @@ def _combined_evidence_summary(evidence: dict) -> str:
     top = embedding_evidence[0]
     budget = evidence.get("exploration_budget")
     budget_text = f" Exploration budget {budget['budget']} for {budget['segment']}." if budget else ""
-    return f"{summary}{budget_text} Retrieved evidence: {top['text']}"
+    score = top.get("score", 0.0)
+    return (
+        f"{summary}{budget_text} Retrieved evidence: similar example with cosine score {score}: "
+        f"{top['text']}. This example is considered similar because its segment, policy, "
+        "risk, or intervention attributes overlap with the current assignment context."
+    )

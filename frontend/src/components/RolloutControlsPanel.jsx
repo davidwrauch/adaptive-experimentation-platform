@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { fetchPolicyControls, pausePolicy, resumePolicy, updatePolicyControl } from "../api";
+import { HelpLabel, WhyThisMatters } from "./InfoTooltip";
 
 export default function RolloutControlsPanel({ rollout, onChanged }) {
   const [controls, setControls] = useState(rollout?.controls ?? []);
@@ -42,7 +43,11 @@ export default function RolloutControlsPanel({ rollout, onChanged }) {
   return (
     <section className="panel">
       <div className="section-heading">
-        <h2>Rollout controls</h2>
+        <h2>
+          <HelpLabel help="What: persisted operating controls for policy exposure. Why: adaptive decisions still need rollout discipline. Good: canaries and caps match confidence. Bad: high-risk policy gets too much traffic. Action: pause, lower cap, or roll back.">
+            Rollout controls
+          </HelpLabel>
+        </h2>
         <span className={`status-pill status-${rollout?.rollback?.recommendation === "rollback" ? "pause" : "canary"}`}>
           {rollout?.rollback?.recommendation ?? "continue"}
         </span>
@@ -51,6 +56,10 @@ export default function RolloutControlsPanel({ rollout, onChanged }) {
         Traffic caps, canary percentages, and pause states provide an operating layer between
         policy learning and production rollout.
       </p>
+      <WhyThisMatters>
+        Rollout controls turn model governance into an operational system: PMs can slow exposure,
+        operators can pause risk, and leaders can see why deployment is constrained.
+      </WhyThisMatters>
       <div className="control-list">
         {controls.map((control) => (
           <div className="control-row" key={control.policy}>

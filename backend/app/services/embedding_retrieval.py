@@ -1,4 +1,5 @@
 import math
+import os
 from dataclasses import dataclass
 from functools import lru_cache
 
@@ -39,9 +40,14 @@ class LocalVectorStore:
         return sorted(scored, key=lambda item: item["score"], reverse=True)[:top_k]
 
 
-class KeywordEmbeddingModel:
+class DeterministicEmbeddingModel:
+    """Deployment-safe fallback that still produces dense local vectors."""
+
     def encode(self, texts: list[str]) -> list[list[float]]:
-        return [_keyword_vector(text) for text in texts]
+        return [_hashing_vector(text) for text in texts]
+
+
+KeywordEmbeddingModel = DeterministicEmbeddingModel
 
 
 class SentenceTransformerEmbeddingModel:
@@ -56,7 +62,7 @@ class SentenceTransformerEmbeddingModel:
 
 
 def build_embedding_retriever(events: list, embedding_model=None) -> LocalVectorStore:
-    model = embedding_model or KeywordEmbeddingModel()
+    model = embedding_model or get_embedding_model()
     store = LocalVectorStore(model)
     store.add_documents(build_evidence_documents(events))
     return store
@@ -112,9 +118,19 @@ def optional_sentence_transformer_model():
     if not sentence_transformers_available():
         return None
     try:
-        return SentenceTransformerEmbeddingModel()
+        model_name = os.getenv("EMBEDDING_MODEL_NAME", "paraphrase-MiniLM-L3-v2")
+        return SentenceTransformerEmbeddingModel(model_name=model_name)
     except Exception:
         return None
+
+
+@lru_cache(maxsize=1)
+def cached_sentence_transformer_model():
+    return optional_sentence_transformer_model()
+
+
+def get_embedding_model():
+    return cached_sentence_transformer_model() or DeterministicEmbeddingModel()
 
 
 def _campaign_example_documents(events: list) -> list[EvidenceDocument]:
@@ -202,3 +218,12 @@ def _cosine_similarity(left: list[float], right: list[float]) -> float:
     if not left_norm or not right_norm:
         return 0.0
     return dot / (left_norm * right_norm)
+
+
+def _hashing_vector(text: str, dimensions: int = 64) -> list[float]:
+    vector = [0.0] * dimensions
+    tokens = text.lower().replace("_", " ").replace("-", " ").split()
+    for token in tokens:
+        index = sum(ord(character) for character in token) % dimensions
+        vector[index] += 1.0
+    return vector

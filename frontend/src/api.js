@@ -13,11 +13,49 @@ async function request(path, options = {}) {
 }
 
 export function fetchMetrics() {
-  return request("/metrics");
+  return fetchMetricsSummary();
+}
+
+export function fetchMetricsSummary() {
+  return request("/metrics/summary");
+}
+
+export function fetchMetricsDetails() {
+  return request("/metrics/details");
 }
 
 export function fetchEvents(limit = 25) {
-  return request(`/events?limit=${limit}`);
+  return fetchRecentEvents(limit);
+}
+
+export function fetchRecentEvents(limit = 25) {
+  return request(`/events/recent?limit=${limit}`);
+}
+
+export function streamDemoStep(batchSize = 25) {
+  return request("/demo/stream-step", {
+    method: "POST",
+    body: JSON.stringify({ batch_size: batchSize }),
+  });
+}
+
+export function startReplay(config) {
+  return request("/replay/start", {
+    method: "POST",
+    body: JSON.stringify({
+      source: config.source,
+      batch_size: config.batchSize,
+      replay_speed_seconds: config.replaySpeedSeconds,
+    }),
+  });
+}
+
+export function pauseReplay() {
+  return request("/replay/pause", { method: "POST" });
+}
+
+export function fetchReplayStatus() {
+  return request("/replay/status");
 }
 
 export function simulateDecision(policy) {

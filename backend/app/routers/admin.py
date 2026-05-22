@@ -7,6 +7,7 @@ from app.database import get_db
 from app.models import Event
 from app.schemas import AdminReseedRequest
 from app.services.demo_seed import PORTFOLIO_DEMO_SEED_SIZE, build_demo_events
+from app.services.metrics_summary import clear_metrics_summary, update_metrics_summary
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -24,8 +25,10 @@ def reseed_demo(
 
     seed_size = int(os.getenv("DEMO_SEED_SIZE", str(PORTFOLIO_DEMO_SEED_SIZE)))
     db.query(Event).delete()
+    clear_metrics_summary(db)
     events = build_demo_events(n=seed_size)
     db.add_all(events)
+    update_metrics_summary(db, events)
     db.commit()
     return {
         "status": "ok",

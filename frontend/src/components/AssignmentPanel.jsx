@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { recommendAssignment, sampleUserContext } from "../api";
+import { HelpLabel, WhyThisMatters } from "./InfoTooltip";
 
 export default function AssignmentPanel() {
   const [recommendation, setRecommendation] = useState(null);
@@ -28,7 +29,11 @@ export default function AssignmentPanel() {
   return (
     <section className="panel">
       <div className="section-heading">
-        <h2>AI-assisted assignment scaffold</h2>
+        <h2>
+          <HelpLabel help="What: deterministic AI-assisted routing explanation. Why: shows how evidence, governance, uncertainty, maturity, and risk shape an assignment. Good: confident low-risk assisted route. Bad: high risk or low evidence. Action: abstain or send to human review.">
+            AI-assisted assignment scaffold
+          </HelpLabel>
+        </h2>
         <div className="button-row">
           <button onClick={() => changeProfile("mature")}>Mature profile</button>
           <button onClick={() => changeProfile("risky")}>High-risk profile</button>
@@ -39,6 +44,10 @@ export default function AssignmentPanel() {
         This deterministic scaffold shows how an AI-assisted decision could be explained without
         calling an external model: retrieve evidence, apply guardrails, choose a route, and explain why.
       </p>
+      <WhyThisMatters>
+        Non-ML stakeholders need to know not just what was selected, but why it was allowed,
+        whether confidence is high enough, and which human oversight path applies.
+      </WhyThisMatters>
 
       {error && <div className="alert">{error}</div>}
       <div className="assignment-grid">

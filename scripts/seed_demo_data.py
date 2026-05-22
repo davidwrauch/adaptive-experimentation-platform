@@ -6,6 +6,7 @@ sys.path.append(str(Path(__file__).resolve().parents[1] / "backend"))
 
 from app.database import Base, SessionLocal, engine
 from app.services.demo_seed import LIGHTWEIGHT_DEMO_SEED_SIZE, PORTFOLIO_DEMO_SEED_SIZE, build_demo_events
+from app.services.metrics_summary import update_metrics_summary
 
 
 def main() -> None:
@@ -26,6 +27,7 @@ def main() -> None:
     events = build_demo_events(n=event_count)
     with SessionLocal() as db:
         db.add_all(events)
+        update_metrics_summary(db, events)
         db.commit()
     print(
         "Seeded lifecycle messaging demo with "

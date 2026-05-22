@@ -1,34 +1,55 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { fetchEvents, fetchMetrics, simulateDecision } from "./api";
+import {
+  fetchMetricsDetails,
+  fetchMetricsSummary,
+  fetchRecentEvents,
+  simulateDecision,
+  streamDemoStep,
+} from "./api";
 import AssignmentPanel from "./components/AssignmentPanel";
 import BayesianPanel from "./components/BayesianPanel";
+import DashboardSection from "./components/DashboardSection";
 import DemoScenario from "./components/DemoScenario";
 import EventStream from "./components/EventStream";
 import ExplorationBudgetPanel from "./components/ExplorationBudgetPanel";
 import GovernancePanel from "./components/GovernancePanel";
+import GuidedMode from "./components/GuidedMode";
 import MetricsCards from "./components/MetricsCards";
 import MessagingGenerationPanel from "./components/MessagingGenerationPanel";
 import ObservabilityPanel from "./components/ObservabilityPanel";
 import PolicyDashboard from "./components/PolicyDashboard";
 import RiskMonitoringPanel from "./components/RiskMonitoringPanel";
 import RolloutControlsPanel from "./components/RolloutControlsPanel";
+import ReplayControlsPanel from "./components/ReplayControlsPanel";
 import StreamingStatusPanel from "./components/StreamingStatusPanel";
 import TradeoffPanel from "./components/TradeoffPanel";
+import { HelpLabel } from "./components/InfoTooltip";
 
 export default function App() {
   const [metrics, setMetrics] = useState({ total_events: 0, policies: [] });
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [liveMode, setLiveMode] = useState(false);
+  const [liveTick, setLiveTick] = useState({
+    event_count_added: 0,
+    total_events: 0,
+    latest_timestamp: null,
+  });
+  const [lastUpdated, setLastUpdated] = useState(null);
 
-  const refresh = useCallback(async () => {
+  const refresh = useCallback(async (includeDetails = false) => {
     try {
       setError("");
-      const [metricsBody, eventsBody] = await Promise.all([fetchMetrics(), fetchEvents()]);
+      const [metricsBody, eventsBody] = await Promise.all([
+        includeDetails ? fetchMetricsDetails() : fetchMetricsSummary(),
+        fetchRecentEvents(50),
+      ]);
       setMetrics(metricsBody);
       setEvents(eventsBody);
+      setLastUpdated(new Date());
     } catch (err) {
-      setError(err.message);
+      setError("The backend may be waking up. Please wait a moment and refresh.");
     } finally {
       setLoading(false);
     }
@@ -36,9 +57,25 @@ export default function App() {
 
   useEffect(() => {
     refresh();
-    const timer = window.setInterval(refresh, 5000);
-    return () => window.clearInterval(timer);
   }, [refresh]);
+
+  useEffect(() => {
+    if (!liveMode) {
+      return undefined;
+    }
+    const timer = window.setInterval(async () => {
+      try {
+        setError("");
+        const tick = await streamDemoStep(25);
+        setLiveTick(tick);
+        await refresh();
+      } catch (err) {
+        setError("Live simulation paused while the backend wakes up. Try again shortly.");
+        setLiveMode(false);
+      }
+    }, 7000);
+    return () => window.clearInterval(timer);
+  }, [liveMode, refresh]);
 
   async function handleSimulate(policy) {
     await simulateDecision(policy);
@@ -52,7 +89,13 @@ export default function App() {
           <p className="eyebrow">Adaptive Experimentation</p>
           <h1>AI Decisioning Dashboard</h1>
         </div>
-        <button className="refresh-button" onClick={refresh}>Refresh</button>
+        <div className="topbar-actions">
+          <GuidedMode />
+          <button onClick={() => setLiveMode((value) => !value)}>
+            {liveMode ? "Pause Live Simulation" : "Start Live Simulation"}
+          </button>
+          <button className="refresh-button" onClick={() => refresh(true)}>Refresh Details</button>
+        </div>
       </header>
 
       {error && <div className="alert">{error}</div>}
@@ -61,21 +104,82 @@ export default function App() {
       ) : (
         <>
           <DemoScenario />
-          <MetricsCards metrics={metrics} />
-          <StreamingStatusPanel streaming={metrics.streaming} />
-          <ObservabilityPanel observability={metrics.observability} />
-          <RolloutControlsPanel rollout={metrics.rollout} onChanged={refresh} />
-          <AssignmentPanel />
-          <MessagingGenerationPanel />
-          <PolicyDashboard metrics={metrics} onSimulate={handleSimulate} />
-          <GovernancePanel metrics={metrics} />
-          <ExplorationBudgetPanel exploration={metrics.exploration} />
-          <BayesianPanel bayesian={metrics.bayesian} />
-          <TradeoffPanel metrics={metrics} />
-          <RiskMonitoringPanel metrics={metrics} />
-          <EventStream events={events} />
+          <DashboardSection
+            title="Live Operations"
+            description="Watch traffic arrive, check system health, and keep the hosted demo responsive."
+          >
+            <section className="panel live-panel">
+            <div>
+              <div className={liveMode ? "live-dot active" : "live-dot"} />
+              <div>
+                <h2>
+                  <HelpLabel
+                    help="Live simulation appends small batches of deterministic lifecycle events. Good: steady growth with low errors. Bad: repeated failures or no new events. Operator action: pause if the backend is warming up, then resume when healthy."
+                  >
+                    {liveMode ? "Live simulation running" : "Live simulation paused"}
+                  </HelpLabel>
+                </h2>
+                <p className="panel-copy">
+                  Adds small batches of replayed lifecycle-message events over time, then refreshes
+                  fast summary metrics so the hosted demo feels active without recomputing the full
+                  event table.
+                </p>
+              </div>
+            </div>
+            <div className="live-stats">
+              <span>Total events <strong>{metrics.total_events.toLocaleString()}</strong></span>
+              <span>Last tick <strong>{liveTick.event_count_added}</strong></span>
+              <span>Updated <strong>{formatUpdated(lastUpdated)}</strong></span>
+            </div>
+            </section>
+            <MetricsCards metrics={metrics} />
+            <ReplayControlsPanel onTick={refresh} />
+            <StreamingStatusPanel streaming={metrics.streaming} />
+            <EventStream events={events} />
+          </DashboardSection>
+
+          <DashboardSection
+            title="Experiment Performance"
+            description="Compare immediate lift with long-term customer value across decisioning policies."
+          >
+            <PolicyDashboard metrics={metrics} onSimulate={handleSimulate} />
+            <TradeoffPanel metrics={metrics} />
+            <BayesianPanel bayesian={metrics.bayesian} />
+          </DashboardSection>
+
+          <DashboardSection
+            title="Risk & Governance"
+            description="Translate evidence, uncertainty, fatigue, and risk signals into rollout actions."
+          >
+            <ObservabilityPanel observability={metrics.observability} />
+            <GovernancePanel metrics={metrics} />
+            <RolloutControlsPanel rollout={metrics.rollout} onChanged={refresh} />
+            <RiskMonitoringPanel metrics={metrics} />
+          </DashboardSection>
+
+          <DashboardSection
+            title="Policy Intelligence"
+            description="Inspect exploration budgets and the confidence behind adaptive policy choices."
+          >
+            <ExplorationBudgetPanel exploration={metrics.exploration} />
+          </DashboardSection>
+
+          <DashboardSection
+            title="Messaging & Assignment Support"
+            description="Show how evidence retrieval and guardrails support human-reviewed AI assistance."
+          >
+            <AssignmentPanel />
+            <MessagingGenerationPanel />
+          </DashboardSection>
         </>
       )}
     </main>
   );
+}
+
+function formatUpdated(value) {
+  if (!value) {
+    return "pending";
+  }
+  return value.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
 }
