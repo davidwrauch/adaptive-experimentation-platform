@@ -4,14 +4,17 @@ import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.database import Base, engine
+from app.database import Base, SessionLocal, engine
 from app.routers import assignments, controls, events, messaging, metrics, policies
+from app.services.demo_seed import seed_production_demo_if_empty
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     if os.getenv("AUTO_CREATE_TABLES", "true").lower() == "true":
         Base.metadata.create_all(bind=engine)
+    with SessionLocal() as db:
+        seed_production_demo_if_empty(db)
     yield
 
 
