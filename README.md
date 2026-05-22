@@ -246,6 +246,7 @@ See [Deployment Guide](docs/deployment.md) and [Architecture](docs/architecture.
 - [Deployment guide](docs/deployment.md)
 - [Demo script](docs/demo_script.md)
 - [Lifecycle messaging scenario](docs/lifecycle_messaging_scenario.md)
+- [System topology and decision trace](docs/system_topology_and_decision_trace.md)
 - [Portfolio bullets](docs/portfolio_bullets.md)
 - [ML platform lifecycle](docs/ml_platform_lifecycle.md)
 - [Warehouse metrics layer](dbt/README.md)

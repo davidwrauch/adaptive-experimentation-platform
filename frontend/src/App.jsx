@@ -9,8 +9,10 @@ import {
 } from "./api";
 import AssignmentPanel from "./components/AssignmentPanel";
 import BayesianPanel from "./components/BayesianPanel";
+import ConvergenceMonitoringPanel from "./components/ConvergenceMonitoringPanel";
 import DashboardSection from "./components/DashboardSection";
 import DecisionLogPanel from "./components/DecisionLogPanel";
+import DecisionTracePanel from "./components/DecisionTracePanel";
 import DemoScenario from "./components/DemoScenario";
 import EventStream from "./components/EventStream";
 import ExperimentConfidencePanel from "./components/ExperimentConfidencePanel";
@@ -30,6 +32,7 @@ import RiskMonitoringPanel from "./components/RiskMonitoringPanel";
 import RolloutControlsPanel from "./components/RolloutControlsPanel";
 import ReplayControlsPanel from "./components/ReplayControlsPanel";
 import StreamingStatusPanel from "./components/StreamingStatusPanel";
+import SystemFlowPanel from "./components/SystemFlowPanel";
 import TradeoffPanel from "./components/TradeoffPanel";
 import UpliftPanel from "./components/UpliftPanel";
 import { HelpLabel } from "./components/InfoTooltip";
@@ -314,6 +317,9 @@ export default function App() {
                   lastUpdated={lastUpdated}
                 />
                 <ReplayControlsPanel onTick={refresh} />
+                <DecisionTracePanel events={events} metrics={metrics} uplift={uplift} />
+                <SystemFlowPanel />
+                <ConvergenceMonitoringPanel metrics={metrics} />
                 <StreamingStatusPanel streaming={metrics.streaming} />
                 <EventStream events={events} />
               </DashboardSection>

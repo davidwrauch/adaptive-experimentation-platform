@@ -238,7 +238,53 @@ export function governanceExplanation(status) {
     canary: "Promising but not final. Expand slowly while watching reward, fatigue, and overlap.",
     human_review: "The system needs operator judgment before exposure grows.",
     pause: "Risk or data quality is too high. Stop exposure until the issue is understood.",
-  }[status] ?? "Governance has not produced a clear launch label yet.";
+}[status] ?? "Governance has not produced a clear launch label yet.";
+}
+
+export function convergenceStatus(metrics) {
+  const policies = metrics?.policies ?? [];
+  const totalEvents = Math.max(1, metrics?.total_events ?? 0);
+  const maxTrafficShare = Math.max(
+    0,
+    ...policies.map((policy) => (policy.event_count ?? 0) / totalEvents),
+  );
+  const maxUncertainty = Math.max(0, ...policies.map((policy) => policy.ope?.uncertainty ?? 0));
+  const saturated = (metrics?.exploration?.segments ?? []).some((segment) => segment.saturated);
+  const driftAlert = (metrics?.observability?.alerts ?? []).some((alert) =>
+    String(alert.name).toLowerCase().includes("drift"),
+  );
+  const criticalAlert = (metrics?.observability?.alerts ?? []).some(
+    (alert) => alert.severity === "critical",
+  );
+
+  if (criticalAlert) {
+    return {
+      status: "Needs Review",
+      reason: "Critical guardrails are active, so launch owners should review before expansion.",
+    };
+  }
+  if (saturated || maxTrafficShare >= 0.65) {
+    return {
+      status: "Saturated",
+      reason: "Exploration or traffic is concentrated in one segment, policy, or intervention arm.",
+    };
+  }
+  if (driftAlert || maxUncertainty >= 0.4) {
+    return {
+      status: "Volatile",
+      reason: "Reward drift, policy volatility, or high uncertainty suggests recent instability.",
+    };
+  }
+  if (maxUncertainty >= 0.2 || (metrics?.total_events ?? 0) < 1000) {
+    return {
+      status: "Learning",
+      reason: "The system is still collecting evidence and adjusting recommendations.",
+    };
+  }
+  return {
+    status: "Stable",
+    reason: "Recommendation stability, reward drift, and exploration concentration are within expected bounds.",
+  };
 }
 
 function formatPolicy(policy) {
