@@ -5,7 +5,7 @@ from sqlalchemy.pool import StaticPool
 
 from app.database import Base, get_db
 from app.main import app
-from app.models import Event
+from app.models import Event, MetricsSummary
 
 
 def make_client_with_db():
@@ -87,3 +87,37 @@ def test_admin_reseed_accepts_body_token(monkeypatch):
     assert response.status_code == 200
     assert response.json()["event_count"] == 10
     assert event_count == 10
+
+
+def test_admin_reseed_rebuilds_summary_after_existing_rows(monkeypatch):
+    monkeypatch.setenv("ADMIN_RESEED_TOKEN", "secret-token")
+    monkeypatch.setenv("DEMO_SEED_SIZE", "20")
+    client, TestingSessionLocal = make_client_with_db()
+
+    with TestingSessionLocal() as db:
+        db.add(
+            MetricsSummary(
+                policy="static",
+                event_count=999,
+                cumulative_reward=999.0,
+                cumulative_long_term_reward=999.0,
+                fatigue_delta_sum=999.0,
+                unsubscribe_risk_sum=999.0,
+                unsubscribe_risk_delta_sum=999.0,
+                assignments={"control": 999},
+            )
+        )
+        db.commit()
+
+    response = client.post("/admin/reseed-demo", json={"token": "secret-token"})
+
+    with TestingSessionLocal() as db:
+        summary_rows = db.query(MetricsSummary).all()
+        total_summary_events = sum(row.event_count for row in summary_rows)
+
+    app.dependency_overrides.clear()
+
+    assert response.status_code == 200
+    assert response.json()["event_count"] == 20
+    assert total_summary_events == 20
+    assert all(row.event_count < 999 for row in summary_rows)

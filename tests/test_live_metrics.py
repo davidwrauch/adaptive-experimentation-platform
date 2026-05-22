@@ -5,7 +5,7 @@ from sqlalchemy.pool import StaticPool
 
 from app.database import Base, get_db
 from app.main import app
-from app.models import Event
+from app.models import Event, MetricsSummary
 from app.services.demo_seed import build_demo_events
 from app.services.metrics_summary import update_metrics_summary
 
@@ -119,3 +119,57 @@ def test_metrics_compatibility_uses_capped_metrics_shape():
     assert body["total_events"] == 40
     assert body["policies"][0]["ope"] is not None
     assert "rollout" in body
+
+
+def test_metrics_summary_upsert_handles_repeated_policy_updates():
+    _, TestingSessionLocal = make_client_with_db()
+
+    with TestingSessionLocal() as db:
+        first_events = build_demo_events(n=20)
+        second_events = build_demo_events(n=20)
+        db.add_all(first_events)
+        update_metrics_summary(db, first_events)
+        db.commit()
+
+        db.add_all(second_events)
+        update_metrics_summary(db, second_events)
+        db.commit()
+
+        summary_rows = db.query(MetricsSummary).all()
+        total_summary_events = sum(row.event_count for row in summary_rows)
+
+    app.dependency_overrides.clear()
+
+    assert len(summary_rows) == 4
+    assert total_summary_events == 40
+
+
+def test_metrics_summary_upsert_updates_existing_policy_row():
+    _, TestingSessionLocal = make_client_with_db()
+
+    with TestingSessionLocal() as db:
+        db.add(
+            MetricsSummary(
+                policy="static",
+                event_count=1,
+                cumulative_reward=0.5,
+                cumulative_long_term_reward=0.4,
+                fatigue_delta_sum=0.1,
+                unsubscribe_risk_sum=0.2,
+                unsubscribe_risk_delta_sum=0.03,
+                assignments={"control": 1},
+            )
+        )
+        db.commit()
+
+        events = [event for event in build_demo_events(n=8) if event.policy == "static"]
+        db.add_all(events)
+        update_metrics_summary(db, events)
+        db.commit()
+
+        summary = db.get(MetricsSummary, "static")
+
+    app.dependency_overrides.clear()
+
+    assert summary.event_count == 1 + len(events)
+    assert summary.assignments["control"] == 1 + len(events)

@@ -1,6 +1,8 @@
 from collections import defaultdict
 
 from sqlalchemy import desc, func
+from sqlalchemy.dialects.postgresql import insert as postgres_insert
+from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 from sqlalchemy.orm import Session
 
 from app.models import Event, MetricsSummary
@@ -12,27 +14,20 @@ RECENT_WINDOW_LIMIT = 2_000
 
 
 def update_metrics_summary(db: Session, events: list[Event]) -> None:
-    policies = {event.policy for event in events}
-    summaries = {
-        summary.policy: summary
-        for summary in db.query(MetricsSummary).filter(MetricsSummary.policy.in_(policies)).all()
-    } if policies else {}
-
+    aggregates: dict[str, dict] = {}
     for event in events:
-        summary = summaries.get(event.policy)
-        if summary is None:
-            summary = MetricsSummary(
-                policy=event.policy,
-                event_count=0,
-                cumulative_reward=0.0,
-                cumulative_long_term_reward=0.0,
-                fatigue_delta_sum=0.0,
-                unsubscribe_risk_sum=0.0,
-                unsubscribe_risk_delta_sum=0.0,
-                assignments={},
-            )
-            db.add(summary)
-            summaries[event.policy] = summary
+        aggregate = aggregates.setdefault(
+            event.policy,
+            {
+                "event_count": 0,
+                "cumulative_reward": 0.0,
+                "cumulative_long_term_reward": 0.0,
+                "fatigue_delta_sum": 0.0,
+                "unsubscribe_risk_sum": 0.0,
+                "unsubscribe_risk_delta_sum": 0.0,
+                "assignments": {},
+            },
+        )
 
         context = event.context or {}
         outcome = context.get("outcome", {})
@@ -40,20 +35,86 @@ def update_metrics_summary(db: Session, events: list[Event]) -> None:
         fatigue_delta = float(outcome.get("fatigue_delta", 0.0))
         unsubscribe_risk_delta = float(outcome.get("unsubscribe_risk_delta", 0.0))
         unsubscribe_risk = float(context.get("unsubscribe_risk", 0.0)) + unsubscribe_risk_delta
-        assignments = dict(summary.assignments or {})
 
-        summary.event_count += 1
-        summary.cumulative_reward += event.reward
-        summary.cumulative_long_term_reward += long_term_reward
-        summary.fatigue_delta_sum += fatigue_delta
-        summary.unsubscribe_risk_sum += unsubscribe_risk
-        summary.unsubscribe_risk_delta_sum += unsubscribe_risk_delta
-        assignments[event.action] = int(assignments.get(event.action, 0)) + 1
-        summary.assignments = assignments
+        aggregate["event_count"] += 1
+        aggregate["cumulative_reward"] += event.reward
+        aggregate["cumulative_long_term_reward"] += long_term_reward
+        aggregate["fatigue_delta_sum"] += fatigue_delta
+        aggregate["unsubscribe_risk_sum"] += unsubscribe_risk
+        aggregate["unsubscribe_risk_delta_sum"] += unsubscribe_risk_delta
+        aggregate["assignments"][event.action] = int(aggregate["assignments"].get(event.action, 0)) + 1
+
+    for policy, aggregate in aggregates.items():
+        existing_assignments = _existing_assignments(db, policy)
+        merged_assignments = dict(existing_assignments)
+        for action, count in aggregate["assignments"].items():
+            merged_assignments[action] = int(merged_assignments.get(action, 0)) + count
+        _upsert_metrics_summary(db, policy, aggregate, merged_assignments)
 
 
 def clear_metrics_summary(db: Session) -> None:
     db.query(MetricsSummary).delete()
+
+
+def _existing_assignments(db: Session, policy: str) -> dict:
+    assignments = db.query(MetricsSummary.assignments).filter(MetricsSummary.policy == policy).scalar()
+    return dict(assignments or {})
+
+
+def _upsert_metrics_summary(db: Session, policy: str, aggregate: dict, assignments: dict) -> None:
+    values = {
+        "policy": policy,
+        "event_count": aggregate["event_count"],
+        "cumulative_reward": aggregate["cumulative_reward"],
+        "cumulative_long_term_reward": aggregate["cumulative_long_term_reward"],
+        "fatigue_delta_sum": aggregate["fatigue_delta_sum"],
+        "unsubscribe_risk_sum": aggregate["unsubscribe_risk_sum"],
+        "unsubscribe_risk_delta_sum": aggregate["unsubscribe_risk_delta_sum"],
+        "assignments": assignments,
+    }
+    dialect_name = db.get_bind().dialect.name
+    if dialect_name == "postgresql":
+        statement = postgres_insert(MetricsSummary).values(**values)
+    elif dialect_name == "sqlite":
+        statement = sqlite_insert(MetricsSummary).values(**values)
+    else:
+        _fallback_upsert_metrics_summary(db, values)
+        return
+
+    excluded = statement.excluded
+    db.execute(
+        statement.on_conflict_do_update(
+            index_elements=[MetricsSummary.policy],
+            set_={
+                "event_count": MetricsSummary.event_count + excluded.event_count,
+                "cumulative_reward": MetricsSummary.cumulative_reward + excluded.cumulative_reward,
+                "cumulative_long_term_reward": (
+                    MetricsSummary.cumulative_long_term_reward + excluded.cumulative_long_term_reward
+                ),
+                "fatigue_delta_sum": MetricsSummary.fatigue_delta_sum + excluded.fatigue_delta_sum,
+                "unsubscribe_risk_sum": MetricsSummary.unsubscribe_risk_sum + excluded.unsubscribe_risk_sum,
+                "unsubscribe_risk_delta_sum": (
+                    MetricsSummary.unsubscribe_risk_delta_sum + excluded.unsubscribe_risk_delta_sum
+                ),
+                "assignments": excluded.assignments,
+                "updated_at": func.now(),
+            },
+        )
+    )
+
+
+def _fallback_upsert_metrics_summary(db: Session, values: dict) -> None:
+    existing = db.get(MetricsSummary, values["policy"])
+    if existing is None:
+        db.add(MetricsSummary(**values))
+        return
+    existing.event_count += values["event_count"]
+    existing.cumulative_reward += values["cumulative_reward"]
+    existing.cumulative_long_term_reward += values["cumulative_long_term_reward"]
+    existing.fatigue_delta_sum += values["fatigue_delta_sum"]
+    existing.unsubscribe_risk_sum += values["unsubscribe_risk_sum"]
+    existing.unsubscribe_risk_delta_sum += values["unsubscribe_risk_delta_sum"]
+    existing.assignments = values["assignments"]
 
 
 def ensure_metrics_summary(db: Session) -> None:

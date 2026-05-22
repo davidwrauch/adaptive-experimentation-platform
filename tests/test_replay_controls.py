@@ -5,7 +5,7 @@ from sqlalchemy.pool import StaticPool
 
 from app.database import Base, get_db
 from app.main import app
-from app.models import Event
+from app.models import Event, MetricsSummary
 from app.services.replay_control import pause_replay, replay_state
 
 
@@ -98,3 +98,21 @@ def test_replay_status_reports_saved_state():
     assert response.json()["running"] is True
     assert response.json()["batch_size"] == 3
     assert response.json()["replay_speed_seconds"] == 9
+
+
+def test_replay_can_update_summary_repeatedly_without_duplicate_keys():
+    client, TestingSessionLocal = make_client_with_db()
+
+    first = client.post("/replay/start", json={"source": "synthetic", "batch_size": 12, "replay_speed_seconds": 3})
+    second = client.post("/replay/start", json={"source": "synthetic", "batch_size": 12, "replay_speed_seconds": 3})
+
+    with TestingSessionLocal() as db:
+        summary_rows = db.query(MetricsSummary).all()
+        total_summary_events = sum(row.event_count for row in summary_rows)
+
+    app.dependency_overrides.clear()
+
+    assert first.status_code == 200
+    assert second.status_code == 200
+    assert len(summary_rows) == 4
+    assert total_summary_events == 24
