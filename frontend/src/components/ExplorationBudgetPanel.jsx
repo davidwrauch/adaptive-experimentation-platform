@@ -20,28 +20,23 @@ export default function ExplorationBudgetPanel({ exploration }) {
         Exploration is a business tradeoff: it buys experimentation confidence, but spends user
         attention. Safe systems explore more where risk is low and pull back where fatigue is high.
       </WhyThisMatters>
-      <div className="risk-grid">
-        <div className="risk-row risk-head">
-          <span>Segment</span>
-          <span>Events</span>
-          <span>Observed</span>
-          <span>Budget</span>
-          <span>Status</span>
-        </div>
+      <div className="exploration-card-grid">
         {(exploration?.segments ?? []).map((segment) => (
-          <div className="risk-row" key={segment.segment}>
-            <strong>{segment.segment}</strong>
-            <span>{segment.event_count}</span>
-            <span>
-              {(segment.observed_exploration_share * 100).toFixed(1)}%
+          <article className="exploration-card" key={segment.segment}>
+            <div>
+              <strong>{segment.segment}</strong>
+              <small>{segment.event_count} events</small>
+            </div>
+            <div>
+              <span>Observed {(segment.observed_exploration_share * 100).toFixed(1)}%</span>
               <MiniBar value={segment.observed_exploration_share} max={0.5} />
-            </span>
-            <span>
-              {(segment.budget * 100).toFixed(1)}%
+            </div>
+            <div>
+              <span>Budget {(segment.budget * 100).toFixed(1)}%</span>
               <MiniBar value={segment.budget} max={0.5} muted />
-            </span>
-            <span>{segmentStatus(segment.saturated)}</span>
-          </div>
+            </div>
+            <small>{segmentStatus(segment.saturated)}</small>
+          </article>
         ))}
       </div>
     </section>

@@ -1,7 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { HelpLabel } from "./InfoTooltip";
 
 export default function EventStream({ events }) {
+  const [expanded, setExpanded] = useState(false);
+  const visibleEvents = expanded ? events.slice(0, 20) : events.slice(0, 8);
+
   return (
     <section className="panel">
       <div className="section-heading">
@@ -12,10 +15,11 @@ export default function EventStream({ events }) {
         </h2>
       </div>
       <p className="panel-copy">
-        A replayable audit trail of policy assignments, selected interventions, and observed reward.
+        A compact audit trail of policy assignments, selected interventions, and observed reward.
+        It is intentionally capped so row-level logs do not dominate the operating dashboard.
       </p>
       <div className="event-list">
-        {events.map((event) => (
+        {visibleEvents.map((event) => (
           <article className="event-row" key={event.id}>
             <div>
               <strong>{event.policy}</strong>
@@ -28,6 +32,11 @@ export default function EventStream({ events }) {
           </article>
         ))}
       </div>
+      {events.length > 8 && (
+        <button className="secondary-button event-more" onClick={() => setExpanded((value) => !value)}>
+          {expanded ? "Show fewer" : `Show more (${Math.min(events.length, 20) - 8})`}
+        </button>
+      )}
     </section>
   );
 }

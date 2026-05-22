@@ -34,12 +34,12 @@ export default function PolicyDashboard({ metrics, onSimulate }) {
 
       <div className="chart-stack">
         {metrics.policies.map((policy) => (
-          <div className="chart-row" key={policy.policy}>
+          <div className="policy-chart-card" key={policy.policy}>
             <div>
               <strong>{policy.policy}</strong>
               <small>{((policy.event_count / totalEvents) * 100).toFixed(1)}% traffic share</small>
             </div>
-            <div>
+            <div className="chart-metric">
               <div className="bar-track tall">
                 <div
                   className="bar-fill"
@@ -48,29 +48,7 @@ export default function PolicyDashboard({ metrics, onSimulate }) {
               </div>
               <small>{policy.cumulative_reward.toFixed(2)} cumulative reward</small>
             </div>
-          </div>
-        ))}
-      </div>
-
-      <div className="policy-table compact-table">
-        <div className="table-row table-head">
-          <span>Policy</span>
-          <span>Reward</span>
-          <span>Assignments</span>
-        </div>
-        {metrics.policies.map((policy) => (
-          <div className="table-row" key={policy.policy}>
-            <strong>{policy.policy}</strong>
-            <div className="bar-cell">
-              <div className="bar-track">
-                <div
-                  className="bar-fill"
-                  style={{ width: `${(policy.cumulative_reward / maxReward) * 100}%` }}
-                />
-              </div>
-              <span>{policy.cumulative_reward}</span>
-            </div>
-            <span>{formatAssignments(policy.assignments)}</span>
+            <div className="assignment-chips">{formatAssignments(policy.assignments)}</div>
           </div>
         ))}
       </div>
@@ -79,7 +57,8 @@ export default function PolicyDashboard({ metrics, onSimulate }) {
 }
 
 function formatAssignments(assignments) {
-  return Object.entries(assignments)
+  const text = Object.entries(assignments)
     .map(([action, count]) => `${action}: ${count}`)
     .join(" / ");
+  return text || "No assignments yet";
 }

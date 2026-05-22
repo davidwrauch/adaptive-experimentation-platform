@@ -30,7 +30,7 @@ export default function TradeoffPanel({ metrics }) {
 
       <div className="tradeoff-list">
         {metrics.policies.map((policy) => (
-          <div className="tradeoff-row" key={policy.policy}>
+          <div className="tradeoff-card" key={policy.policy}>
             <strong>{policy.policy}</strong>
             <RewardBar
               label="Immediate"
@@ -54,7 +54,10 @@ function RewardBar({ label, value, max }) {
     <div className="reward-bar">
       <span>{label}</span>
       <div className="bar-track tall">
-        <div className="bar-fill alt-fill" style={{ width: `${(value / max) * 100}%` }} />
+        <div
+          className={label === "Immediate" ? "bar-fill" : "bar-fill alt-fill"}
+          style={{ width: `${(value / max) * 100}%` }}
+        />
       </div>
       <strong>{value.toFixed(2)}</strong>
     </div>

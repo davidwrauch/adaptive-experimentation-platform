@@ -20,29 +20,22 @@ export default function BayesianPanel({ bayesian }) {
         Sequential confidence updating helps teams make staged rollout decisions as evidence
         accumulates, while still preserving uncertainty bands for executive and operator review.
       </WhyThisMatters>
-      <div className="governance-grid">
-        <div className="governance-row governance-head">
-          <span>Policy</span>
-          <span>Mean</span>
-          <span>Best</span>
-          <span>Low</span>
-          <span>High</span>
-          <span>Events</span>
-        </div>
+      <div className="probability-grid">
         {(bayesian?.policies ?? []).map((policy) => (
-          <div className="governance-row" key={policy.policy}>
-            <strong>{policy.policy}</strong>
-            <span>{policy.posterior_mean.toFixed(4)}</span>
-            <span>
-              {(policy.probability_best * 100).toFixed(1)}%
-              <span className="mini-track">
-                <span className="mini-fill" style={{ width: `${policy.probability_best * 100}%` }} />
-              </span>
+          <article className="probability-card" key={policy.policy}>
+            <div>
+              <strong>{policy.policy}</strong>
+              <small>{policy.event_count} events</small>
+            </div>
+            <div className="probability-value">{(policy.probability_best * 100).toFixed(1)}%</div>
+            <span className="mini-track">
+              <span className="mini-fill" style={{ width: `${policy.probability_best * 100}%` }} />
             </span>
-            <span>{policy.credible_interval[0].toFixed(4)}</span>
-            <span>{policy.credible_interval[1].toFixed(4)}</span>
-            <span>{policy.event_count}</span>
-          </div>
+            <small>
+              mean {policy.posterior_mean.toFixed(4)} | interval{" "}
+              {policy.credible_interval[0].toFixed(4)}-{policy.credible_interval[1].toFixed(4)}
+            </small>
+          </article>
         ))}
       </div>
       <small>{bayesian?.reason}</small>

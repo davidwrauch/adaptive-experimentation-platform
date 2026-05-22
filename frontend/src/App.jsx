@@ -25,6 +25,8 @@ import StreamingStatusPanel from "./components/StreamingStatusPanel";
 import TradeoffPanel from "./components/TradeoffPanel";
 import { HelpLabel } from "./components/InfoTooltip";
 
+const LIVE_INTERVAL_SECONDS = 10;
+
 export default function App() {
   const [metrics, setMetrics] = useState({ total_events: 0, policies: [] });
   const [events, setEvents] = useState([]);
@@ -37,6 +39,7 @@ export default function App() {
     latest_timestamp: null,
   });
   const [lastUpdated, setLastUpdated] = useState(null);
+  const [nextUpdateIn, setNextUpdateIn] = useState(LIVE_INTERVAL_SECONDS);
 
   const refresh = useCallback(async (includeDetails = false) => {
     try {
@@ -61,20 +64,29 @@ export default function App() {
 
   useEffect(() => {
     if (!liveMode) {
+      setNextUpdateIn(LIVE_INTERVAL_SECONDS);
       return undefined;
     }
+    setNextUpdateIn(LIVE_INTERVAL_SECONDS);
+    const countdown = window.setInterval(() => {
+      setNextUpdateIn((value) => (value <= 1 ? LIVE_INTERVAL_SECONDS : value - 1));
+    }, 1000);
     const timer = window.setInterval(async () => {
       try {
         setError("");
         const tick = await streamDemoStep(25);
         setLiveTick(tick);
         await refresh();
+        setNextUpdateIn(LIVE_INTERVAL_SECONDS);
       } catch (err) {
         setError("Live simulation paused while the backend wakes up. Try again shortly.");
         setLiveMode(false);
       }
-    }, 7000);
-    return () => window.clearInterval(timer);
+    }, LIVE_INTERVAL_SECONDS * 1000);
+    return () => {
+      window.clearInterval(timer);
+      window.clearInterval(countdown);
+    };
   }, [liveMode, refresh]);
 
   async function handleSimulate(policy) {
@@ -91,7 +103,10 @@ export default function App() {
         </div>
         <div className="topbar-actions">
           <GuidedMode />
-          <button onClick={() => setLiveMode((value) => !value)}>
+          <button
+            className={liveMode ? "live-toggle live-toggle-paused" : "live-toggle live-toggle-start"}
+            onClick={() => setLiveMode((value) => !value)}
+          >
             {liveMode ? "Pause Live Simulation" : "Start Live Simulation"}
           </button>
           <button className="refresh-button" onClick={() => refresh(true)}>Refresh Details</button>
@@ -104,6 +119,12 @@ export default function App() {
       ) : (
         <>
           <DemoScenario />
+          <MetricsCards
+            metrics={metrics}
+            liveMode={liveMode}
+            liveTick={liveTick}
+            lastUpdated={lastUpdated}
+          />
           <DashboardSection
             title="Live Operations"
             description="Watch traffic arrive, check system health, and keep the hosted demo responsive."
@@ -116,7 +137,10 @@ export default function App() {
                   <HelpLabel
                     help="Live simulation appends small batches of deterministic lifecycle events. Good: steady growth with low errors. Bad: repeated failures or no new events. Operator action: pause if the backend is warming up, then resume when healthy."
                   >
-                    {liveMode ? "Live simulation running" : "Live simulation paused"}
+                    <span className="live-title">
+                      <span className={liveMode ? "live-pulse active" : "live-pulse"} />
+                      {liveMode ? "Live simulation running" : "Live simulation paused"}
+                    </span>
                   </HelpLabel>
                 </h2>
                 <p className="panel-copy">
@@ -128,14 +152,13 @@ export default function App() {
             </div>
             <div className="live-stats">
               <span>Total events <strong>{metrics.total_events.toLocaleString()}</strong></span>
-              <span>Last tick <strong>{liveTick.event_count_added}</strong></span>
+              <span>Events added in last tick <strong>{liveTick.event_count_added}</strong></span>
+              <span>Next update <strong>{liveMode ? `${nextUpdateIn}s` : "paused"}</strong></span>
               <span>Updated <strong>{formatUpdated(lastUpdated)}</strong></span>
             </div>
             </section>
-            <MetricsCards metrics={metrics} />
             <ReplayControlsPanel onTick={refresh} />
             <StreamingStatusPanel streaming={metrics.streaming} />
-            <EventStream events={events} />
           </DashboardSection>
 
           <DashboardSection
@@ -170,6 +193,13 @@ export default function App() {
           >
             <AssignmentPanel />
             <MessagingGenerationPanel />
+          </DashboardSection>
+
+          <DashboardSection
+            title="Audit Trail"
+            description="Inspect a small recent sample when you need row-level evidence."
+          >
+            <EventStream events={events} />
           </DashboardSection>
         </>
       )}

@@ -34,8 +34,9 @@ export default function ObservabilityPanel({ observability }) {
           <span>health</span>
         </div>
         <div className="severity-summary">
-          <span className="severity severity-critical">critical {critical}</span>
-          <span className="severity severity-warning">warning {warning}</span>
+          <SeverityBar label="critical" count={critical} total={Math.max(1, alerts.length)} />
+          <SeverityBar label="warning" count={warning} total={Math.max(1, alerts.length)} />
+          <SeverityBar label="stable" count={Math.max(0, (observability?.checks ?? []).length - alerts.length)} total={Math.max(1, observability?.checks?.length ?? 1)} />
         </div>
       </div>
 
@@ -57,6 +58,20 @@ export default function ObservabilityPanel({ observability }) {
         </div>
       )}
     </section>
+  );
+}
+
+function SeverityBar({ label, count, total }) {
+  const width = Math.min(100, (count / total) * 100);
+  return (
+    <div className="severity-bar-card">
+      <span className={`severity severity-${label === "stable" ? "stable" : label}`}>
+        {label} {count}
+      </span>
+      <span className="mini-track">
+        <span className={`mini-fill severity-fill-${label}`} style={{ width: `${width}%` }} />
+      </span>
+    </div>
   );
 }
 

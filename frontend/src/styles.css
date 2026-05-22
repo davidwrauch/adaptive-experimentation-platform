@@ -26,6 +26,28 @@ button:hover {
   background: #315866;
 }
 
+.secondary-button,
+.guided-button {
+  background: white;
+  color: #23404a;
+}
+
+.live-toggle {
+  border: 0;
+  font-weight: 800;
+  padding: 0.72rem 1rem;
+}
+
+.live-toggle-start {
+  background: #2f8f83;
+  box-shadow: 0 8px 18px rgba(47, 143, 131, 0.22);
+}
+
+.live-toggle-paused {
+  background: #8a2e2e;
+  box-shadow: 0 8px 18px rgba(138, 46, 46, 0.2);
+}
+
 .info-icon {
   align-items: center;
   border-radius: 999px;
@@ -85,7 +107,7 @@ h2 {
 .metrics-grid {
   display: grid;
   gap: 14px;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   margin-bottom: 18px;
 }
 
@@ -220,8 +242,17 @@ h2 {
 
 .metric-card strong {
   display: block;
-  font-size: 1.8rem;
+  font-size: clamp(1.2rem, 1.8vw, 1.8rem);
   margin-top: 8px;
+  overflow-wrap: anywhere;
+}
+
+.summary-band {
+  margin-bottom: 20px;
+}
+
+.live-text {
+  color: #176346;
 }
 
 .panel {
@@ -242,6 +273,37 @@ h2 {
   display: grid;
   gap: 18px;
   grid-template-columns: 1.5fr 1fr;
+}
+
+.live-title {
+  align-items: center;
+  display: inline-flex;
+  gap: 9px;
+}
+
+.live-pulse {
+  background: #9aa6aa;
+  border-radius: 999px;
+  display: inline-block;
+  height: 11px;
+  width: 11px;
+}
+
+.live-pulse.active {
+  animation: pulse-live 1.4s infinite;
+  background: #2f8f83;
+}
+
+@keyframes pulse-live {
+  0% {
+    box-shadow: 0 0 0 0 rgba(47, 143, 131, 0.42);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(47, 143, 131, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(47, 143, 131, 0);
+  }
 }
 
 .live-panel > div:first-child {
@@ -301,6 +363,34 @@ h2 {
   margin-bottom: 18px;
 }
 
+.policy-chart-card,
+.tradeoff-card,
+.probability-card,
+.exploration-card {
+  background: #fbfcfb;
+  border: 1px solid #ecf0ee;
+  border-radius: 8px;
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+}
+
+.policy-chart-card {
+  align-items: center;
+  grid-template-columns: 1fr 2fr 1.8fr;
+}
+
+.chart-metric {
+  display: grid;
+  gap: 4px;
+}
+
+.assignment-chips {
+  color: #5d6d73;
+  font-size: 0.88rem;
+  line-height: 1.35;
+}
+
 .chart-row {
   align-items: center;
   display: grid;
@@ -345,6 +435,10 @@ h2 {
   gap: 12px;
   grid-template-columns: 1fr 2fr 2fr;
   min-height: 48px;
+}
+
+.tradeoff-card {
+  grid-template-columns: 1fr 2fr 2fr;
 }
 
 .reward-bar {
@@ -394,6 +488,10 @@ h2 {
   gap: 8px;
 }
 
+.event-more {
+  margin-top: 12px;
+}
+
 .event-row {
   align-items: center;
   border-top: 1px solid #ecf0ee;
@@ -414,11 +512,6 @@ h2 {
   border: 1px solid #d9dfdc;
   border-radius: 8px;
   padding: 18px;
-}
-
-.guided-button {
-  background: white;
-  color: #23404a;
 }
 
 .guided-overlay {
@@ -591,6 +684,29 @@ small {
   color: #775600;
 }
 
+.severity-stable {
+  background: #ddefe6;
+  color: #176346;
+}
+
+.severity-bar-card {
+  display: grid;
+  gap: 6px;
+  min-width: 140px;
+}
+
+.severity-fill-critical {
+  background: #8a2e2e;
+}
+
+.severity-fill-warning {
+  background: #c19021;
+}
+
+.severity-fill-stable {
+  background: #2f8f83;
+}
+
 .assignment-grid {
   display: grid;
   gap: 16px;
@@ -703,6 +819,18 @@ small {
   background: #80633a;
 }
 
+.probability-grid,
+.exploration-card-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.probability-value {
+  font-size: 1.55rem;
+  font-weight: 900;
+}
+
 .messaging-grid {
   display: grid;
   gap: 16px;
@@ -762,6 +890,10 @@ small {
   .live-panel,
   .live-stats,
   .guided-grid,
+  .policy-chart-card,
+  .tradeoff-card,
+  .probability-grid,
+  .exploration-card-grid,
   .scenario-band,
   .table-row,
   .governance-row,
