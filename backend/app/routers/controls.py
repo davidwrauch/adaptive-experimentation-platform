@@ -6,20 +6,31 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models import Event
 from app.schemas import PolicyControlUpdate
-from app.services.rollout import rollout_recommendation, rollout_store
+from app.services.rollout import (
+    list_policy_controls,
+    pause_policy_control,
+    resume_policy_control,
+    rollout_recommendation,
+    update_policy_control,
+)
 from app.services.streaming import streaming_status
 
 router = APIRouter(prefix="/controls", tags=["controls"])
 
 
 @router.get("/policies")
-def list_policy_controls() -> dict:
-    return {"policies": [asdict(control) for control in rollout_store.list_controls()]}
+def get_policy_controls(db: Session = Depends(get_db)) -> dict:
+    return {"policies": [asdict(control) for control in list_policy_controls(db)]}
 
 
 @router.post("/policies/{policy}")
-def update_policy_control(policy: str, payload: PolicyControlUpdate) -> dict:
-    control = rollout_store.update(
+def update_policy_control_endpoint(
+    policy: str,
+    payload: PolicyControlUpdate,
+    db: Session = Depends(get_db),
+) -> dict:
+    control = update_policy_control(
+        db,
         policy,
         traffic_cap=payload.traffic_cap,
         canary_percentage=payload.canary_percentage,
@@ -28,13 +39,13 @@ def update_policy_control(policy: str, payload: PolicyControlUpdate) -> dict:
 
 
 @router.post("/policies/{policy}/pause")
-def pause_policy(policy: str) -> dict:
-    return asdict(rollout_store.pause(policy))
+def pause_policy(policy: str, db: Session = Depends(get_db)) -> dict:
+    return asdict(pause_policy_control(db, policy))
 
 
 @router.post("/policies/{policy}/resume")
-def resume_policy(policy: str) -> dict:
-    return asdict(rollout_store.resume(policy))
+def resume_policy(policy: str, db: Session = Depends(get_db)) -> dict:
+    return asdict(resume_policy_control(db, policy))
 
 
 @router.get("/rollout/recommendation")

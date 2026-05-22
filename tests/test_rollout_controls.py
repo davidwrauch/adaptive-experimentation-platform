@@ -49,3 +49,27 @@ def test_policy_control_api_endpoints():
     assert response.json()["state"] == "paused"
     assert listed.status_code == 200
     assert "policies" in listed.json()
+
+
+def test_policy_control_updates_persist_after_refresh():
+    engine = create_engine("sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool)
+    Session = sessionmaker(bind=engine)
+    Base.metadata.create_all(bind=engine)
+
+    def override_get_db():
+        with Session() as db:
+            yield db
+
+    app.dependency_overrides[get_db] = override_get_db
+    client = TestClient(app)
+    update = client.post(
+        "/controls/policies/linucb",
+        json={"traffic_cap": 0.4, "canary_percentage": 0.15},
+    )
+    listed = client.get("/controls/policies")
+    app.dependency_overrides.clear()
+
+    linucb = next(policy for policy in listed.json()["policies"] if policy["policy"] == "linucb")
+    assert update.status_code == 200
+    assert linucb["traffic_cap"] == 0.4
+    assert linucb["canary_percentage"] == 0.15

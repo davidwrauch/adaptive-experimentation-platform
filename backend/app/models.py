@@ -20,3 +20,16 @@ class Event(Base):
         DateTime(timezone=True), server_default=func.now(), index=True
     )
 
+
+class PolicyControlState(Base):
+    __tablename__ = "policy_controls"
+
+    policy: Mapped[str] = mapped_column(String(64), primary_key=True)
+    traffic_cap: Mapped[float] = mapped_column(Float, default=1.0)
+    canary_percentage: Mapped[float] = mapped_column(Float, default=0.25)
+    state: Mapped[str] = mapped_column(String(32), default="active")
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+    )

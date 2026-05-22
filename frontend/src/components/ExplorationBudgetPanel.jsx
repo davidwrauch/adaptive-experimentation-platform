@@ -22,12 +22,29 @@ export default function ExplorationBudgetPanel({ exploration }) {
           <div className="risk-row" key={segment.segment}>
             <strong>{segment.segment}</strong>
             <span>{segment.event_count}</span>
-            <span>{(segment.observed_exploration_share * 100).toFixed(1)}%</span>
-            <span>{(segment.budget * 100).toFixed(1)}%</span>
+            <span>
+              {(segment.observed_exploration_share * 100).toFixed(1)}%
+              <MiniBar value={segment.observed_exploration_share} max={0.5} />
+            </span>
+            <span>
+              {(segment.budget * 100).toFixed(1)}%
+              <MiniBar value={segment.budget} max={0.5} muted />
+            </span>
             <span>{segment.saturated ? "saturated" : "within budget"}</span>
           </div>
         ))}
       </div>
     </section>
+  );
+}
+
+function MiniBar({ value, max, muted = false }) {
+  return (
+    <span className="mini-track">
+      <span
+        className={muted ? "mini-fill muted" : "mini-fill"}
+        style={{ width: `${Math.min(100, (value / max) * 100)}%` }}
+      />
+    </span>
   );
 }

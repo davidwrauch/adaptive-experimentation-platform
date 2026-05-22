@@ -4,6 +4,7 @@ const POLICIES = ["static", "epsilon_greedy", "thompson_sampling", "linucb"];
 
 export default function PolicyDashboard({ metrics, onSimulate }) {
   const maxReward = Math.max(1, ...metrics.policies.map((policy) => policy.cumulative_reward));
+  const totalEvents = Math.max(1, metrics.total_events);
 
   return (
     <section className="panel">
@@ -22,7 +23,27 @@ export default function PolicyDashboard({ metrics, onSimulate }) {
         reward it collected. This is the short-term view most experimentation dashboards stop at.
       </p>
 
-      <div className="policy-table">
+      <div className="chart-stack">
+        {metrics.policies.map((policy) => (
+          <div className="chart-row" key={policy.policy}>
+            <div>
+              <strong>{policy.policy}</strong>
+              <small>{((policy.event_count / totalEvents) * 100).toFixed(1)}% traffic share</small>
+            </div>
+            <div>
+              <div className="bar-track tall">
+                <div
+                  className="bar-fill"
+                  style={{ width: `${(policy.cumulative_reward / maxReward) * 100}%` }}
+                />
+              </div>
+              <small>{policy.cumulative_reward.toFixed(2)} cumulative reward</small>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="policy-table compact-table">
         <div className="table-row table-head">
           <span>Policy</span>
           <span>Reward</span>

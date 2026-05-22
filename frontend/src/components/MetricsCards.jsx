@@ -12,13 +12,13 @@ export default function MetricsCards({ metrics }) {
   return (
     <section aria-label="Summary metrics">
       <div className="panel-note">
-        These cards summarize the experiment at a glance: traffic volume, total immediate
-        reward, and the policy currently winning on average click-like reward.
+        These cards summarize replayed production-style traffic: total logged events,
+        immediate reward collected, and the current short-term winner.
       </div>
       <div className="metrics-grid">
         <div className="metric-card">
           <span>Event count</span>
-          <strong>{metrics.total_events}</strong>
+          <strong>{metrics.total_events.toLocaleString()}</strong>
         </div>
         <div className="metric-card">
           <span>Immediate reward</span>

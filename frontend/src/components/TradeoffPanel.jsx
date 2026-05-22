@@ -46,7 +46,7 @@ function RewardBar({ label, value, max }) {
   return (
     <div className="reward-bar">
       <span>{label}</span>
-      <div className="bar-track">
+      <div className="bar-track tall">
         <div className="bar-fill alt-fill" style={{ width: `${(value / max) * 100}%` }} />
       </div>
       <strong>{value.toFixed(2)}</strong>

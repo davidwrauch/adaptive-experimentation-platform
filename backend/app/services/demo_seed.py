@@ -49,6 +49,9 @@ DEMO_POLICY_PLAN = {
     },
 }
 
+LIGHTWEIGHT_DEMO_SEED_SIZE = 400
+PORTFOLIO_DEMO_SEED_SIZE = 25_000
+
 
 def seed_production_demo_if_empty(db: Session) -> int:
     if os.getenv("APP_ENV", "local").lower() != "production":
@@ -58,16 +61,17 @@ def seed_production_demo_if_empty(db: Session) -> int:
     if existing_events:
         return 0
 
-    events = build_demo_events()
+    seed_size = int(os.getenv("DEMO_SEED_SIZE", str(PORTFOLIO_DEMO_SEED_SIZE)))
+    events = build_demo_events(n=seed_size)
     db.add_all(events)
     db.commit()
     return len(events)
 
 
-def build_demo_events() -> list[Event]:
+def build_demo_events(n: int = LIGHTWEIGHT_DEMO_SEED_SIZE) -> list[Event]:
     events = []
     event_id = 0
-    for policy, plan in DEMO_POLICY_PLAN.items():
+    for policy, plan in _scaled_policy_plan(n).items():
         for i in range(plan["count"]):
             event_id += 1
             fatigue = _fatigue(policy, i)
@@ -110,6 +114,24 @@ def build_demo_events() -> list[Event]:
                 )
             )
     return events
+
+
+def _scaled_policy_plan(n: int) -> dict:
+    if n <= 0:
+        return {policy: {**plan, "count": 0} for policy, plan in DEMO_POLICY_PLAN.items()}
+
+    base_total = sum(plan["count"] for plan in DEMO_POLICY_PLAN.values())
+    scaled = {}
+    allocated = 0
+    policies = list(DEMO_POLICY_PLAN)
+    for policy in policies[:-1]:
+        plan = DEMO_POLICY_PLAN[policy]
+        count = int(n * (plan["count"] / base_total))
+        scaled[policy] = {**plan, "count": count}
+        allocated += count
+    final_policy = policies[-1]
+    scaled[final_policy] = {**DEMO_POLICY_PLAN[final_policy], "count": n - allocated}
+    return scaled
 
 
 def _fatigue(policy: str, index: int) -> float:

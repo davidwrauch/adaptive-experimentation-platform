@@ -68,6 +68,13 @@ export function fetchPolicyControls() {
   return request("/controls/policies");
 }
 
+export function updatePolicyControl(policy, payload) {
+  return request(`/controls/policies/${policy}`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
 export function pausePolicy(policy) {
   return request(`/controls/policies/${policy}/pause`, { method: "POST" });
 }

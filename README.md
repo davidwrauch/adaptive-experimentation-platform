@@ -65,6 +65,21 @@ Seed the portfolio demo:
 python scripts/seed_demo_data.py
 ```
 
+The default command keeps the original lightweight 400-event seed for fast local checks. To create
+a larger portfolio demo with replayed production-style traffic:
+
+```powershell
+python scripts/seed_demo_data.py --mode portfolio
+python scripts/seed_demo_data.py --mode portfolio --n 100000
+```
+
+Hosted production auto-seeding uses 25,000 events by default when `APP_ENV=production` and the
+events table is empty. Override it with:
+
+```text
+DEMO_SEED_SIZE=25000
+```
+
 Run replay modes:
 
 ```powershell

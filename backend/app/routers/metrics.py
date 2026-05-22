@@ -12,10 +12,9 @@ from app.services.exploration import exploration_saturation_metrics
 from app.services.governance import label_policy
 from app.services.monitoring import run_observability_checks
 from app.services.ope import estimate_policy_value
-from app.services.rollout import rollout_recommendation, rollout_store
+from app.services.rollout import list_policy_controls, rollout_recommendation
 from app.services.simulation import segment_for_context
 from app.services.streaming import streaming_status
-from dataclasses import asdict
 
 router = APIRouter(prefix="/metrics", tags=["metrics"])
 
@@ -105,7 +104,7 @@ def get_metrics(db: Session = Depends(get_db)) -> MetricsResponse:
         observability=run_observability_checks(events),
         streaming=asdict(streaming_status()),
         rollout={
-            "controls": [asdict(control) for control in rollout_store.list_controls()],
+            "controls": [asdict(control) for control in list_policy_controls(db)],
             "rollback": rollout_recommendation(events),
         },
         exploration=exploration_saturation_metrics(events),

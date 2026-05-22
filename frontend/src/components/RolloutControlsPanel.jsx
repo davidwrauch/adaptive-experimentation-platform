@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { fetchPolicyControls, pausePolicy, resumePolicy } from "../api";
+import { fetchPolicyControls, pausePolicy, resumePolicy, updatePolicyControl } from "../api";
 
 export default function RolloutControlsPanel({ rollout, onChanged }) {
   const [controls, setControls] = useState(rollout?.controls ?? []);
@@ -23,6 +23,22 @@ export default function RolloutControlsPanel({ rollout, onChanged }) {
     await refreshControls();
   }
 
+  async function saveControl(control) {
+    await updatePolicyControl(control.policy, {
+      traffic_cap: Number(control.traffic_cap),
+      canary_percentage: Number(control.canary_percentage),
+    });
+    await refreshControls();
+  }
+
+  function editControl(policy, key, value) {
+    setControls((current) =>
+      current.map((control) =>
+        control.policy === policy ? { ...control, [key]: value } : control,
+      ),
+    );
+  }
+
   return (
     <section className="panel">
       <div className="section-heading">
@@ -39,8 +55,31 @@ export default function RolloutControlsPanel({ rollout, onChanged }) {
         {controls.map((control) => (
           <div className="control-row" key={control.policy}>
             <strong>{control.policy}</strong>
-            <span>cap {(control.traffic_cap * 100).toFixed(0)}%</span>
-            <span>canary {(control.canary_percentage * 100).toFixed(0)}%</span>
+            <label>
+              cap
+              <input
+                type="number"
+                min="0"
+                max="1"
+                step="0.05"
+                value={control.traffic_cap}
+                onChange={(event) => editControl(control.policy, "traffic_cap", event.target.value)}
+              />
+            </label>
+            <label>
+              canary
+              <input
+                type="number"
+                min="0"
+                max="1"
+                step="0.05"
+                value={control.canary_percentage}
+                onChange={(event) =>
+                  editControl(control.policy, "canary_percentage", event.target.value)
+                }
+              />
+            </label>
+            <button onClick={() => saveControl(control)}>Save</button>
             <button onClick={() => toggle(control.policy, control.state)}>
               {control.state === "paused" ? "Resume" : "Pause"}
             </button>

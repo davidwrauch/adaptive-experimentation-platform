@@ -24,7 +24,12 @@ export default function BayesianPanel({ bayesian }) {
           <div className="governance-row" key={policy.policy}>
             <strong>{policy.policy}</strong>
             <span>{policy.posterior_mean.toFixed(4)}</span>
-            <span>{(policy.probability_best * 100).toFixed(1)}%</span>
+            <span>
+              {(policy.probability_best * 100).toFixed(1)}%
+              <span className="mini-track">
+                <span className="mini-fill" style={{ width: `${policy.probability_best * 100}%` }} />
+              </span>
+            </span>
             <span>{policy.credible_interval[0].toFixed(4)}</span>
             <span>{policy.credible_interval[1].toFixed(4)}</span>
             <span>{policy.event_count}</span>
