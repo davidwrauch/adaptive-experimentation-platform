@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.database import Base, SessionLocal, engine
-from app.routers import assignments, controls, events, messaging, metrics, policies
+from app.routers import admin, assignments, controls, events, messaging, metrics, policies
 from app.services.demo_seed import seed_production_demo_if_empty
 
 
@@ -44,6 +44,7 @@ app.include_router(metrics.router)
 app.include_router(assignments.router)
 app.include_router(controls.router)
 app.include_router(messaging.router)
+app.include_router(admin.router)
 
 
 @app.get("/health")

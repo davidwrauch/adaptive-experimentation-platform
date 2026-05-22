@@ -53,6 +53,10 @@ class PolicyControlUpdate(BaseModel):
     canary_percentage: float | None = Field(default=None, ge=0.0, le=1.0)
 
 
+class AdminReseedRequest(BaseModel):
+    token: str | None = None
+
+
 class MessagingGenerationRequest(BaseModel):
     user_id: str = "sample-user"
     policy: str = "linucb"

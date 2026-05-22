@@ -80,6 +80,20 @@ events table is empty. Override it with:
 DEMO_SEED_SIZE=25000
 ```
 
+Temporary hosted-demo reseed endpoint:
+
+```powershell
+Invoke-RestMethod `
+  -Method Post `
+  -Uri https://<your-render-service>.onrender.com/admin/reseed-demo `
+  -Headers @{ "X-Admin-Reseed-Token" = "<ADMIN_RESEED_TOKEN>" } `
+  -Body "{}" `
+  -ContentType "application/json"
+```
+
+This endpoint is temporary and demo-only. It clears the hosted demo event store and reseeds with
+`DEMO_SEED_SIZE` events. Protect it with a long random `ADMIN_RESEED_TOKEN`.
+
 Run replay modes:
 
 ```powershell
