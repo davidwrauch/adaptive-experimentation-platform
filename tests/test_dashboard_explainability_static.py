@@ -93,10 +93,26 @@ def test_dashboard_uses_operational_tabs_for_major_workflows():
 def test_loading_and_retry_copy_is_polished():
     loading = read("frontend/src/components/LoadingState.jsx")
     app = read("frontend/src/App.jsx")
+    styles = read("frontend/src/styles.css")
 
     assert "Hosted demo usually loads in 5-15 seconds." in loading
     assert "Once awake, interactions should be faster." in loading
     assert "Backend is waking up, retrying..." in loading
+    assert "Adaptive Experimentation Platform" in loading
+    for capability in [
+        "Contextual bandits",
+        "Bayesian experimentation",
+        "OPE",
+        "Causal uplift",
+        "Governance",
+        "Live replay",
+    ]:
+        assert capability in loading
+    assert "skeleton-dashboard" in loading
+    assert "skeleton-card" in loading
+    assert "skeleton-panel" in loading
+    assert ".skeleton-card" in styles
+    assert ".skeleton-panel" in styles
     assert "retryCount" in app
     assert "loadWithRetry" in app
 
