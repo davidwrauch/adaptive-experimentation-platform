@@ -1,3 +1,5 @@
+import React from "react";
+
 export default function ObservabilityPanel({ observability }) {
   const alerts = observability?.alerts ?? [];
   const healthScore = observability?.health_score ?? 100;

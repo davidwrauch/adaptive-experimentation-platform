@@ -1,3 +1,5 @@
+import React from "react";
+
 const POLICIES = ["static", "epsilon_greedy", "thompson_sampling", "linucb"];
 
 export default function PolicyDashboard({ metrics, onSimulate }) {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { fetchPolicyControls, pausePolicy, resumePolicy } from "../api";
 
 export default function RolloutControlsPanel({ rollout, onChanged }) {

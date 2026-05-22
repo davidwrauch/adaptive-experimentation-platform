@@ -1,3 +1,5 @@
+import React from "react";
+
 export default function MetricsCards({ metrics }) {
   const totalReward = metrics.policies.reduce(
     (sum, policy) => sum + policy.cumulative_reward,

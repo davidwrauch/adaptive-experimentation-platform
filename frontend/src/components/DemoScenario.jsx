@@ -1,3 +1,5 @@
+import React from "react";
+
 export default function DemoScenario() {
   return (
     <section className="scenario-band">

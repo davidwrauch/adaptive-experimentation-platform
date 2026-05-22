@@ -1,3 +1,5 @@
+import React from "react";
+
 export default function ExplorationBudgetPanel({ exploration }) {
   return (
     <section className="panel">

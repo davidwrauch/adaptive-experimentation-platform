@@ -1,3 +1,5 @@
+import React from "react";
+
 export default function StreamingStatusPanel({ streaming }) {
   return (
     <section className="panel">

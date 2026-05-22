@@ -1,3 +1,5 @@
+import React from "react";
+
 export default function TradeoffPanel({ metrics }) {
   const maxReward = Math.max(
     1,

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { recommendAssignment, sampleUserContext } from "../api";
 
 export default function AssignmentPanel() {

@@ -1,3 +1,5 @@
+import React from "react";
+
 export default function RiskMonitoringPanel({ metrics }) {
   return (
     <section className="panel">

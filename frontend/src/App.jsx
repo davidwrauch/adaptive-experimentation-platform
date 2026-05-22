@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { fetchEvents, fetchMetrics, simulateDecision } from "./api";
 import AssignmentPanel from "./components/AssignmentPanel";
 import BayesianPanel from "./components/BayesianPanel";

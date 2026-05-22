@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { generateMessaging, sampleUserContext } from "../api";
 
 export default function MessagingGenerationPanel() {
