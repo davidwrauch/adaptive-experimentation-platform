@@ -12,6 +12,8 @@ data/processed/*
 *.parquet
 *.log
 .env
+backend/.env
+frontend/.env
 .pytest_tmp/
 node_modules/
 frontend/dist/

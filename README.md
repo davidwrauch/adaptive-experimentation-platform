@@ -46,6 +46,12 @@ Start local infrastructure:
 docker compose up -d postgres redpanda
 ```
 
+For lightweight local mode without streaming infrastructure:
+
+```powershell
+docker compose up -d postgres
+```
+
 Run the API:
 
 ```powershell
@@ -100,6 +106,50 @@ The `screenshots/` folder contains placeholders. After running locally, add:
 - `04-rollout-bayesian.png`: rollout controls, exploration budget, Bayesian sequential results
 - `05-long-term-risk.png`: short-term vs long-term reward and fatigue/risk monitoring
 
+## Deployment
+
+This repo includes deployment scaffolding for a public portfolio deployment:
+
+- `render.yaml` for the FastAPI backend on Render
+- `frontend/vercel.json` for the React/Vite frontend on Vercel
+- `backend/.env.example`
+- `frontend/.env.example`
+
+### Render Backend Settings
+
+- **Service type:** Web Service
+- **Runtime:** Python
+- **Root directory:** repository root
+- **Build command:** `pip install -r backend/requirements.txt`
+- **Start command:** `cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+- **Health check path:** `/health`
+
+Required backend environment variables:
+
+- `APP_ENV=production`
+- `DATABASE_URL=<managed Postgres URL>`
+- `CORS_ORIGINS=https://<your-vercel-app>.vercel.app`
+- `AUTO_CREATE_TABLES=true`
+
+### Vercel Frontend Settings
+
+- **Framework preset:** Vite
+- **Root directory:** `frontend`
+- **Build command:** `npm run build`
+- **Output directory:** `dist`
+
+Required frontend environment variable:
+
+- `VITE_API_BASE=https://<your-render-service>.onrender.com`
+
+### Lightweight Hosted Mode
+
+For public deployment, no large data download or streaming broker is required. Use synthetic replay,
+managed Postgres, and deterministic AI/RAG fallbacks. Redpanda, Open Bandit Dataset replay, local
+embeddings, and optional external LLM generation remain optional.
+
+See [Deployment Guide](docs/deployment.md) and [Architecture](docs/architecture.md).
+
 ## Key Concepts
 
 - **Contextual bandits:** adaptive assignment under uncertainty.
@@ -116,6 +166,7 @@ The `screenshots/` folder contains placeholders. After running locally, add:
 
 - [Project overview](PROJECT_OVERVIEW.md)
 - [Architecture](docs/architecture.md)
+- [Deployment guide](docs/deployment.md)
 - [Demo script](docs/demo_script.md)
 - [Portfolio bullets](docs/portfolio_bullets.md)
 - [Warehouse metrics layer](dbt/README.md)
