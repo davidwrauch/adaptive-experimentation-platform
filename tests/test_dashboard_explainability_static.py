@@ -122,6 +122,31 @@ def test_policy_display_labels_and_launch_intelligence_rendering():
     assert "formatPolicyLabel(bestPolicy?.policy)" in metrics
 
 
+def test_executive_overview_visual_scorecards_and_launch_badge():
+    metrics = read("frontend/src/components/MetricsCards.jsx")
+    styles = read("frontend/src/styles.css")
+
+    assert "Traffic" in metrics
+    assert "Short-term winner" in metrics
+    assert "Long-term winner" in metrics
+    assert "Launch posture" in metrics
+    assert "overview-scorecard-row" in metrics
+    assert "Raw reward winner" in metrics
+    assert "Operational recommendation" in metrics
+    assert "launch-badge" in metrics
+    assert ".overview-scorecard-row" in styles
+    assert ".mini-score-card" in styles
+
+
+def test_primary_ui_avoids_raw_lowercase_rollback_copy():
+    metrics = read("frontend/src/components/MetricsCards.jsx")
+    launch = read("frontend/src/components/LaunchIntelligencePanel.jsx")
+
+    assert "Rollback Recommended" in metrics + launch
+    assert ">{rollback}<" not in metrics
+    assert "rollback posture" not in metrics
+
+
 def test_experiment_confidence_and_statistical_posture_rendering():
     app = read("frontend/src/App.jsx")
     panel = read("frontend/src/components/ExperimentConfidencePanel.jsx")

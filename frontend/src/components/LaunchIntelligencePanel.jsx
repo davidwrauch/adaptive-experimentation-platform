@@ -53,8 +53,8 @@ export default function LaunchIntelligencePanel({ metrics, uplift, liveTick }) {
         </div>
       </div>
       <div className="insight-list">
-        {operationalInsights(metrics, uplift).map((insight) => (
-          <div className="interpretation-card" key={insight}>{insight}</div>
+        {operationalInsights(metrics, uplift).slice(0, 3).map((insight) => (
+          <div className="interpretation-card compact-callout" key={insight}>{insight}</div>
         ))}
       </div>
       <div className="velocity-grid">

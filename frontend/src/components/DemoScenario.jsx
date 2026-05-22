@@ -5,10 +5,9 @@ export default function DemoScenario() {
     <section className="scenario-band">
       <div>
         <p className="eyebrow">Demo scenario</p>
-        <h2>Lifecycle messaging under real-world constraints</h2>
+        <h2>Lifecycle messaging decision console</h2>
         <p>
-          A lifecycle messaging system is choosing interventions while balancing clicks,
-          retention, fatigue, and unsubscribe risk.
+          Choosing interventions while balancing clicks, retention, fatigue, and unsubscribe risk.
         </p>
       </div>
       <div className="why-box">
