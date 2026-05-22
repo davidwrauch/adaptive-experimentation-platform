@@ -3,6 +3,7 @@ import {
   fetchMetricsDetails,
   fetchMetricsSummary,
   fetchRecentEvents,
+  fetchUpliftMetrics,
   simulateDecision,
   streamDemoStep,
 } from "./api";
@@ -15,6 +16,8 @@ import EventStream from "./components/EventStream";
 import ExplorationBudgetPanel from "./components/ExplorationBudgetPanel";
 import GovernancePanel from "./components/GovernancePanel";
 import GuidedMode from "./components/GuidedMode";
+import LaunchIntelligencePanel from "./components/LaunchIntelligencePanel";
+import LoadingState from "./components/LoadingState";
 import MetricsCards from "./components/MetricsCards";
 import MessagingGenerationPanel from "./components/MessagingGenerationPanel";
 import ObservabilityPanel from "./components/ObservabilityPanel";
@@ -39,9 +42,11 @@ const TABS = [
 
 export default function App() {
   const [metrics, setMetrics] = useState({ total_events: 0, policies: [] });
+  const [uplift, setUplift] = useState(null);
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [retryCount, setRetryCount] = useState(0);
   const [liveMode, setLiveMode] = useState(false);
   const [liveTick, setLiveTick] = useState({
     event_count_added: 0,
@@ -55,22 +60,44 @@ export default function App() {
   const refresh = useCallback(async (includeDetails = false) => {
     try {
       setError("");
-      const [metricsBody, eventsBody] = await Promise.all([
+      const [metricsBody, eventsBody, upliftBody] = await Promise.all([
         includeDetails ? fetchMetricsDetails() : fetchMetricsSummary(),
         fetchRecentEvents(50),
+        fetchUpliftMetrics().catch(() => null),
       ]);
       setMetrics(metricsBody);
       setEvents(eventsBody);
+      if (upliftBody) {
+        setUplift(upliftBody);
+      }
       setLastUpdated(new Date());
-    } catch (err) {
-      setError("The backend may be waking up. Please wait a moment and refresh.");
-    } finally {
       setLoading(false);
+    } catch (err) {
+      setError("Backend is waking up, retrying...");
+      throw err;
     }
   }, []);
 
   useEffect(() => {
-    refresh();
+    let cancelled = false;
+    async function loadWithRetry() {
+      for (let attempt = 0; attempt < 4; attempt += 1) {
+        try {
+          setRetryCount(attempt);
+          await refresh();
+          return;
+        } catch (err) {
+          if (cancelled) return;
+          await sleep(2500);
+        }
+      }
+      setLoading(false);
+      setError("Hosted backend is still waking up. Use Refresh Details in a moment.");
+    }
+    loadWithRetry();
+    return () => {
+      cancelled = true;
+    };
   }, [refresh]);
 
   useEffect(() => {
@@ -105,6 +132,14 @@ export default function App() {
     await refresh();
   }
 
+  async function handleRefreshDetails() {
+    try {
+      await refresh(true);
+    } catch (err) {
+      // The visible warming message already explains the transient hosted-demo state.
+    }
+  }
+
   return (
     <main className="app-shell">
       <header className="topbar">
@@ -120,13 +155,13 @@ export default function App() {
           >
             {liveMode ? "Pause Live Simulation" : "Start Live Simulation"}
           </button>
-          <button className="refresh-button" onClick={() => refresh(true)}>Refresh Details</button>
+          <button className="refresh-button" onClick={handleRefreshDetails}>Refresh Details</button>
         </div>
       </header>
 
       {error && <div className="alert">{error}</div>}
       {loading ? (
-        <div className="empty-state">Loading platform metrics...</div>
+        <LoadingState retryCount={retryCount} />
       ) : (
         <>
           <nav className="tab-nav" aria-label="Dashboard sections">
@@ -147,18 +182,19 @@ export default function App() {
               <DemoScenario />
               <MetricsCards
                 metrics={metrics}
+                uplift={uplift}
                 liveMode={liveMode}
                 liveTick={liveTick}
                 lastUpdated={lastUpdated}
               />
+              <LaunchIntelligencePanel metrics={metrics} uplift={uplift} liveTick={liveTick} />
               <section className="panel overview-explainer">
-                <h2>What this system is doing</h2>
-                <p>
-                  The platform is replaying lifecycle messaging decisions, comparing adaptive
-                  policies, tracking long-term customer impact, and applying governance before any
-                  policy would be expanded. Use the tabs for deeper experiment, risk, operations,
-                  and AI decision-support detail.
-                </p>
+                <h2>How to read this dashboard</h2>
+                <div className="overview-guide-grid">
+                  <div><strong>Optimizing</strong><span>Clicks, retention, incremental lift, and safe rollout.</span></div>
+                  <div><strong>Can go wrong</strong><span>Policies can over-contact users, drift, or win raw clicks without causal value.</span></div>
+                  <div><strong>Decision supported</strong><span>Promote, continue, monitor, roll back, or send to human review.</span></div>
+                </div>
               </section>
             </div>
           )}
@@ -230,6 +266,12 @@ export default function App() {
       )}
     </main>
   );
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => {
+    window.setTimeout(resolve, ms);
+  });
 }
 
 function LiveSimulationPanel({ liveMode, liveTick, metrics, nextUpdateIn, lastUpdated }) {

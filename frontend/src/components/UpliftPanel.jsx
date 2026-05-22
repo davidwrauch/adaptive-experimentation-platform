@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { fetchUpliftMetrics } from "../api";
 import { HelpLabel, WhyThisMatters } from "./InfoTooltip";
+import { formatPolicyLabel } from "../interpretations";
 
 export default function UpliftPanel() {
   const [uplift, setUplift] = useState(null);
@@ -36,11 +37,11 @@ export default function UpliftPanel() {
           <div className="metrics-grid compact-metrics">
             <div className="metric-card">
               <span>Raw winner</span>
-              <strong>{uplift.raw_reward_winner}</strong>
+              <strong className="policy-label">{formatPolicyLabel(uplift.raw_reward_winner)}</strong>
             </div>
             <div className="metric-card">
               <span>Incremental winner</span>
-              <strong>{uplift.incremental_value_winner}</strong>
+              <strong className="policy-label">{formatPolicyLabel(uplift.incremental_value_winner)}</strong>
             </div>
             <div className="metric-card">
               <span>ATE</span>
@@ -55,7 +56,7 @@ export default function UpliftPanel() {
             {policies.map((policy) => (
               <article className="policy-chart-card" key={policy.policy}>
                 <div>
-                  <strong>{policy.policy}</strong>
+                  <strong className="policy-label">{formatPolicyLabel(policy.policy)}</strong>
                   <small>raw {policy.raw_average_reward.toFixed(4)}</small>
                 </div>
                 <div className="chart-metric">
@@ -80,7 +81,10 @@ export default function UpliftPanel() {
               </article>
             ))}
           </div>
-          <small>{uplift.interpretation}</small>
+          <small>
+            {formatPolicyLabel(uplift.raw_reward_winner)} leads raw reward;{" "}
+            {formatPolicyLabel(uplift.incremental_value_winner)} leads estimated incremental value.
+          </small>
         </>
       )}
     </section>

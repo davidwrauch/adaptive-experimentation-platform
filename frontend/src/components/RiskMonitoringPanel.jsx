@@ -1,6 +1,6 @@
 import React from "react";
 import { HelpLabel, WhyThisMatters } from "./InfoTooltip";
-import { riskInsight } from "../interpretations";
+import { formatPolicyLabel, riskInsight } from "../interpretations";
 
 export default function RiskMonitoringPanel({ metrics }) {
   return (
@@ -28,7 +28,7 @@ export default function RiskMonitoringPanel({ metrics }) {
         </div>
         {metrics.policies.map((policy) => (
           <div className="risk-row" key={policy.policy}>
-            <strong>{policy.policy}</strong>
+            <strong className="policy-label">{formatPolicyLabel(policy.policy)}</strong>
             <span>{format(policy.behavioral?.average_fatigue_delta)}</span>
             <span>{format(policy.behavioral?.average_unsubscribe_risk)}</span>
             <span>{format(policy.behavioral?.average_unsubscribe_risk_delta)}</span>

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { fetchPolicyControls, pausePolicy, resumePolicy, updatePolicyControl } from "../api";
 import { HelpLabel, WhyThisMatters } from "./InfoTooltip";
+import { formatPolicyLabel } from "../interpretations";
 
 export default function RolloutControlsPanel({ rollout, onChanged }) {
   const [controls, setControls] = useState(rollout?.controls ?? []);
@@ -63,7 +64,7 @@ export default function RolloutControlsPanel({ rollout, onChanged }) {
       <div className="control-list">
         {controls.map((control) => (
           <div className="control-row" key={control.policy}>
-            <strong>{control.policy}</strong>
+            <strong className="policy-label">{formatPolicyLabel(control.policy)}</strong>
             <label>
               cap
               <input

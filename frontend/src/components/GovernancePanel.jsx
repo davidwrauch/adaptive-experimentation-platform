@@ -1,6 +1,6 @@
 import React from "react";
 import { HelpLabel, WhyThisMatters } from "./InfoTooltip";
-import { governanceExplanation, uncertaintyInsight } from "../interpretations";
+import { formatPolicyLabel, governanceExplanation, uncertaintyInsight } from "../interpretations";
 
 export default function GovernancePanel({ metrics }) {
   return (
@@ -32,7 +32,7 @@ export default function GovernancePanel({ metrics }) {
         </div>
         {metrics.policies.map((policy) => (
           <div className="governance-row" key={policy.policy}>
-            <strong>{policy.policy}</strong>
+            <strong className="policy-label">{formatPolicyLabel(policy.policy)}</strong>
             <span>{format(policy.ope?.ips)}</span>
             <span>{format(policy.ope?.snips)}</span>
             <span>{format(policy.ope?.doubly_robust)}</span>

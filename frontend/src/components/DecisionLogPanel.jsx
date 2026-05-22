@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { createDecisionRecord, fetchDecisionRecords } from "../api";
 import { HelpLabel, WhyThisMatters } from "./InfoTooltip";
+import { formatPolicyLabel } from "../interpretations";
 
 export default function DecisionLogPanel({ metrics }) {
   const [records, setRecords] = useState([]);
@@ -57,10 +58,10 @@ export default function DecisionLogPanel({ metrics }) {
           <article className="event-row" key={record.id}>
             <div>
               <strong>{record.decision_type}</strong>
-              <span>{record.policy}</span>
+              <span className="policy-label">{formatPolicyLabel(record.policy)}</span>
             </div>
             <div>
-              <span>{record.system_recommendation}</span>
+              <span>Signal: {record.system_recommendation}</span>
               <strong>{record.operator_reason || "system recommendation"}</strong>
             </div>
           </article>

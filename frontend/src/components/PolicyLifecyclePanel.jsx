@@ -6,6 +6,7 @@ import {
   rollbackPolicyVersion,
 } from "../api";
 import { HelpLabel, WhyThisMatters } from "./InfoTooltip";
+import { formatPolicyLabel } from "../interpretations";
 
 export default function PolicyLifecyclePanel() {
   const [versions, setVersions] = useState([]);
@@ -71,7 +72,7 @@ export default function PolicyLifecyclePanel() {
       <div className="governance-grid">
         {(versions.length ? versions : seedRows()).map((version) => (
           <div className="governance-row lifecycle-row" key={`${version.policy_name}-${version.version}`}>
-            <strong>{version.policy_name}</strong>
+            <strong className="policy-label">{formatPolicyLabel(version.policy_name)}</strong>
             <span>{version.version}</span>
             <span className={`status-pill status-${statusClass(version.status)}`}>{version.status}</span>
             <span>{version.rollback_target ?? "none"}</span>

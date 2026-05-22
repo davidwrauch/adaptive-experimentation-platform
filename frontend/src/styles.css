@@ -67,6 +67,32 @@ button:hover {
   padding: 32px 20px 48px;
 }
 
+.loading-console {
+  align-items: center;
+  background: white;
+  border: 1px solid #d9dfdc;
+  border-radius: 8px;
+  display: grid;
+  gap: 20px;
+  grid-template-columns: 56px 1fr;
+  margin-top: 18px;
+  padding: 24px;
+}
+
+.loading-console p {
+  color: #4c5d63;
+  line-height: 1.45;
+  margin: 8px 0;
+}
+
+.loading-pulse {
+  animation: pulse-live 1.4s infinite;
+  background: #2f8f83;
+  border-radius: 999px;
+  height: 18px;
+  width: 18px;
+}
+
 .topbar {
   align-items: center;
   display: flex;
@@ -218,6 +244,7 @@ h2 {
 
 .metric-card {
   padding: 18px;
+  min-height: 132px;
 }
 
 .metric-card span,
@@ -283,6 +310,97 @@ h2 {
   font-size: clamp(1.2rem, 1.8vw, 1.8rem);
   margin-top: 8px;
   overflow-wrap: anywhere;
+}
+
+.policy-label {
+  overflow-wrap: normal;
+  white-space: nowrap;
+  word-break: keep-all;
+}
+
+.scorecard-grid,
+.velocity-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-bottom: 14px;
+}
+
+.score-card {
+  background: #fbfcfb;
+  border: 1px solid #ecf0ee;
+  border-radius: 8px;
+  min-height: 92px;
+  padding: 12px;
+}
+
+.score-card span {
+  color: #68777d;
+  display: block;
+  font-size: 0.86rem;
+  margin-bottom: 8px;
+}
+
+.score-card strong {
+  display: block;
+  font-size: 1.15rem;
+  overflow-wrap: anywhere;
+}
+
+.launch-badge {
+  border-radius: 999px;
+  font-weight: 900;
+  padding: 6px 10px;
+}
+
+.launch-promote,
+.launch-continue {
+  background: #ddefe6;
+  color: #176346;
+}
+
+.launch-monitor-closely,
+.launch-insufficient-evidence {
+  background: #fff1cc;
+  color: #775600;
+}
+
+.launch-rollback-recommended {
+  background: #f8dddd;
+  color: #8a2e2e;
+}
+
+.launch-safety {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: 1.2fr 1fr;
+  margin-bottom: 14px;
+}
+
+.insight-list {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.overview-guide-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.overview-guide-grid div {
+  background: #fbfcfb;
+  border: 1px solid #ecf0ee;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.overview-guide-grid span {
+  color: #5d6d73;
+  display: block;
+  line-height: 1.4;
+  margin-top: 6px;
 }
 
 .summary-band {
@@ -934,6 +1052,11 @@ small {
 
   .metrics-grid,
   .tab-nav,
+  .scorecard-grid,
+  .velocity-grid,
+  .launch-safety,
+  .overview-guide-grid,
+  .loading-console,
   .live-panel,
   .live-stats,
   .guided-grid,

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { recommendAssignment, sampleUserContext } from "../api";
 import { HelpLabel, WhyThisMatters } from "./InfoTooltip";
+import { formatPolicyLabel } from "../interpretations";
 
 export default function AssignmentPanel() {
   const [recommendation, setRecommendation] = useState(null);
@@ -62,7 +63,7 @@ export default function AssignmentPanel() {
             </span>
             <dl>
               <dt>Recommended policy</dt>
-              <dd>{recommendation.selected_policy}</dd>
+              <dd>{formatPolicyLabel(recommendation.selected_policy)}</dd>
               <dt>Message choice</dt>
               <dd>{formatIntervention(recommendation.selected_intervention)}</dd>
               <dt>Confidence</dt>

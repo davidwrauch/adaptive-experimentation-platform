@@ -14,7 +14,7 @@ export default function GuidedMode() {
   return (
     <>
       <button className="guided-button" onClick={() => setOpen(true)}>
-        Guided Mode
+        Dashboard Guide
       </button>
       {open && (
         <div className="guided-overlay" role="dialog" aria-modal="true" aria-labelledby="guided-title">
@@ -30,7 +30,7 @@ export default function GuidedMode() {
             <div className="guided-grid">
               <GuideItem
                 title="Policies"
-                body="Static A/B is the baseline. Epsilon-greedy explores more. Thompson Sampling uses uncertainty. LinUCB uses user context to personalize decisions."
+                body="Static Control is the baseline. Epsilon Greedy explores more. Thompson Sampling uses uncertainty. LinUCB uses user context to personalize decisions."
               />
               <GuideItem
                 title="Business outcomes"

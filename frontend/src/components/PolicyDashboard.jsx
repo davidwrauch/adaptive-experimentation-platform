@@ -1,5 +1,6 @@
 import React from "react";
 import { HelpLabel, WhyThisMatters } from "./InfoTooltip";
+import { formatPolicyLabel } from "../interpretations";
 
 const POLICIES = ["static", "epsilon_greedy", "thompson_sampling", "linucb"];
 
@@ -18,7 +19,7 @@ export default function PolicyDashboard({ metrics, onSimulate }) {
         <div className="button-row">
           {POLICIES.map((policy) => (
             <button key={policy} onClick={() => onSimulate(policy)}>
-              Simulate {policy}
+              Simulate {formatPolicyLabel(policy)}
             </button>
           ))}
         </div>
@@ -36,7 +37,7 @@ export default function PolicyDashboard({ metrics, onSimulate }) {
         {metrics.policies.map((policy) => (
           <div className="policy-chart-card" key={policy.policy}>
             <div>
-              <strong>{policy.policy}</strong>
+              <strong className="policy-label">{formatPolicyLabel(policy.policy)}</strong>
               <small>{((policy.event_count / totalEvents) * 100).toFixed(1)}% traffic share</small>
             </div>
             <div className="chart-metric">

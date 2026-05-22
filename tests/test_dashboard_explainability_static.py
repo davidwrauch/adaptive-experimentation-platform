@@ -21,10 +21,11 @@ def test_tooltip_and_help_components_are_renderable():
 def test_guided_mode_explains_platform_and_policy_differences():
     guided = read("frontend/src/components/GuidedMode.jsx")
 
-    assert "Guided Mode" in guided
+    assert "Dashboard Guide" in guided
+    assert "Guided Mode" not in guided
     assert "lifecycle messaging system" in guided
-    assert "Static A/B" in guided
-    assert "Epsilon-greedy" in guided
+    assert "Static Control" in guided
+    assert "Epsilon Greedy" in guided
     assert "Thompson Sampling" in guided
     assert "LinUCB" in guided
     assert "localStorage" in guided
@@ -78,7 +79,7 @@ def test_dashboard_uses_operational_tabs_for_major_workflows():
 
     assert "tab-nav" in app
     assert "tab-button active" in app
-    assert "What this system is doing" in app
+    assert "How to read this dashboard" in app
     assert "LiveSimulationPanel" in app
     assert "ReplayControlsPanel" in app
     assert "EventStream" in app
@@ -87,6 +88,35 @@ def test_dashboard_uses_operational_tabs_for_major_workflows():
     assert "DecisionLogPanel" in app
     assert ".tab-nav" in styles
     assert ".tab-panel" in styles
+
+
+def test_loading_and_retry_copy_is_polished():
+    loading = read("frontend/src/components/LoadingState.jsx")
+    app = read("frontend/src/App.jsx")
+
+    assert "Hosted demo usually loads in 5-15 seconds." in loading
+    assert "Once awake, interactions should be faster." in loading
+    assert "Backend is waking up, retrying..." in loading
+    assert "retryCount" in app
+    assert "loadWithRetry" in app
+
+
+def test_policy_display_labels_and_launch_intelligence_rendering():
+    helpers = read("frontend/src/interpretations.js")
+    launch = read("frontend/src/components/LaunchIntelligencePanel.jsx")
+    metrics = read("frontend/src/components/MetricsCards.jsx")
+
+    assert "formatPolicyLabel" in helpers
+    assert "Static Control" in helpers
+    assert "Epsilon Greedy" in helpers
+    assert "Thompson Sampling" in helpers
+    assert "LinUCB" in helpers
+    assert "Launch Intelligence" in launch
+    assert "Launch safety" in launch
+    assert "Promote" in helpers
+    assert "Rollback Recommended" in helpers
+    assert "Insufficient Evidence" in helpers
+    assert "formatPolicyLabel(bestPolicy?.policy)" in metrics
 
 
 def test_dashboard_includes_browser_replay_controls():

@@ -1,5 +1,6 @@
 import React from "react";
 import { HelpLabel, WhyThisMatters } from "./InfoTooltip";
+import { formatPolicyLabel } from "../interpretations";
 
 export default function BayesianPanel({ bayesian }) {
   return (
@@ -24,7 +25,7 @@ export default function BayesianPanel({ bayesian }) {
         {(bayesian?.policies ?? []).map((policy) => (
           <article className="probability-card" key={policy.policy}>
             <div>
-              <strong>{policy.policy}</strong>
+              <strong className="policy-label">{formatPolicyLabel(policy.policy)}</strong>
               <small>{policy.event_count} events</small>
             </div>
             <div className="probability-value">{(policy.probability_best * 100).toFixed(1)}%</div>

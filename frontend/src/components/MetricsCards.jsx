@@ -1,8 +1,8 @@
 import React from "react";
 import { HelpLabel } from "./InfoTooltip";
-import { policyPerformanceInsight } from "../interpretations";
+import { formatPolicyLabel, policyPerformanceInsight } from "../interpretations";
 
-export default function MetricsCards({ metrics, liveMode = false, liveTick = {}, lastUpdated = null }) {
+export default function MetricsCards({ metrics, uplift, liveMode = false, liveTick = {}, lastUpdated = null }) {
   const totalReward = metrics.policies.reduce(
     (sum, policy) => sum + policy.cumulative_reward,
     0,
@@ -42,13 +42,13 @@ export default function MetricsCards({ metrics, liveMode = false, liveTick = {},
           <HelpLabel help="What: policy with highest average immediate reward. Why: identifies short-term winner. Good: winner also looks safe long-term. Bad: winner drives fatigue. Action: check governance before rollout.">
             Best immediate policy
           </HelpLabel>
-          <strong>{bestPolicy ? bestPolicy.policy : "n/a"}</strong>
+          <strong className="policy-label">{formatPolicyLabel(bestPolicy?.policy)}</strong>
         </div>
         <div className="metric-card">
           <HelpLabel help="What: policy with strongest average long-term reward. Why: indicates retention-aware value after fatigue and unsubscribe risk. Good: aligned with business retention goals. Bad: differs sharply from immediate winner. Action: investigate the tradeoff.">
             Best long-term policy
           </HelpLabel>
-          <strong>{bestLongTermPolicy ? bestLongTermPolicy.policy : "n/a"}</strong>
+          <strong className="policy-label">{formatPolicyLabel(bestLongTermPolicy?.policy)}</strong>
         </div>
         <div className="metric-card">
           <HelpLabel help="What: aggregate experiment observability score. Why: summarizes traffic quality, drift, overlap, volume, and risk exposure. Good: 80 or higher. Bad: warnings or critical alerts. Action: slow rollout or review alerts.">
@@ -65,6 +65,9 @@ export default function MetricsCards({ metrics, liveMode = false, liveTick = {},
         </div>
       </div>
       <small>Total immediate reward: {totalReward.toFixed(0)}</small>
+      {uplift?.incremental_value_winner && (
+        <small>Incrementality winner: {formatPolicyLabel(uplift.incremental_value_winner)}</small>
+      )}
       <div className="interpretation-card">{policyPerformanceInsight(metrics)}</div>
     </section>
   );

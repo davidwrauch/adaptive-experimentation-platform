@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { HelpLabel } from "./InfoTooltip";
+import { formatPolicyLabel } from "../interpretations";
 
 export default function EventStream({ events }) {
   const [expanded, setExpanded] = useState(false);
@@ -22,7 +23,7 @@ export default function EventStream({ events }) {
         {visibleEvents.map((event) => (
           <article className="event-row" key={event.id}>
             <div>
-              <strong>{event.policy}</strong>
+              <strong className="policy-label">{formatPolicyLabel(event.policy)}</strong>
               <span>{event.user_id}</span>
             </div>
             <div>

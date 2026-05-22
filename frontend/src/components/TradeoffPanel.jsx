@@ -1,6 +1,6 @@
 import React from "react";
 import { HelpLabel, WhyThisMatters } from "./InfoTooltip";
-import { policyPerformanceInsight } from "../interpretations";
+import { formatPolicyLabel, policyPerformanceInsight } from "../interpretations";
 
 export default function TradeoffPanel({ metrics }) {
   const maxReward = Math.max(
@@ -31,7 +31,7 @@ export default function TradeoffPanel({ metrics }) {
       <div className="tradeoff-list">
         {metrics.policies.map((policy) => (
           <div className="tradeoff-card" key={policy.policy}>
-            <strong>{policy.policy}</strong>
+            <strong className="policy-label">{formatPolicyLabel(policy.policy)}</strong>
             <RewardBar
               label="Immediate"
               value={policy.behavioral?.cumulative_immediate_reward ?? 0}
