@@ -565,11 +565,11 @@ def test_policy_intervention_examples_are_pm_readable():
     panel = read("frontend/src/components/ExperimentComparisonPanel.jsx")
 
     assert "LinUCB" in panel
-    assert "Personalizes messaging decisions using user context" in panel
+    assert "Personalizes message choices using user context and longer-term behavioral patterns." in panel
     assert "Epsilon Greedy" in panel
     assert "explores aggressively" in panel.lower()
     assert "Thompson Sampling" in panel
-    assert "balances uncertainty and reward" in panel.lower()
+    assert "Balances learning and performance by favoring options that look promising but still have uncertainty." in panel
     assert "Static A/B Control" in panel
     assert "baseline comparison" in panel
 
@@ -653,18 +653,10 @@ def test_pm_experiment_comparison_and_adaptive_grounding_render():
     assert "What strategies are being tested?" in panel
     assert "Northstar is comparing a traditional static A/B baseline against three adaptive policies that learn from traffic over time." in panel
     assert "Static A/B Control" in panel
-    assert "Baseline / control strategy" in panel
-    assert "Traditional equal-split experiment used as a baseline comparison." in panel
-    assert "Aggressively explores new messaging strategies to maximize short-term engagement." in panel
-    assert "Balances exploration and uncertainty using probabilistic reward estimates." in panel
-    assert "Personalizes messaging decisions using user context and long-term behavioral patterns." in panel
-    assert "Traditional A/B" in panel
-    assert "Adaptive Optimization" in panel
-    assert "Why adaptive experimentation?" in panel
-    assert "Traditional A/B tests keep traffic fixed." in panel
-    assert "fixed traffic split" in panel
-    assert "learn continuously" in panel
-    assert "personalize by context" in panel
+    assert "Traditional equal-split experiment used as the baseline comparison." in panel
+    assert "Explores aggressively and quickly shifts toward messages that get short-term engagement." in panel
+    assert "Balances learning and performance by favoring options that look promising but still have uncertainty." in panel
+    assert "Personalizes message choices using user context and longer-term behavioral patterns." in panel
     assert "What is this system?" in loading
     assert "Northstar" in loading
     assert "long-term fatigue" in loading
@@ -692,6 +684,44 @@ def test_strategy_setup_precedes_pm_decision_and_has_no_jammed_labels():
     assert "LinUCBAdaptive" not in panel
     assert "Epsilon GreedyAdaptive" not in panel
     assert "Thompson SamplingAdaptive" not in panel
+
+
+def test_strategy_legend_is_compact_and_contains_no_metrics_or_recommendations():
+    panel = read("frontend/src/components/ExperimentComparisonPanel.jsx")
+    app = read("frontend/src/App.jsx")
+    overview_block = app.split('{activeTab === "Overview" && (', 1)[1].split(
+        '{activeTab === "Experimentation" && (',
+        1,
+    )[0]
+
+    assert overview_block.index("ExperimentComparisonPanel") < overview_block.index("MetricsCards")
+    for description in [
+        "Traditional equal-split experiment used as the baseline comparison.",
+        "Explores aggressively and quickly shifts toward messages that get short-term engagement.",
+        "Balances learning and performance by favoring options that look promising but still have uncertainty.",
+        "Personalizes message choices using user context and longer-term behavioral patterns.",
+    ]:
+        assert description in panel
+
+    for removed in [
+        "Click/engagement outcome",
+        "Long-term retention outcome",
+        "Unsubscribe/fatigue risk",
+        "Confidence",
+        "Rollout posture",
+        "Recommendation",
+        "average_reward",
+        "probability_best",
+        "launchRecommendation",
+        "statisticalPosture",
+        "launch-badge",
+        "<dl",
+        "<dt",
+        "<dd",
+        "Why adaptive experimentation?",
+        "Traditional A/B tests keep traffic fixed.",
+    ]:
+        assert removed not in panel
 
 
 def test_no_duplicate_ope_governance_panels_between_tabs():

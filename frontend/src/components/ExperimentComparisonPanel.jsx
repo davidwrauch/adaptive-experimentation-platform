@@ -1,26 +1,32 @@
 import React from "react";
 import { HelpLabel } from "./InfoTooltip";
-import { formatPolicyLabel, launchRecommendation, statisticalPosture } from "../interpretations";
 
 const policyDescriptions = {
-  static: "Traditional equal-split experiment used as a baseline comparison.",
-  epsilon_greedy: "Aggressively explores new messaging strategies to maximize short-term engagement.",
-  thompson_sampling: "Balances exploration and uncertainty using probabilistic reward estimates.",
-  linucb: "Personalizes messaging decisions using user context and long-term behavioral patterns.",
+  static: {
+    label: "Static A/B Control",
+    tag: "Baseline",
+    description: "Traditional equal-split experiment used as the baseline comparison.",
+  },
+  epsilon_greedy: {
+    label: "Epsilon Greedy",
+    tag: "Adaptive",
+    description: "Explores aggressively and quickly shifts toward messages that get short-term engagement.",
+  },
+  thompson_sampling: {
+    label: "Thompson Sampling",
+    tag: "Adaptive",
+    description: "Balances learning and performance by favoring options that look promising but still have uncertainty.",
+  },
+  linucb: {
+    label: "LinUCB",
+    tag: "Adaptive",
+    description: "Personalizes message choices using user context and longer-term behavioral patterns.",
+  },
 };
 
 const policyOrder = ["static", "epsilon_greedy", "thompson_sampling", "linucb"];
 
-export default function ExperimentComparisonPanel({ metrics, uplift }) {
-  const baseline = (metrics.policies ?? []).find((policy) => policy.policy === "static") ?? metrics.policies?.[0];
-  const bayesianByPolicy = Object.fromEntries(
-    (metrics.bayesian?.policies ?? []).map((policy) => [policy.policy, policy]),
-  );
-  const recommendation = launchRecommendation(metrics, uplift);
-  const policies = policyOrder
-    .map((name) => (metrics.policies ?? []).find((policy) => policy.policy === name))
-    .filter(Boolean);
-
+export default function ExperimentComparisonPanel() {
   return (
     <section className="panel">
       <div className="section-heading">
@@ -29,104 +35,24 @@ export default function ExperimentComparisonPanel({ metrics, uplift }) {
             What strategies are being tested?
           </HelpLabel>
         </h2>
-        <span className={`launch-badge launch-${slug(recommendation.state)}`}>{recommendation.state}</span>
       </div>
       <p className="panel-copy">
         Northstar is comparing a traditional static A/B baseline against three adaptive policies that learn from traffic over time.
       </p>
       <div className="experiment-grounding-grid">
-        {policies.map((policy) => {
-          const posture = statisticalPosture(policy, baseline, bayesianByPolicy[policy.policy]);
+        {policyOrder.map((policy) => {
+          const strategy = policyDescriptions[policy];
           return (
-            <article className="experiment-comparison-card" key={policy.policy}>
-              <div>
-                <div className="strategy-card-heading">
-                  <strong className="policy-label">{displayName(policy.policy)}</strong>
-                  <HelpLabel help={strategyHelp(policy.policy)}>
-                    {policy.policy === "static" ? "Baseline / control strategy" : "Adaptive strategy"}
-                  </HelpLabel>
-                </div>
-                <p>{policyDescriptions[policy.policy]}</p>
+            <article className="experiment-comparison-card" key={policy}>
+              <div className="strategy-card-heading">
+                <strong className="policy-label">{strategy.label}</strong>
+                <span className="strategy-tag">{strategy.tag}</span>
               </div>
-              <dl>
-                <dt>Click/engagement outcome</dt>
-                <dd>{policy.average_reward.toFixed(3)} avg reward</dd>
-                <dt>Long-term retention outcome</dt>
-                <dd>{(policy.behavioral?.average_long_term_reward ?? policy.average_reward).toFixed(3)}</dd>
-                <dt>Unsubscribe/fatigue risk</dt>
-                <dd>{riskLabel(policy)}</dd>
-                <dt>Confidence</dt>
-                <dd>{posture.posture}</dd>
-                <dt>Rollout posture</dt>
-                <dd>{formatStatus(policy.governance?.status)}</dd>
-                <dt>Recommendation</dt>
-                <dd>{posture.operationalRecommendation}</dd>
-              </dl>
+              <p>{strategy.description}</p>
             </article>
           );
         })}
       </div>
-      <div className="ab-adaptive-comparison">
-        <div className="ab-adaptive-heading">
-          <strong>Why adaptive experimentation?</strong>
-          <p>
-            Traditional A/B tests keep traffic fixed. Adaptive policies learn from incoming results
-            and can personalize decisions, but they require stronger governance.
-          </p>
-        </div>
-        <div>
-          <strong>Traditional A/B</strong>
-          <ul className="plain-list">
-            <li>fixed traffic split</li>
-            <li>static experiment</li>
-            <li>slower adaptation</li>
-          </ul>
-        </div>
-        <div>
-          <strong>Adaptive Optimization</strong>
-          <ul className="plain-list">
-            <li>learn continuously</li>
-            <li>personalize by context</li>
-            <li>optimize over time</li>
-            <li>dynamically adjust exploration</li>
-          </ul>
-        </div>
-      </div>
     </section>
   );
-}
-
-function displayName(policy) {
-  if (policy === "static") return "Static A/B Control";
-  return formatPolicyLabel(policy);
-}
-
-function strategyHelp(policy) {
-  return {
-    static: "Static A/B Control: fixed equal-split baseline.",
-    epsilon_greedy: "Epsilon Greedy: explores aggressively, often strong short-term, higher overexposure risk.",
-    thompson_sampling: "Thompson Sampling: balances uncertainty and reward probabilistically.",
-    linucb: "LinUCB: personalizes using context, often stronger for long-term outcomes.",
-  }[policy];
-}
-
-function formatStatus(status) {
-  return {
-    deploy: "Continue Rollout",
-    canary: "Monitor Closely",
-    human_review: "Human Review",
-    pause: "Hold Expansion",
-  }[status] ?? "Monitor Closely";
-}
-
-function riskLabel(policy) {
-  const risk = policy.behavioral?.average_unsubscribe_risk ?? 0;
-  const fatigue = policy.behavioral?.average_fatigue_delta ?? 0;
-  if (risk >= 0.3 || fatigue >= 0.08) return "Elevated";
-  if (risk >= 0.18 || fatigue >= 0.04) return "Moderate";
-  return "Low";
-}
-
-function slug(value) {
-  return String(value).toLowerCase().replaceAll(" ", "-");
 }
