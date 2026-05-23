@@ -23,11 +23,13 @@ def test_guided_mode_explains_platform_and_policy_differences():
 
     assert "Dashboard Guide" in guided
     assert "Guided Mode" not in guided
-    assert "lifecycle messaging system" in guided
-    assert "Static Control" in guided
+    assert "Northstar is a fictional subscription platform" in guided
+    assert "Incremental retention-adjusted engagement" in guided
+    assert "Static A/B Control" in guided
     assert "Epsilon Greedy" in guided
     assert "Thompson Sampling" in guided
     assert "LinUCB" in guided
+    assert "Open Dashboard" in guided
     assert "localStorage" in guided
 
 
@@ -167,6 +169,34 @@ def test_cached_dashboard_and_freshness_indicators_render():
     assert "cache_age_seconds" in app
     assert "freshness-strip" in app
     assert ".freshness-strip" in styles
+
+
+def test_dashboard_guide_uses_current_pm_framing():
+    guided = read("frontend/src/components/GuidedMode.jsx")
+    styles = read("frontend/src/styles.css")
+
+    assert "Incremental retention-adjusted engagement" in guided
+    for metric in [
+        "immediate response",
+        "long-term retention",
+        "unsubscribe risk",
+        "fatigue exposure",
+        "incremental lift",
+        "rollout safety",
+    ]:
+        assert metric in guided
+    assert "Static A/B Control" in guided
+    assert "fixed baseline/control" in guided
+    assert "explores aggressively for short-term response" in guided
+    assert "balances uncertainty and reward" in guided
+    assert "personalizes using user context and longer-term outcomes" in guided
+    assert "Hold Expansion means the experiment is not a failure." in guided
+    assert "more data or risk reduction before broader rollout" in guided
+    assert "Business outcomes" not in guided
+    assert "Live mode" not in guided
+    assert "guided-grid" not in guided
+    assert "max-width: min(680px, 94vw)" in styles
+    assert "max-height: min(88vh, 680px)" in styles
 
 
 def test_policy_performance_simulation_section_removed_from_primary_ui():
@@ -382,7 +412,8 @@ def test_epsilon_greedy_tradeoff_copy_is_explicit():
     assert "Epsilon Greedy" in helpers
     assert "short-term clicks" in helpers
     assert "stronger long-term retention" in helpers
-    assert "Epsilon Greedy explores more" in guided
+    assert "Epsilon Greedy" in guided
+    assert "explores aggressively for short-term response" in guided
 
 
 def test_dashboard_includes_browser_replay_controls():
@@ -429,7 +460,8 @@ def test_lifecycle_messaging_narrative_and_intervention_catalog_render():
     assert "Northstar lifecycle messaging console" in scenario
     assert "fictional subscription platform" in scenario
     assert "message timing, frequency, length, personalization depth" in scenario
-    assert "What is being optimized" in guided
+    assert "Primary metric" in guided
+    assert "Secondary and guardrail metrics" in guided
     for goal in [
         "Onboarding completion",
         "Re-engagement",
@@ -455,13 +487,18 @@ def test_lifecycle_messaging_narrative_and_intervention_catalog_render():
 
 def test_selected_and_suppressed_intervention_panels_render():
     catalog = read("frontend/src/components/InterventionCatalogPanel.jsx")
+    styles = read("frontend/src/styles.css")
 
     assert "Selected intervention" in catalog
     assert "Personalized medium-length recommendation summary" in catalog
     assert "Alternative suppressed" in catalog
     assert "High-frequency short reminder" in catalog
+    assert "Reason" in catalog
+    assert "Reason suppressed" in catalog
     assert "Elevated unsubscribe probability" in catalog or "elevated unsubscribe probability" in catalog
     assert "Expected tradeoff" in catalog
+    assert "label-value-stack" in catalog
+    assert ".label-value-stack" in styles
     for metadata in [
         "Length",
         "Personalization",
@@ -471,6 +508,36 @@ def test_selected_and_suppressed_intervention_panels_render():
         "Tone",
     ]:
         assert metadata in catalog
+
+
+def test_selected_suppressed_and_convergence_labels_are_not_jammed():
+    catalog = read("frontend/src/components/InterventionCatalogPanel.jsx")
+    convergence = read("frontend/src/components/ConvergenceMonitoringPanel.jsx")
+    message = read("frontend/src/components/MessageExperimentationPanel.jsx")
+    styles = read("frontend/src/styles.css")
+
+    assert "<span>Selected intervention</span>" in catalog
+    assert "<strong>Personalized medium-length recommendation summary</strong>" in catalog
+    assert "<span>Alternative suppressed</span>" in catalog
+    assert "<strong>High-frequency short reminder</strong>" in catalog
+    assert "Selected interventionPersonalized" not in catalog
+    assert "Alternative suppressedHigh-frequency" not in catalog
+    assert "Policy volatilityStable" not in convergence
+    assert "Recommendation stabilityNeeds Review" not in convergence
+    for label in [
+        "Current winning style",
+        "Fatigue-safe style",
+        "Highest incremental style",
+        "Policy volatility",
+        "Recommendation stability",
+        "Reward drift",
+        "Exploration concentration",
+        "Arm/intervention saturation",
+        "Recent change rate",
+    ]:
+        assert label in message + convergence
+    assert "signal-status" in convergence
+    assert ".signal-status" in styles
 
 
 def test_ai_assisted_message_experimentation_is_constrained():

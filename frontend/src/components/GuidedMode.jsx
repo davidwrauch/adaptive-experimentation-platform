@@ -20,54 +20,46 @@ export default function GuidedMode() {
         <div className="guided-overlay" role="dialog" aria-modal="true" aria-labelledby="guided-title">
           <div className="guided-card">
             <div className="section-heading">
-              <h2 id="guided-title">How to read this dashboard</h2>
-              <button onClick={() => setOpen(false)}>Close</button>
+              <h2 id="guided-title">Dashboard Guide</h2>
+              <button onClick={() => setOpen(false)}>Open Dashboard</button>
             </div>
             <p>
               Northstar is a fictional subscription platform using adaptive experimentation to
-              choose lifecycle messages. This lifecycle messaging system treats users as
-              subscribers or marketplace participants,
-              interventions are approved email, SMS, and push message strategies, and policies
-              decide which message style to send based on user state and governance constraints.
+              choose lifecycle messages while balancing engagement, retention, fatigue, unsubscribe
+              risk, incremental lift, and rollout safety.
             </p>
-            <div className="guided-grid">
-              <GuideItem
-                title="What is being optimized"
-                body="The system supports onboarding completion, re-engagement, retention, churn prevention, subscription renewal, and marketplace activity."
-              />
-              <GuideItem
-                title="Message experiments"
-                body="Northstar tests message timing, frequency, length, personalization depth, cadence, urgency, and intervention category without allowing unrestricted copy generation."
-              />
-              <GuideItem
-                title="Policies"
-                body="Static Control is the baseline. Epsilon Greedy explores more and can over-sample urgency reminders. Thompson Sampling balances uncertainty and reward. LinUCB adapts to user context and retention tradeoffs."
-              />
-              <GuideItem
-                title="Business outcomes"
-                body="Immediate reward approximates clicks. Long-term reward incorporates retention, fatigue, and churn risk so short-term wins do not hide customer harm."
-              />
-              <GuideItem
-                title="Governance"
-                body="Launch labels convert model evidence into operational decisions: Continue Rollout, Monitor Closely, Human Review, or Hold Expansion."
-              />
-              <GuideItem
-                title="Live mode"
-                body="Live simulation appends small event batches over time so the dashboard behaves like an operations view without overloading the hosted backend."
-              />
+            <div className="guide-summary">
+              <div>
+                <span>Primary metric</span>
+                <strong>Incremental retention-adjusted engagement</strong>
+              </div>
+              <div>
+                <span>Secondary and guardrail metrics</span>
+                <strong>
+                  immediate response, long-term retention, unsubscribe risk, fatigue exposure,
+                  incremental lift, rollout safety
+                </strong>
+              </div>
+            </div>
+            <div className="guide-strategy-list">
+              <p><strong>Static A/B Control:</strong> fixed baseline/control.</p>
+              <p><strong>Epsilon Greedy:</strong> explores aggressively for short-term response.</p>
+              <p><strong>Thompson Sampling:</strong> balances uncertainty and reward.</p>
+              <p><strong>LinUCB:</strong> personalizes using user context and longer-term outcomes.</p>
+            </div>
+            <div className="guide-hold-note">
+              <strong>Hold Expansion</strong>
+              <p>
+                Hold Expansion means the experiment is not a failure. It means the system sees
+                promising evidence but recommends more data or risk reduction before broader rollout.
+              </p>
+            </div>
+            <div className="guided-actions">
+              <button onClick={() => setOpen(false)}>Close</button>
             </div>
           </div>
         </div>
       )}
     </>
-  );
-}
-
-function GuideItem({ title, body }) {
-  return (
-    <article>
-      <strong>{title}</strong>
-      <p>{body}</p>
-    </article>
   );
 }

@@ -27,22 +27,47 @@ export default function ConvergenceMonitoringPanel({ metrics }) {
         on reward but still be too volatile, saturated, or concentrated for launch expansion.
       </WhyThisMatters>
       <div className="convergence-grid">
-        <Signal label="Policy volatility" value={maxUncertainty >= 0.35 ? "Volatile" : "Stable"} />
-        <Signal label="Recommendation stability" value={alerts.length ? "Needs Review" : "Stable"} />
-        <Signal label="Reward drift" value={hasDrift(alerts) ? "Volatile" : "Stable"} />
-        <Signal label="Exploration concentration" value={maxTrafficShare >= 0.65 ? "Saturated" : "Learning"} />
-        <Signal label="Arm/intervention saturation" value={saturatedSegments ? "Saturated" : "Stable"} />
-        <Signal label="Recent change rate" value={metrics.total_events < 1000 ? "Learning" : "Stable"} />
+        <Signal
+          label="Policy volatility"
+          value={maxUncertainty >= 0.35 ? "Volatile" : "Stable"}
+          explanation="Tracks how much policy uncertainty is still moving."
+        />
+        <Signal
+          label="Recommendation stability"
+          value={alerts.length ? "Needs Review" : "Stable"}
+          explanation="Checks whether active alerts make the recommendation less reliable."
+        />
+        <Signal
+          label="Reward drift"
+          value={hasDrift(alerts) ? "Volatile" : "Stable"}
+          explanation="Watches for changing reward behavior in recent traffic."
+        />
+        <Signal
+          label="Exploration concentration"
+          value={maxTrafficShare >= 0.65 ? "Saturated" : "Learning"}
+          explanation="Detects whether exploration is over-concentrated."
+        />
+        <Signal
+          label="Arm/intervention saturation"
+          value={saturatedSegments ? "Saturated" : "Stable"}
+          explanation="Flags segments or interventions receiving too much exposure."
+        />
+        <Signal
+          label="Recent change rate"
+          value={metrics.total_events < 1000 ? "Learning" : "Stable"}
+          explanation="Shows whether the system is still collecting enough evidence."
+        />
       </div>
     </section>
   );
 }
 
-function Signal({ label, value }) {
+function Signal({ label, value, explanation }) {
   return (
     <div className="convergence-signal">
-      <span>{label}</span>
-      <strong>{value}</strong>
+      <span className="signal-label">{label}</span>
+      <strong className={`signal-status signal-${slug(value)}`}>{value}</strong>
+      <small>{explanation}</small>
     </div>
   );
 }

@@ -56,8 +56,10 @@ export default function MessageExperimentationPanel() {
       <div className="message-style-grid">
         {styles.map((style) => (
           <article className="message-style-card" key={style.label}>
-            <span>{style.label}</span>
-            <strong>{style.value}</strong>
+            <div className="label-value-stack">
+              <span>{style.label}</span>
+              <strong>{style.value}</strong>
+            </div>
             <p>{style.insight}</p>
             <small>Confidence: {style.confidence}</small>
             <small>Rollout posture: {style.posture}</small>

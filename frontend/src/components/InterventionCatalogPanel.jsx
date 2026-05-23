@@ -116,20 +116,31 @@ export default function InterventionCatalogPanel() {
 
       <div className="selected-intervention-grid">
         <article>
-          <span>Selected intervention</span>
-          <strong>Personalized medium-length recommendation summary</strong>
-          <p>
-            User historically responds better to contextual recommendations with lower fatigue risk.
-            Expected tradeoff: fewer immediate clicks than urgency copy, stronger retention.
-          </p>
+          <div className="label-value-stack">
+            <span>Selected intervention</span>
+            <strong>Personalized medium-length recommendation summary</strong>
+          </div>
+          <div className="label-value-stack">
+            <span>Reason</span>
+            <p>User historically responds better to contextual recommendations with lower fatigue risk.</p>
+          </div>
+          <div className="label-value-stack">
+            <span>Expected tradeoff</span>
+            <p>Fewer immediate clicks than urgency copy, stronger retention.</p>
+          </div>
         </article>
         <article>
-          <span>Alternative suppressed</span>
-          <strong>High-frequency short reminder</strong>
-          <p>
-            Suppressed because elevated unsubscribe probability and recent touch count suggest the
-            user may be over-contacted.
-          </p>
+          <div className="label-value-stack">
+            <span>Alternative suppressed</span>
+            <strong>High-frequency short reminder</strong>
+          </div>
+          <div className="label-value-stack">
+            <span>Reason suppressed</span>
+            <p>
+              Elevated unsubscribe probability and recent touch count suggest the user may be
+              over-contacted.
+            </p>
+          </div>
         </article>
       </div>
     </section>
