@@ -3,13 +3,25 @@ import { researchReferences } from "../researchReferences";
 
 const VIEWPORT_MARGIN = 16;
 const DESKTOP_WIDTH = 380;
+const CLOSE_DELAY_MS = 160;
 
 export default function ResearchPopover({ referenceKey }) {
   const [isOpen, setIsOpen] = useState(false);
   const [position, setPosition] = useState({ left: VIEWPORT_MARGIN, top: VIEWPORT_MARGIN, width: DESKTOP_WIDTH });
   const triggerRef = useRef(null);
   const popoverRef = useRef(null);
+  const closeTimerRef = useRef(null);
   const reference = researchReferences[referenceKey];
+
+  function openPopover() {
+    window.clearTimeout(closeTimerRef.current);
+    setIsOpen(true);
+  }
+
+  function scheduleClose() {
+    window.clearTimeout(closeTimerRef.current);
+    closeTimerRef.current = window.setTimeout(() => setIsOpen(false), CLOSE_DELAY_MS);
+  }
 
   const updatePosition = useCallback(() => {
     const trigger = triggerRef.current;
@@ -58,6 +70,7 @@ export default function ResearchPopover({ referenceKey }) {
     document.addEventListener("pointerdown", handlePointerDown);
     document.addEventListener("keydown", handleKeyDown);
     return () => {
+      window.clearTimeout(closeTimerRef.current);
       window.removeEventListener("resize", updatePosition);
       window.removeEventListener("scroll", updatePosition, true);
       document.removeEventListener("pointerdown", handlePointerDown);
@@ -72,20 +85,27 @@ export default function ResearchPopover({ referenceKey }) {
       <button
         aria-expanded={isOpen}
         className="research-badge"
+        onBlur={scheduleClose}
+        onFocus={openPopover}
         onClick={() => setIsOpen((value) => !value)}
+        onMouseEnter={openPopover}
+        onMouseLeave={scheduleClose}
         ref={triggerRef}
         type="button"
       >
-        Research
+        Research basis
       </button>
       {isOpen && (
         <span
           className="research-card"
+          onMouseEnter={openPopover}
+          onMouseLeave={scheduleClose}
           ref={popoverRef}
           role="dialog"
           aria-label={`Research provenance: ${reference.title}`}
           style={{ left: `${position.left}px`, top: `${position.top}px`, width: `${position.width}px` }}
         >
+          <small>This demo section is grounded in the following research or industry writeup.</small>
           <strong>{reference.title}</strong>
           <span>Source: {reference.source}</span>
           <p>Why it matters: {reference.why}</p>

@@ -1162,18 +1162,19 @@ h2 {
 }
 
 .research-badge {
-  background: #eef5f1;
-  border: 1px solid #cfe0d8;
+  background: transparent;
+  border: 1px solid #d8e1dd;
   border-radius: 999px;
-  color: #24443c;
-  font-size: 0.72rem;
-  font-weight: 900;
-  padding: 0.32rem 0.55rem;
+  color: #66757c;
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 0.24rem 0.48rem;
 }
 
 .research-badge:hover {
-  background: #dfeee7;
-  color: #172026;
+  background: #f4f8f6;
+  border-color: #c7d7cf;
+  color: #24443c;
 }
 
 .research-card {
@@ -1196,6 +1197,13 @@ h2 {
 .research-card span,
 .research-card a {
   display: block;
+}
+
+.research-card small {
+  color: #c8d5d8;
+  display: block;
+  line-height: 1.35;
+  margin-bottom: 9px;
 }
 
 .research-card span {

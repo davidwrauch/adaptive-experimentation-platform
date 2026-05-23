@@ -141,9 +141,10 @@ def test_research_popovers_render_with_provenance_fields():
 
     assert "export default function ResearchPopover" in popover
     assert "research-badge" in popover
-    assert "Research" in popover
+    assert "Research basis" in popover
     assert "Source:" in popover
     assert "Why it matters:" in popover
+    assert "This demo section is grounded in the following research or industry writeup." in popover
     assert "Open reference" in popover
     assert "target=\"_blank\"" in popover
     assert ".research-popover" in styles
@@ -244,6 +245,22 @@ def test_research_popover_repositions_and_closes_safely():
     assert "setIsOpen((value) => !value)" in popover
     assert "aria-expanded={isOpen}" in popover
     assert "display: none" not in styles.split(".research-card", 1)[1].split(".research-card strong", 1)[0]
+
+
+def test_research_popover_is_hover_first_not_click_only():
+    popover = read("frontend/src/components/ResearchPopover.jsx")
+    styles = read("frontend/src/styles.css")
+
+    assert "onMouseEnter={openPopover}" in popover
+    assert "onMouseLeave={scheduleClose}" in popover
+    assert "onFocus={openPopover}" in popover
+    assert "onBlur={scheduleClose}" in popover
+    assert "CLOSE_DELAY_MS" in popover
+    assert "setTimeout(() => setIsOpen(false)" in popover
+    assert "onClick={() => setIsOpen((value) => !value)}" in popover
+    assert "Research basis" in popover
+    assert "font-size: 0.68rem" in styles
+    assert "background: transparent" in styles
 
 
 def test_overview_and_experimentation_have_distinct_purpose():
