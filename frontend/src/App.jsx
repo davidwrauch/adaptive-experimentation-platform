@@ -235,6 +235,7 @@ export default function App() {
           {activeTab === "Overview" && (
             <div className="tab-panel">
               <DemoScenario />
+              <ExperimentComparisonPanel metrics={metrics} uplift={uplift} />
               <MetricsCards
                 metrics={metrics}
                 uplift={uplift}
@@ -242,7 +243,6 @@ export default function App() {
                 liveTick={liveTick}
                 lastUpdated={lastUpdated}
               />
-              <ExperimentComparisonPanel metrics={metrics} uplift={uplift} />
               <InterventionCatalogPanel />
             </div>
           )}

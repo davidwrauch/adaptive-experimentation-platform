@@ -26,16 +26,13 @@ export default function ExperimentComparisonPanel({ metrics, uplift }) {
       <div className="section-heading">
         <h2>
           <HelpLabel help="This comparison explains the experiment without requiring bandit or statistics knowledge: what is being tested, how each adaptive policy behaves, and which outcomes matter.">
-            Experiment Comparison
+            What strategies are being tested?
           </HelpLabel>
         </h2>
         <span className={`launch-badge launch-${slug(recommendation.state)}`}>{recommendation.state}</span>
       </div>
       <p className="panel-copy">
-        This experiment compares a traditional static A/B baseline against three adaptive policies
-        that learn from traffic over time. Northstar is testing lifecycle messaging strategies
-        across message timing, frequency,
-        length, personalization depth, urgency level, and recommendation style.
+        Northstar is comparing a traditional static A/B baseline against three adaptive policies that learn from traffic over time.
       </p>
       <div className="experiment-grounding-grid">
         {policies.map((policy) => {
@@ -43,10 +40,12 @@ export default function ExperimentComparisonPanel({ metrics, uplift }) {
           return (
             <article className="experiment-comparison-card" key={policy.policy}>
               <div>
-                <strong className="policy-label">{displayName(policy.policy)}</strong>
-                <HelpLabel help={strategyHelp(policy.policy)}>
-                  {policy.policy === "static" ? "Baseline / control strategy" : "Adaptive strategy"}
-                </HelpLabel>
+                <div className="strategy-card-heading">
+                  <strong className="policy-label">{displayName(policy.policy)}</strong>
+                  <HelpLabel help={strategyHelp(policy.policy)}>
+                    {policy.policy === "static" ? "Baseline / control strategy" : "Adaptive strategy"}
+                  </HelpLabel>
+                </div>
                 <p>{policyDescriptions[policy.policy]}</p>
               </div>
               <dl>

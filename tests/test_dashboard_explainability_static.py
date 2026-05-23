@@ -117,6 +117,7 @@ def test_overview_and_experimentation_have_distinct_purpose():
     )[0]
 
     assert "MetricsCards" in overview_block
+    assert overview_block.index("ExperimentComparisonPanel") < overview_block.index("MetricsCards")
     assert "ExperimentConfidencePanel" not in overview_block
     assert "LaunchIntelligencePanel" not in overview_block
     assert "How to read this dashboard" not in overview_block
@@ -649,16 +650,14 @@ def test_pm_experiment_comparison_and_adaptive_grounding_render():
     loading = read("frontend/src/components/LoadingState.jsx")
 
     assert "ExperimentComparisonPanel" in app
-    assert "Experiment Comparison" in panel
+    assert "What strategies are being tested?" in panel
+    assert "Northstar is comparing a traditional static A/B baseline against three adaptive policies that learn from traffic over time." in panel
     assert "Static A/B Control" in panel
     assert "Baseline / control strategy" in panel
     assert "Traditional equal-split experiment used as a baseline comparison." in panel
     assert "Aggressively explores new messaging strategies to maximize short-term engagement." in panel
     assert "Balances exploration and uncertainty using probabilistic reward estimates." in panel
     assert "Personalizes messaging decisions using user context and long-term behavioral patterns." in panel
-    assert "message timing, frequency" in panel
-    assert "urgency level" in panel
-    assert "recommendation style" in panel
     assert "Traditional A/B" in panel
     assert "Adaptive Optimization" in panel
     assert "Why adaptive experimentation?" in panel
@@ -669,6 +668,30 @@ def test_pm_experiment_comparison_and_adaptive_grounding_render():
     assert "What is this system?" in loading
     assert "Northstar" in loading
     assert "long-term fatigue" in loading
+
+
+def test_strategy_setup_precedes_pm_decision_and_has_no_jammed_labels():
+    app = read("frontend/src/App.jsx")
+    panel = read("frontend/src/components/ExperimentComparisonPanel.jsx")
+    styles = read("frontend/src/styles.css")
+    overview_block = app.split('{activeTab === "Overview" && (', 1)[1].split(
+        '{activeTab === "Experimentation" && (',
+        1,
+    )[0]
+
+    assert overview_block.index("ExperimentComparisonPanel") < overview_block.index("MetricsCards")
+    assert "strategy-card-heading" in panel
+    assert ".strategy-card-heading" in styles
+    for label in [
+        "Static A/B Control",
+        "Epsilon Greedy",
+        "Thompson Sampling",
+        "LinUCB",
+    ]:
+        assert label in panel
+    assert "LinUCBAdaptive" not in panel
+    assert "Epsilon GreedyAdaptive" not in panel
+    assert "Thompson SamplingAdaptive" not in panel
 
 
 def test_no_duplicate_ope_governance_panels_between_tabs():

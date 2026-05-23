@@ -864,6 +864,16 @@ h2 {
   padding: 13px;
 }
 
+.experiment-comparison-card {
+  padding: 12px;
+}
+
+.strategy-card-heading {
+  display: grid;
+  gap: 5px;
+  margin-bottom: 8px;
+}
+
 .intervention-card p,
 .message-style-card p,
 .selected-intervention-grid p,
@@ -876,14 +886,14 @@ h2 {
 .experiment-comparison-card p {
   color: #5d6d73;
   line-height: 1.4;
-  margin: 8px 0 12px;
+  margin: 0 0 10px;
 }
 
 .experiment-comparison-card dl,
 .trace-card dl {
   display: grid;
-  gap: 6px 10px;
-  grid-template-columns: 1.2fr 1fr;
+  gap: 5px 8px;
+  grid-template-columns: 1.15fr 1fr;
   margin: 0;
 }
 
@@ -894,12 +904,14 @@ h2 {
   color: #68777d;
   font-size: 0.78rem;
   font-weight: 850;
+  line-height: 1.25;
 }
 
 .experiment-comparison-card dd,
 .trace-card dd {
   margin: 0;
   text-align: right;
+  line-height: 1.25;
 }
 
 .ab-adaptive-comparison {
