@@ -89,6 +89,24 @@ export default function AboutPanel() {
           Udemy, Statsig, Optimizely, Eppo, and contextual bandit literature.
         </p>
       </article>
+
+      <footer className="creator-card">
+        <div>
+          <h3>Created by David Rauch</h3>
+          <p>
+            Product-focused data scientist focused on adaptive experimentation, causal inference,
+            marketplace systems, and decision intelligence.
+          </p>
+        </div>
+        <div className="project-links" aria-label="Project Links">
+          <a href="https://github.com/davidwrauch/adaptive-experimentation-platform" target="_blank" rel="noreferrer">
+            GitHub Repository
+          </a>
+          <a href="https://www.linkedin.com/in/davidwrauch/" target="_blank" rel="noreferrer">
+            LinkedIn Profile
+          </a>
+        </div>
+      </footer>
     </section>
   );
 }

@@ -126,6 +126,12 @@ def test_about_tab_explains_project_purpose_and_scope():
     assert "constrained AI messaging" in about
     assert "not just to maximize clicks" in about
     assert "safe, accountable product" in about
+    assert "Created by David Rauch" in about
+    assert "Product-focused data scientist focused on adaptive experimentation" in about
+    assert "https://www.linkedin.com/in/davidwrauch/" in about
+    assert "https://github.com/davidwrauch/adaptive-experimentation-platform" in about
+    assert "Project Links" in about
+    assert "target=\"_blank\"" in about
 
 
 def test_research_popovers_render_with_provenance_fields():
@@ -142,6 +148,21 @@ def test_research_popovers_render_with_provenance_fields():
     assert "target=\"_blank\"" in popover
     assert ".research-popover" in styles
     assert ".research-card" in styles
+    assert "getBoundingClientRect" in popover
+    assert "window.innerWidth" in popover
+    assert "window.innerHeight" in popover
+    assert "VIEWPORT_MARGIN = 16" in popover
+    assert "clamp(" in popover
+    assert "availableBelow" in popover
+    assert "availableAbove" in popover
+    assert "openAbove" in popover
+    assert "maxTop" in popover
+    assert "preferredTop" in popover
+    assert "position: fixed" in styles
+    assert "max-width: min(420px, calc(100vw - 32px))" in styles
+    assert "max-height: calc(100vh - 32px)" in styles
+    assert "overflow-y: auto" in styles
+    assert "z-index: 80" in styles
 
     for key in [
         "overview",
@@ -207,6 +228,22 @@ def test_research_references_include_expected_lineage_sources():
         "Arize",
     ]:
         assert source in refs
+
+
+def test_research_popover_repositions_and_closes_safely():
+    popover = read("frontend/src/components/ResearchPopover.jsx")
+    styles = read("frontend/src/styles.css")
+
+    assert "position: fixed" in styles
+    assert "position: absolute" not in styles.split(".research-card", 1)[1].split(".research-card strong", 1)[0]
+    assert "window.addEventListener(\"resize\", updatePosition)" in popover
+    assert "window.addEventListener(\"scroll\", updatePosition, true)" in popover
+    assert "document.addEventListener(\"pointerdown\", handlePointerDown)" in popover
+    assert "document.addEventListener(\"keydown\", handleKeyDown)" in popover
+    assert "event.key === \"Escape\"" in popover
+    assert "setIsOpen((value) => !value)" in popover
+    assert "aria-expanded={isOpen}" in popover
+    assert "display: none" not in styles.split(".research-card", 1)[1].split(".research-card strong", 1)[0]
 
 
 def test_overview_and_experimentation_have_distinct_purpose():
