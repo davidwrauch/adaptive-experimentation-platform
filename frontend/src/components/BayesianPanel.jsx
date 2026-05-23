@@ -1,5 +1,6 @@
 import React from "react";
 import { HelpLabel, WhyThisMatters } from "./InfoTooltip";
+import ResearchPopover from "./ResearchPopover";
 import { formatPolicyLabel } from "../interpretations";
 
 export default function BayesianPanel({ bayesian }) {
@@ -11,6 +12,7 @@ export default function BayesianPanel({ bayesian }) {
             Bayesian sequential results
           </HelpLabel>
         </h2>
+        <ResearchPopover referenceKey="bayesian" />
         <span className="status-pill status-canary">{bayesian?.recommendation ?? "continue"}</span>
       </div>
       <p className="panel-copy">

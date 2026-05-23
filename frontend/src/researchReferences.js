@@ -1,0 +1,80 @@
+export const researchReferences = {
+  overview: {
+    title: "Experiment Scorecard",
+    source: "Statsig Docs",
+    why: "Inspired the PM-facing experiment decision summary and launch-readiness framing.",
+    url: "https://docs.statsig.com/statsig-warehouse-native/features/interpreting-results/read-results",
+  },
+  confidence: {
+    title: "Stats Engine",
+    source: "Optimizely",
+    why: "Inspired visible confidence, uncertainty, and decision-readiness language.",
+    url: "https://www.optimizely.com/products/feature-experimentation/",
+  },
+  tradeoff: {
+    title: "Engineering for a Science-Centric Experimentation Platform",
+    source: "Netflix",
+    why: "Inspired the separation between short-term response and long-term product value.",
+    url: "https://arxiv.org/abs/1910.03878",
+  },
+  bayesian: {
+    title: "Sequential experimentation with Bayesian binomial estimates",
+    source: "SAGE / Statistical Methods in Medical Research",
+    why: "Inspired probability-best and uncertainty-aware sequential decision support.",
+    url: "https://journals.sagepub.com/doi/abs/10.1177/09622802231199160",
+  },
+  ope: {
+    title: "Doubly Robust Policy Evaluation and Learning",
+    source: "Microsoft Research",
+    why: "Inspired IPS, SNIPS, and doubly robust offline policy evaluation from logged traffic.",
+    url: "https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/double_robust.pdf",
+  },
+  uplift: {
+    title: "Uplift modeling and heterogeneous treatment effects",
+    source: "Journal of Marketing Analytics",
+    why: "Inspired the distinction between raw response and estimated causal incrementality.",
+    url: "https://journals.sagepub.com/doi/10.1177/10949968221111083",
+  },
+  exploration: {
+    title: "A Contextual-Bandit Approach to Personalized News Article Recommendation",
+    source: "Yahoo Research",
+    why: "Inspired governed exploration as a cost paid in user attention.",
+    url: "https://arxiv.org/abs/1003.0146",
+  },
+  governance: {
+    title: "Designing Experimentation Guardrails",
+    source: "Airbnb Engineering",
+    why: "Inspired guardrail and product-safety framing for experimentation operations.",
+    url: "https://www.engineering.fyi/article/designing-experimentation-guardrails",
+  },
+  rollout: {
+    title: "Progressive rollouts",
+    source: "LaunchDarkly Docs",
+    why: "Inspired staged, reversible launch controls with traffic caps and canaries.",
+    url: "https://launchdarkly.com/docs/home/releases/create-progressive-rollouts",
+  },
+  trace: {
+    title: "AI Risk Management Framework",
+    source: "NIST",
+    why: "Inspired traceability, auditability, and accountable decision records.",
+    url: "https://www.nist.gov/itl/ai-risk-management-framework",
+  },
+  live: {
+    title: "Data Science at Udemy: Agile Experimentation with Algorithms",
+    source: "Udemy Engineering",
+    why: "Inspired the event, reward, monitoring, and feedback-loop view of online learning systems.",
+    url: "https://arxiv.org/abs/1602.05142",
+  },
+  ai: {
+    title: "Practices for governing agentic AI systems",
+    source: "OpenAI",
+    why: "Inspired constrained, review-only AI assistance rather than autonomous messaging deployment.",
+    url: "https://openai.com/index/practices-for-governing-agentic-ai-systems/",
+  },
+  convergence: {
+    title: "ML observability",
+    source: "Arize",
+    why: "Inspired drift, stability, saturation, and monitoring concepts for adaptive systems.",
+    url: "https://arize.com/ml-observability/",
+  },
+};

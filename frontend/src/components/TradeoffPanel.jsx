@@ -1,5 +1,6 @@
 import React from "react";
 import { HelpLabel, WhyThisMatters } from "./InfoTooltip";
+import ResearchPopover from "./ResearchPopover";
 import { formatPolicyLabel, policyPerformanceInsight } from "../interpretations";
 
 export default function TradeoffPanel({ metrics }) {
@@ -21,6 +22,7 @@ export default function TradeoffPanel({ metrics }) {
             Short-term vs long-term reward
           </HelpLabel>
         </h2>
+        <ResearchPopover referenceKey="tradeoff" />
       </div>
       <p className="panel-copy">
         Compares click-like immediate reward with longer-term value after retention, fatigue,

@@ -76,6 +76,7 @@ def test_dashboard_uses_operational_tabs_for_major_workflows():
         "Risk & Governance",
         "Live Operations",
         "AI & Decision Support",
+        "About",
     ]:
         assert tab in app
 
@@ -87,6 +88,7 @@ def test_dashboard_uses_operational_tabs_for_major_workflows():
     assert "UpliftPanel" in app
     assert "PolicyLifecyclePanel" in app
     assert "DecisionLogPanel" in app
+    assert "AboutPanel" in app
     assert ".tab-nav" in styles
     assert ".tab-panel" in styles
 
@@ -103,6 +105,108 @@ def test_tabs_are_audience_oriented_and_lazy_loaded():
     assert 'includeDetails: true, includeUplift: true' in app
     assert 'activeTab === "Live Operations"' in app
     assert "includeRecent: true" in app
+    assert 'activeTab === "About"' in app
+
+
+def test_about_tab_explains_project_purpose_and_scope():
+    app = read("frontend/src/App.jsx")
+    about = read("frontend/src/components/AboutPanel.jsx")
+
+    assert "About" in app
+    assert "Project purpose" in about
+    assert "production-style adaptive experimentation and causal decisioning platform" in about
+    assert "Why it is intentionally holistic" in about
+    assert "What this is" in about
+    assert "What this is not" in about
+    assert "a deployed prototype" in about
+    assert "a fully scaled enterprise experimentation platform" in about
+    assert "FastAPI" in about
+    assert "React/Vite" in about
+    assert "contextual bandits" in about
+    assert "constrained AI messaging" in about
+    assert "not just to maximize clicks" in about
+    assert "safe, accountable product" in about
+
+
+def test_research_popovers_render_with_provenance_fields():
+    popover = read("frontend/src/components/ResearchPopover.jsx")
+    refs = read("frontend/src/researchReferences.js")
+    styles = read("frontend/src/styles.css")
+
+    assert "export default function ResearchPopover" in popover
+    assert "research-badge" in popover
+    assert "Research" in popover
+    assert "Source:" in popover
+    assert "Why it matters:" in popover
+    assert "Open reference" in popover
+    assert "target=\"_blank\"" in popover
+    assert ".research-popover" in styles
+    assert ".research-card" in styles
+
+    for key in [
+        "overview",
+        "confidence",
+        "tradeoff",
+        "bayesian",
+        "ope",
+        "uplift",
+        "exploration",
+        "governance",
+        "rollout",
+        "trace",
+        "live",
+        "ai",
+        "convergence",
+    ]:
+        assert f"{key}:" in refs
+
+    for field in ["title:", "source:", "why:", "url:"]:
+        assert field in refs
+
+
+def test_major_dashboard_sections_have_research_links():
+    expected = {
+        "frontend/src/components/ExperimentComparisonPanel.jsx": 'referenceKey="overview"',
+        "frontend/src/components/MetricsCards.jsx": 'referenceKey="overview"',
+        "frontend/src/components/ExperimentConfidencePanel.jsx": 'referenceKey="confidence"',
+        "frontend/src/components/TradeoffPanel.jsx": 'referenceKey="tradeoff"',
+        "frontend/src/components/BayesianPanel.jsx": 'referenceKey="bayesian"',
+        "frontend/src/components/OpePanel.jsx": 'referenceKey="ope"',
+        "frontend/src/components/UpliftPanel.jsx": 'referenceKey="uplift"',
+        "frontend/src/components/ExplorationBudgetPanel.jsx": 'referenceKey="exploration"',
+        "frontend/src/components/ObservabilityPanel.jsx": 'referenceKey="governance"',
+        "frontend/src/components/GovernancePanel.jsx": 'referenceKey="governance"',
+        "frontend/src/components/RolloutControlsPanel.jsx": 'referenceKey="rollout"',
+        "frontend/src/components/DecisionTracePanel.jsx": 'referenceKey="trace"',
+        "frontend/src/components/SystemFlowPanel.jsx": 'referenceKey="live"',
+        "frontend/src/components/ConvergenceMonitoringPanel.jsx": 'referenceKey="convergence"',
+        "frontend/src/components/AssignmentPanel.jsx": 'referenceKey="ai"',
+        "frontend/src/components/MessagingGenerationPanel.jsx": 'referenceKey="ai"',
+    }
+
+    for path, marker in expected.items():
+        content = read(path)
+        assert "ResearchPopover" in content, path
+        assert marker in content, path
+
+
+def test_research_references_include_expected_lineage_sources():
+    refs = read("frontend/src/researchReferences.js")
+
+    for source in [
+        "Statsig",
+        "Optimizely",
+        "Netflix",
+        "Microsoft Research",
+        "Yahoo Research",
+        "Airbnb Engineering",
+        "LaunchDarkly",
+        "NIST",
+        "Udemy Engineering",
+        "OpenAI",
+        "Arize",
+    ]:
+        assert source in refs
 
 
 def test_overview_and_experimentation_have_distinct_purpose():

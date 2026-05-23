@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { fetchPolicyControls, pausePolicy, resumePolicy, updatePolicyControl } from "../api";
 import { HelpLabel, WhyThisMatters } from "./InfoTooltip";
+import ResearchPopover from "./ResearchPopover";
 import { formatPolicyLabel } from "../interpretations";
 
 export default function RolloutControlsPanel({ rollout, onChanged }) {
@@ -52,6 +53,7 @@ export default function RolloutControlsPanel({ rollout, onChanged }) {
         <span className={`status-pill status-${rollout?.rollback?.recommendation === "rollback" ? "pause" : "canary"}`}>
           {formatRolloutRecommendation(rollout?.rollback?.recommendation)}
         </span>
+        <ResearchPopover referenceKey="rollout" />
       </div>
       <p className="panel-copy">
         Use these controls to slow, pause, or safely expand a policy before full deployment.

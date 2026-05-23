@@ -1,5 +1,6 @@
 import React from "react";
 import { HelpLabel, WhyThisMatters } from "./InfoTooltip";
+import ResearchPopover from "./ResearchPopover";
 import { formatPolicyLabel, governanceExplanation, formatGovernanceStatus } from "../interpretations";
 
 export default function GovernancePanel({ metrics }) {
@@ -11,6 +12,7 @@ export default function GovernancePanel({ metrics }) {
             Governance recommendations
           </HelpLabel>
         </h2>
+        <ResearchPopover referenceKey="governance" />
       </div>
       <p className="panel-copy">
         Governance translates reward, uncertainty, traffic share, overlap, fatigue, and unsubscribe

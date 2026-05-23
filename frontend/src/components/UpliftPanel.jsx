@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { fetchUpliftMetrics } from "../api";
 import { HelpLabel, WhyThisMatters } from "./InfoTooltip";
+import ResearchPopover from "./ResearchPopover";
 import { formatPolicyLabel } from "../interpretations";
 
 export default function UpliftPanel() {
@@ -22,6 +23,7 @@ export default function UpliftPanel() {
             Incrementality & Uplift
           </HelpLabel>
         </h2>
+        <ResearchPopover referenceKey="uplift" />
       </div>
       <p className="panel-copy">
         Raw reward shows what happened. Uplift estimates what changed because a policy intervened,

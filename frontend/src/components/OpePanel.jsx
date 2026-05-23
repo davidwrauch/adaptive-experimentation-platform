@@ -1,5 +1,6 @@
 import React from "react";
 import { HelpLabel, WhyThisMatters } from "./InfoTooltip";
+import ResearchPopover from "./ResearchPopover";
 import { formatPolicyLabel, uncertaintyInsight } from "../interpretations";
 
 export default function OpePanel({ metrics }) {
@@ -11,6 +12,7 @@ export default function OpePanel({ metrics }) {
             Off-policy evaluation
           </HelpLabel>
         </h2>
+        <ResearchPopover referenceKey="ope" />
       </div>
       <p className="panel-copy">
         OPE estimates how each policy would have performed using logged traffic. It supports

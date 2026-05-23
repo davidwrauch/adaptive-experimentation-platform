@@ -6,6 +6,7 @@ import {
   fetchUpliftMetrics,
   streamDemoStep,
 } from "./api";
+import AboutPanel from "./components/AboutPanel";
 import AssignmentPanel from "./components/AssignmentPanel";
 import BayesianPanel from "./components/BayesianPanel";
 import ConvergenceMonitoringPanel from "./components/ConvergenceMonitoringPanel";
@@ -46,6 +47,7 @@ const TABS = [
   "Risk & Governance",
   "Live Operations",
   "AI & Decision Support",
+  "About",
 ];
 const initialDashboardCache = readDashboardCache();
 
@@ -151,6 +153,9 @@ export default function App() {
     if (activeTab === "AI & Decision Support" && !hydratedTabs["AI & Decision Support"]) {
       setHydratedTabs((current) => ({ ...current, "AI & Decision Support": true }));
     }
+    if (activeTab === "About" && !hydratedTabs.About) {
+      setHydratedTabs((current) => ({ ...current, About: true }));
+    }
   }, [activeTab, hydratedTabs, refresh]);
 
   useEffect(() => {
@@ -253,6 +258,7 @@ export default function App() {
                 title="Experimentation"
                 description="Compare immediate lift, long-term value, offline estimates, Bayesian confidence, and exploration budgets."
                 audience="Audience: experimentation scientists, analysts, and advanced PMs. Purpose: Why is this happening?"
+                researchKey="confidence"
               >
                 <TradeoffPanel metrics={metrics} />
                 <ExperimentConfidencePanel metrics={metrics} />
@@ -270,6 +276,7 @@ export default function App() {
                 title="Risk & Governance"
                 description="Translate evidence, uncertainty, fatigue, and risk signals into rollout actions."
                 audience="Audience: governance, trust and safety, and launch oversight. Purpose: Is this safe to deploy?"
+                researchKey="governance"
               >
                 <ObservabilityPanel observability={metrics.observability} />
                 <GovernancePanel metrics={metrics} />
@@ -288,6 +295,7 @@ export default function App() {
                 title="Live Operations"
                 description="Control live simulation and replay, monitor transport status, and inspect compact audit logs."
                 audience="Audience: ML and platform engineers. Purpose: What is the system doing right now?"
+                researchKey="live"
               >
                 <LiveSimulationPanel
                   liveMode={liveMode}
@@ -312,11 +320,18 @@ export default function App() {
                 title="AI & Decision Support"
                 description="This tab explains how the system chooses and reviews specific message interventions."
                 audience="Audience: ML scientists and adaptive systems teams. Purpose: How is the system making decisions?"
+                researchKey="ai"
               >
                 <AssignmentPanel />
                 <MessageExperimentationPanel />
                 <MessagingGenerationPanel />
               </DashboardSection>
+            </div>
+          )}
+
+          {activeTab === "About" && (
+            <div className="tab-panel">
+              <AboutPanel />
             </div>
           )}
         </>

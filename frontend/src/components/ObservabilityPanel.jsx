@@ -1,5 +1,6 @@
 import React from "react";
 import { HelpLabel, WhyThisMatters } from "./InfoTooltip";
+import ResearchPopover from "./ResearchPopover";
 import { severityInterpretation } from "../interpretations";
 
 export default function ObservabilityPanel({ observability }) {
@@ -16,6 +17,7 @@ export default function ObservabilityPanel({ observability }) {
             Experiment observability
           </HelpLabel>
         </h2>
+        <ResearchPopover referenceKey="governance" />
         <span className={healthScore >= 80 ? "health-score good" : "health-score watch"}>
           Health {healthScore}
         </span>

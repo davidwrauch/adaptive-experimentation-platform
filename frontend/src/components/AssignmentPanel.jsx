@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { recommendAssignment, sampleUserContext } from "../api";
 import { HelpLabel, WhyThisMatters } from "./InfoTooltip";
+import ResearchPopover from "./ResearchPopover";
 import { formatPolicyLabel } from "../interpretations";
 
 export default function AssignmentPanel() {
@@ -35,6 +36,7 @@ export default function AssignmentPanel() {
             AI-assisted assignment scaffold
           </HelpLabel>
         </h2>
+        <ResearchPopover referenceKey="ai" />
         <div className="button-row">
           <button onClick={() => changeProfile("mature")}>Mature profile</button>
           <button onClick={() => changeProfile("risky")}>High-risk profile</button>

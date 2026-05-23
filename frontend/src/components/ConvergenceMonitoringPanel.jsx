@@ -1,5 +1,6 @@
 import React from "react";
 import { HelpLabel, WhyThisMatters } from "./InfoTooltip";
+import ResearchPopover from "./ResearchPopover";
 import { convergenceStatus } from "../interpretations";
 
 export default function ConvergenceMonitoringPanel({ metrics }) {
@@ -19,6 +20,7 @@ export default function ConvergenceMonitoringPanel({ metrics }) {
             Convergence and instability monitoring
           </HelpLabel>
         </h2>
+        <ResearchPopover referenceKey="convergence" />
         <span className={`convergence-badge convergence-${slug(status.status)}`}>{status.status}</span>
       </div>
       <p className="panel-copy">{status.reason}</p>

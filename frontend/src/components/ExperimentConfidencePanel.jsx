@@ -1,6 +1,7 @@
 import React from "react";
 import { formatPolicyLabel, statisticalPosture } from "../interpretations";
 import { HelpLabel, WhyThisMatters } from "./InfoTooltip";
+import ResearchPopover from "./ResearchPopover";
 
 export default function ExperimentConfidencePanel({ metrics }) {
   const baseline = (metrics.policies ?? []).find((policy) => policy.policy === "static") ?? metrics.policies?.[0];
@@ -19,6 +20,7 @@ export default function ExperimentConfidencePanel({ metrics }) {
             Experiment Confidence
           </HelpLabel>
         </h2>
+        <ResearchPopover referenceKey="confidence" />
       </div>
       <WhyThisMatters>
         A policy can look like a winner without enough power, or it can win short-term clicks while

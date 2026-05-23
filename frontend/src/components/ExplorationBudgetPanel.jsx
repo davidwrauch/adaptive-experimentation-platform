@@ -1,5 +1,6 @@
 import React from "react";
 import { HelpLabel, WhyThisMatters } from "./InfoTooltip";
+import ResearchPopover from "./ResearchPopover";
 import { severityInterpretation } from "../interpretations";
 
 export default function ExplorationBudgetPanel({ exploration }) {
@@ -11,6 +12,7 @@ export default function ExplorationBudgetPanel({ exploration }) {
             Exploration budget
           </HelpLabel>
         </h2>
+        <ResearchPopover referenceKey="exploration" />
       </div>
       <p className="panel-copy">
         Exploration should increase when uncertainty is high, but shrink for fatigued or

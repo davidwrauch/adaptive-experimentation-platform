@@ -1,5 +1,6 @@
 import React from "react";
 import { HelpLabel } from "./InfoTooltip";
+import ResearchPopover from "./ResearchPopover";
 import { formatPolicyLabel, launchRecommendation, policyPerformanceInsight } from "../interpretations";
 
 export default function MetricsCards({ metrics, uplift, liveMode = false, liveTick = {}, lastUpdated = null }) {
@@ -33,6 +34,7 @@ export default function MetricsCards({ metrics, uplift, liveMode = false, liveTi
       <div className="pm-decision-card">
         <div>
           <p className="eyebrow">PM Decision Card</p>
+          <ResearchPopover referenceKey="overview" />
           <h2>Did it work, and should we expand?</h2>
           <p>
             A policy can appear statistically promising while governance still recommends caution.

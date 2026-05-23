@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { generateMessaging, sampleUserContext } from "../api";
 import { HelpLabel, WhyThisMatters } from "./InfoTooltip";
+import ResearchPopover from "./ResearchPopover";
 
 export default function MessagingGenerationPanel() {
   const [generation, setGeneration] = useState(null);
@@ -27,6 +28,7 @@ export default function MessagingGenerationPanel() {
             Constrained messaging generation
           </HelpLabel>
         </h2>
+        <ResearchPopover referenceKey="ai" />
         <button onClick={handleGenerate}>{loading ? "Generating..." : "Generate"}</button>
       </div>
       <p className="panel-copy">

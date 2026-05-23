@@ -1,5 +1,6 @@
 import React from "react";
 import { HelpLabel, WhyThisMatters } from "./InfoTooltip";
+import ResearchPopover from "./ResearchPopover";
 
 const flow = [
   "User context",
@@ -22,6 +23,7 @@ export default function SystemFlowPanel() {
             System Flow
           </HelpLabel>
         </h2>
+        <ResearchPopover referenceKey="live" />
       </div>
       <p className="panel-copy">
         Northstar decisions move through a logged feedback loop: context creates eligible

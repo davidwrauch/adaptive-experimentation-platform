@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { HelpLabel, WhyThisMatters } from "./InfoTooltip";
+import ResearchPopover from "./ResearchPopover";
 import { convergenceStatus, formatPolicyLabel, launchRecommendation } from "../interpretations";
 
 const interventionMessages = {
@@ -35,6 +36,7 @@ export default function DecisionTracePanel({ events, metrics, uplift }) {
     return (
       <section className="panel">
         <h2>Decision Trace</h2>
+        <ResearchPopover referenceKey="trace" />
         <div className="empty-inline">No recent decisions yet. Start live simulation to create traceable events.</div>
       </section>
     );
@@ -48,6 +50,7 @@ export default function DecisionTracePanel({ events, metrics, uplift }) {
             Decision Trace
           </HelpLabel>
         </h2>
+        <ResearchPopover referenceKey="trace" />
         <span className={`status-pill status-${policyMetric?.governance?.status ?? "canary"}`}>
           {policyMetric?.governance?.status ?? "logged"}
         </span>

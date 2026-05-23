@@ -1,5 +1,6 @@
 import React from "react";
 import { HelpLabel } from "./InfoTooltip";
+import ResearchPopover from "./ResearchPopover";
 
 const policyDescriptions = {
   static: {
@@ -35,6 +36,7 @@ export default function ExperimentComparisonPanel() {
             What strategies are being tested?
           </HelpLabel>
         </h2>
+        <ResearchPopover referenceKey="overview" />
       </div>
       <p className="panel-copy">
         Northstar is comparing a traditional static A/B baseline against three adaptive policies that learn from traffic over time.

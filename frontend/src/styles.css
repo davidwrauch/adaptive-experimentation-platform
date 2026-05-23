@@ -255,7 +255,7 @@ button:disabled {
   border-radius: 8px;
   display: grid;
   gap: 6px;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   margin: 0 0 18px;
   padding: 6px;
   position: sticky;
@@ -1152,6 +1152,75 @@ h2 {
   margin-bottom: 16px;
 }
 
+.compact-heading {
+  justify-content: flex-start;
+  margin-bottom: 6px;
+}
+
+.research-popover {
+  display: inline-flex;
+  position: relative;
+}
+
+.research-badge {
+  background: #eef5f1;
+  border: 1px solid #cfe0d8;
+  border-radius: 999px;
+  color: #24443c;
+  font-size: 0.72rem;
+  font-weight: 900;
+  padding: 0.32rem 0.55rem;
+}
+
+.research-badge:hover {
+  background: #dfeee7;
+  color: #172026;
+}
+
+.research-card {
+  background: #172026;
+  border-radius: 8px;
+  box-shadow: 0 12px 30px rgba(23, 32, 38, 0.24);
+  color: white;
+  display: none;
+  font-size: 0.84rem;
+  left: auto;
+  line-height: 1.4;
+  max-width: min(360px, 82vw);
+  padding: 12px;
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  width: 340px;
+  z-index: 30;
+}
+
+.research-card strong,
+.research-card span,
+.research-card a {
+  display: block;
+}
+
+.research-card span {
+  color: #c8d5d8;
+  margin-top: 5px;
+}
+
+.research-card p {
+  color: #eef5f1;
+  margin: 8px 0;
+}
+
+.research-card a {
+  color: #9bd0c6;
+  font-weight: 850;
+}
+
+.research-popover:hover .research-card,
+.research-popover:focus-within .research-card {
+  display: block;
+}
+
 .live-panel {
   align-items: center;
   display: grid;
@@ -1884,6 +1953,44 @@ small {
   color: #8a2e2e;
 }
 
+.about-panel h3 {
+  margin: 0 0 8px;
+}
+
+.about-panel p {
+  color: #4c5d63;
+  line-height: 1.48;
+  margin: 0;
+}
+
+.about-grid,
+.about-two-column {
+  display: grid;
+  gap: 12px;
+}
+
+.about-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.about-two-column {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 12px;
+}
+
+.about-grid article,
+.about-two-column article,
+.about-stack {
+  background: #fbfcfb;
+  border: 1px solid #ecf0ee;
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.about-stack {
+  margin-top: 12px;
+}
+
 @media (max-width: 760px) {
   .topbar,
   .section-heading,
@@ -1893,6 +2000,8 @@ small {
   }
 
   .metrics-grid,
+  .about-grid,
+  .about-two-column,
   .pm-decision-card,
   .pm-decision-grid,
   .metric-priority-panel,

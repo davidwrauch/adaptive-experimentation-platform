@@ -1,5 +1,6 @@
 import React from "react";
 import { HelpLabel, WhyThisMatters } from "./InfoTooltip";
+import ResearchPopover from "./ResearchPopover";
 
 const styles = [
   {
@@ -34,6 +35,7 @@ export default function MessageExperimentationPanel() {
             Message experimentation
           </HelpLabel>
         </h2>
+        <ResearchPopover referenceKey="ai" />
         <span className="status-pill status-human_review">Review-only</span>
       </div>
       <p className="panel-copy">
